@@ -64,7 +64,7 @@ export interface TechnologiesContent {
   hidden?: boolean; 
   description?: string;
   techCategories?: string[];
-  tech?: { imageUrl: string; name: string }[];
+  tech?: { imageUrl: string; name: string; techCategory: string }[];
 }
 
 export interface IndustriesContent {
@@ -87,6 +87,7 @@ export interface FooterContent {
   address?: string;
   companyEmail?: string;
   text?: string;
+  text2?: string;
   socialLinks?: { iconUrl: string; link: string }[];
 }
 
@@ -135,7 +136,9 @@ export interface JobOpeningContent {
   cards?: {
     title: string;
     experience: string;
+    experienceValue: string;
     position: string;
+    positionValue: string;
     viewDetailsButton: string;
     requiredSkillsTitle?: string;
     requiredSkills?: string[];

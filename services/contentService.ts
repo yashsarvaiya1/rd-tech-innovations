@@ -38,6 +38,7 @@ export class ContentService {
         updatedAt: new Date().toISOString()
       };
       
+      // Use setDoc with merge to handle non-existent documents
       await setDoc(docRef, updatedContent, { merge: true });
       
       console.log(`Content updated successfully for ${sectionId}`);
@@ -47,7 +48,7 @@ export class ContentService {
     }
   }
 
-  // Update specific field within a section
+  // COMPLETELY FIXED: Update specific field within a section
   static async updateSectionField(
     sectionId: string, 
     sectionKey: string, 
@@ -59,10 +60,13 @@ export class ContentService {
       
       const docRef = doc(rdTechDb, collections.content, sectionId);
       
-      await updateDoc(docRef, {
+      // Always use setDoc with merge to handle missing documents
+      const updateData = {
         [`${sectionKey}.${field}`]: value,
         updatedAt: new Date().toISOString()
-      });
+      };
+      
+      await setDoc(docRef, updateData, { merge: true });
       
       console.log(`Field ${field} updated successfully`);
     } catch (error) {
@@ -71,16 +75,36 @@ export class ContentService {
     }
   }
 
-  // Toggle section visibility
+  // COMPLETELY FIXED: Toggle section visibility
   static async toggleSectionVisibility(sectionId: string, sectionKey: string): Promise<boolean> {
     try {
-      const content = await this.fetchSectionContent(sectionId);
-      const currentSection = content?.[sectionKey as keyof Content] as any;
-      const newHiddenState = !currentSection?.hidden;
+      console.log(`Toggling visibility for section: ${sectionId}`);
       
-      await this.updateSectionField(sectionId, sectionKey, 'hidden', newHiddenState);
+      const docRef = doc(rdTechDb, collections.content, sectionId);
+      const docSnap = await getDoc(docRef);
       
+      let currentHiddenState = false;
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        // Access the section data correctly
+        const sectionData = data[sectionKey] as any;
+        currentHiddenState = sectionData?.hidden || false;
+      }
+      
+      const newHiddenState = !currentHiddenState;
+      
+      // Use setDoc with merge to ensure document exists
+      const updateData = {
+        [`${sectionKey}.hidden`]: newHiddenState,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await setDoc(docRef, updateData, { merge: true });
+      
+      console.log(`Section ${sectionId} visibility toggled to: ${newHiddenState ? 'hidden' : 'visible'}`);
       return newHiddenState;
+      
     } catch (error) {
       console.error(`Error toggling visibility for ${sectionId}:`, error);
       throw new FirebaseError(`Failed to toggle section visibility`);
@@ -155,5 +179,67 @@ export class ContentService {
       console.error(`Error removing array item at index ${index}:`, error);
       throw new FirebaseError(`Failed to remove array item`);
     }
+  }
+
+  // Get available industry options
+  static async getIndustryOptions(): Promise<string[]> {
+    try {
+      const content = await this.fetchSectionContent('industries');
+      const industriesSection = content?.industries;
+      return industriesSection?.industries?.map(industry => industry.name) || [];
+    } catch (error) {
+      console.error("Error fetching industry options:", error);
+      return [];
+    }
+  }
+
+  // Get available technology options
+  static async getTechnologyOptions(): Promise<string[]> {
+    try {
+      const content = await this.fetchSectionContent('technologies');
+      const techSection = content?.technologies;
+      return techSection?.tech?.map(tech => tech.name) || [];
+    } catch (error) {
+      console.error("Error fetching technology options:", error);
+      return [];
+    }
+  }
+
+  // Get available tech category options
+  static async getTechCategoryOptions(): Promise<string[]> {
+    try {
+      const content = await this.fetchSectionContent('technologies');
+      const techSection = content?.technologies;
+      return techSection?.techCategories || [];
+    } catch (error) {
+      console.error("Error fetching tech category options:", error);
+      return [];
+    }
+  }
+
+  // FIXED: Use the hook for dynamic routes
+  static getAvailableRoutes(): {path: string, displayName: string}[] {
+    // These are detected dynamically by the hook
+    // This is a fallback for server-side usage
+    return [
+      { path: '/', displayName: 'Home' },
+      { path: '/about', displayName: 'About' },
+      { path: '/career', displayName: 'Career' },
+      { path: '/contact', displayName: 'Contact' }
+    ];
+  }
+
+  // Get public routes for navbar (this will be used by public-facing components)
+  static getPublicRoutes(customNames?: string[]): {path: string, displayName: string}[] {
+    const routes = this.getAvailableRoutes();
+    
+    if (customNames && customNames.length === routes.length) {
+      return routes.map((route, index) => ({
+        ...route,
+        displayName: customNames[index] || route.displayName
+      }));
+    }
+    
+    return routes;
   }
 }
