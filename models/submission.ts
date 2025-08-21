@@ -4,8 +4,7 @@ export interface EnquirySubmission {
   email: string;
   number: string;
   requirement: string;
-  status: "completed" | "lost";
-  submissionDate: string;
+  status: string;
 }
 
 export interface CareerSubmission {
@@ -19,8 +18,7 @@ export interface CareerSubmission {
   about: string;
   resumeUrl: string;
   positions: string[];
-  status: "completed" | "lost";
-  submissionDate: string;
+  status: string;
 }
 
 export type Submission = EnquirySubmission | CareerSubmission;
