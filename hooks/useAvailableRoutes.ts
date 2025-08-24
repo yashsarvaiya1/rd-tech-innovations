@@ -11,9 +11,9 @@ interface RouteInfo {
 const APP_ROUTES: RouteInfo[] = [
   { path: '/', displayName: 'Home' },
   // Add routes as you create them:
-  // { path: '/about', displayName: 'About' },
-  // { path: '/career', displayName: 'Career' },
-  // { path: '/contact', displayName: 'Contact' },
+  { path: '/about', displayName: 'About' },
+  { path: '/career', displayName: 'Career' },
+  {path: '/projects', displayName: 'Projects' },
 ];
 
 export function useAvailableRoutes() {
@@ -24,7 +24,8 @@ export function useAvailableRoutes() {
     // Filter out admin and auth routes (if any accidentally added)
     const publicRoutes = APP_ROUTES.filter(route => 
       !route.path.startsWith('/admin') && 
-      !route.path.startsWith('/auth')
+      !route.path.startsWith('/auth') && 
+      !route.path.startsWith('/contact')
     );
     
     setRoutes(publicRoutes);

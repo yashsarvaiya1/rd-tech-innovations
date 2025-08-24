@@ -5,7 +5,7 @@ import { FirebaseError } from "./base";
 
 export class ContentService {
   
-  // Fetch specific section content
+  // FIXED: Fetch and properly structure section content based on your Firestore document
   static async fetchSectionContent(sectionId: string): Promise<Content | null> {
     try {
       console.log(`Fetching content for section: ${sectionId}`);
@@ -14,11 +14,35 @@ export class ContentService {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        return { id: sectionId, ...docSnap.data() } as Content;
+        const rawData = docSnap.data();
+        
+        // Create structured data based on your models
+        const structuredData: any = { id: sectionId };
+        
+        // Build the nested structure your UI expects
+        const sectionData: any = {};
+        
+        // Map Firestore fields to nested structure
+        Object.keys(rawData).forEach(key => {
+          if (key.startsWith(`${sectionId}.`)) {
+            // Handle nested fields like "navbar.title" -> { navbar: { title: ... } }
+            const fieldName = key.replace(`${sectionId}.`, '');
+            sectionData[fieldName] = rawData[key];
+          } else if (!['id', 'updatedAt'].includes(key)) {
+            // Handle direct fields like "title", "description", "hidden"
+            sectionData[key] = rawData[key];
+          }
+        });
+        
+        // Structure it according to your Content model
+        structuredData[sectionId] = sectionData;
+        
+        console.log(`Structured data for ${sectionId}:`, structuredData);
+        return structuredData as Content;
       }
       
-      // Return empty content structure if document doesn't exist
-      return { id: sectionId };
+      // Return empty structure if document doesn't exist
+      return { id: sectionId, [sectionId]: {} } as Content;
       
     } catch (error) {
       console.error(`Error fetching content for ${sectionId}:`, error);
@@ -38,7 +62,6 @@ export class ContentService {
         updatedAt: new Date().toISOString()
       };
       
-      // Use setDoc with merge to handle non-existent documents
       await setDoc(docRef, updatedContent, { merge: true });
       
       console.log(`Content updated successfully for ${sectionId}`);
@@ -48,7 +71,7 @@ export class ContentService {
     }
   }
 
-  // COMPLETELY FIXED: Update specific field within a section
+  // FIXED: Update field using dot notation for nested fields
   static async updateSectionField(
     sectionId: string, 
     sectionKey: string, 
@@ -60,7 +83,7 @@ export class ContentService {
       
       const docRef = doc(rdTechDb, collections.content, sectionId);
       
-      // Always use setDoc with merge to handle missing documents
+      // Use dot notation for nested fields (navbar.title, navbar.logoUrl, etc.)
       const updateData = {
         [`${sectionKey}.${field}`]: value,
         updatedAt: new Date().toISOString()
@@ -75,7 +98,7 @@ export class ContentService {
     }
   }
 
-  // COMPLETELY FIXED: Toggle section visibility
+  // FIXED: Toggle visibility using dot notation
   static async toggleSectionVisibility(sectionId: string, sectionKey: string): Promise<boolean> {
     try {
       console.log(`Toggling visibility for section: ${sectionId}`);
@@ -87,16 +110,15 @@ export class ContentService {
       
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // Access the section data correctly
-        const sectionData = data[sectionKey] as any;
-        currentHiddenState = sectionData?.hidden || false;
+        // Check both direct "hidden" field and nested "sectionId.hidden"
+        currentHiddenState = data.hidden || data[`${sectionId}.hidden`] || false;
       }
       
       const newHiddenState = !currentHiddenState;
       
-      // Use setDoc with merge to ensure document exists
+      // Update the hidden field (store as direct field, not nested)
       const updateData = {
-        [`${sectionKey}.hidden`]: newHiddenState,
+        hidden: newHiddenState,
         updatedAt: new Date().toISOString()
       };
       
@@ -111,7 +133,7 @@ export class ContentService {
     }
   }
 
-  // Add item to array field (for cards, tags, etc.)
+  // Add item to array field
   static async addArrayItem(
     sectionId: string, 
     sectionKey: string, 
@@ -217,19 +239,15 @@ export class ContentService {
     }
   }
 
-  // FIXED: Use the hook for dynamic routes
+  // Get available routes
   static getAvailableRoutes(): {path: string, displayName: string}[] {
-    // These are detected dynamically by the hook
-    // This is a fallback for server-side usage
     return [
-      { path: '/', displayName: 'Home' },
-      { path: '/about', displayName: 'About' },
-      { path: '/career', displayName: 'Career' },
-      { path: '/contact', displayName: 'Contact' }
+      { path: '/', displayName: 'Home' }
+      // Add more routes as you create them
     ];
   }
 
-  // Get public routes for navbar (this will be used by public-facing components)
+  // Get public routes for navbar
   static getPublicRoutes(customNames?: string[]): {path: string, displayName: string}[] {
     const routes = this.getAvailableRoutes();
     

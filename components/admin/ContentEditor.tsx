@@ -46,7 +46,7 @@ export default function ContentEditor() {
     content, 
     updateContentField,
     toggleSectionVisibility,
-    fetchContent,  // IMPORTANT: Use this to refetch after save
+    fetchContent,
     loading, 
     error, 
     clearError 
@@ -70,6 +70,7 @@ export default function ContentEditor() {
     if (content && selectedSection) {
       const sectionKey = selectedSection as keyof Omit<Content, "id" | "seoTitle" | "seoDescription">;
       const sectionContent = content[sectionKey] || {};
+      
       setLocalContent(sectionContent as Record<string, any>);
       setHasChanges(false);
     }
@@ -107,7 +108,6 @@ export default function ContentEditor() {
     setHasChanges(true);
   };
 
-  // FIXED: Save and then refetch content
   const handleSave = async () => {
     if (!hasChanges) return;
     
@@ -116,14 +116,12 @@ export default function ContentEditor() {
     setSuccess("");
 
     try {
-      // Save each field that has changed
       for (const [field, value] of Object.entries(localContent)) {
         if (field !== 'hidden') {
           await updateContentField(selectedSection, selectedSection, field, value);
         }
       }
       
-      // IMPORTANT: Refetch content from Firestore after successful save
       await fetchContent(selectedSection);
       
       setHasChanges(false);
@@ -141,7 +139,6 @@ export default function ContentEditor() {
       clearError();
       await toggleSectionVisibility(selectedSection, selectedSection);
       
-      // IMPORTANT: Refetch content after toggling visibility
       await fetchContent(selectedSection);
       
       setSuccess(`Section ${localContent.hidden ? 'shown' : 'hidden'} successfully!`);
@@ -176,16 +173,31 @@ export default function ContentEditor() {
         if (field === 'tags') return { text1: '', text2: '' };
         break;
       case 'serviceOptions':
-        if (field === 'cards') return { imageUrl: '', text: '', contactButton: 'Contact Us' };
+        if (field === 'cards') return { 
+          imageUrl: '', 
+          text: '', 
+          description: '',
+          contactButton: 'Contact Us' 
+        };
         break;
       case 'projects':
         if (field === 'cards') return { 
-          title: '', about: '', industryTags: [], techTags: [], links: [], imageUrl: '' 
+          title: '', 
+          about: '', 
+          industryTags: [], 
+          techTags: [], 
+          links: [],  // Will be array of { name: '', url: '' }
+          imageUrl: '' 
         };
         break;
       case 'testimonials':
         if (field === 'cards') return {
-          name: '', designation: '', companyName: '', imageUrl: '', socialLinks: [], message: ''
+          name: '', 
+          designation: '', 
+          companyName: '', 
+          imageUrl: '', 
+          socialLinks: [],  // Will be array of { iconUrl: '', name: '', link: '' }
+          message: ''
         };
         break;
       case 'technologies':
@@ -210,7 +222,7 @@ export default function ContentEditor() {
         };
         break;
       case 'footer':
-        if (field === 'socialLinks') return { iconUrl: '', link: '' };
+        if (field === 'socialLinks') return { iconUrl: '', name: '', link: '' };
         break;
       default:
         return '';
@@ -409,6 +421,142 @@ export default function ContentEditor() {
                               label=""
                               emptyMessage="Create technologies first"
                             />
+                          ) : key === 'description' && selectedSection === 'serviceOptions' ? (
+                            <Textarea
+                              value={objValue as string}
+                              onChange={(e) => {
+                                const newItem = { ...item, [key]: e.target.value };
+                                handleArrayUpdate(fieldName, index, newItem);
+                              }}
+                              placeholder="Service description"
+                              className="text-xs"
+                              rows={2}
+                            />
+                          ) : key === 'links' && selectedSection === 'projects' ? (
+                            // SPECIAL HANDLING FOR PROJECT LINKS WITH NAME AND URL
+                            <div className="space-y-2">
+                              {((objValue as any[]) || []).map((linkItem: any, linkIndex: number) => (
+                                <div key={linkIndex} className="flex space-x-2 p-2 border rounded">
+                                  <Input
+                                    value={linkItem.name || ''}
+                                    onChange={(e) => {
+                                      const newLinks = [...((objValue as any[]) || [])];
+                                      newLinks[linkIndex] = { ...linkItem, name: e.target.value };
+                                      const newItem = { ...item, [key]: newLinks };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                    placeholder="Link name"
+                                    className="text-xs flex-1"
+                                  />
+                                  <Input
+                                    value={linkItem.url || ''}
+                                    onChange={(e) => {
+                                      const newLinks = [...((objValue as any[]) || [])];
+                                      newLinks[linkIndex] = { ...linkItem, url: e.target.value };
+                                      const newItem = { ...item, [key]: newLinks };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                    placeholder="Link URL"
+                                    className="text-xs flex-1"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const newLinks = ((objValue as any[]) || []).filter((_: any, i: number) => i !== linkIndex);
+                                      const newItem = { ...item, [key]: newLinks };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const newLinks = [...((objValue as any[]) || []), { name: '', url: '' }];
+                                  const newItem = { ...item, [key]: newLinks };
+                                  handleArrayUpdate(fieldName, index, newItem);
+                                }}
+                                className="text-xs"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add Link
+                              </Button>
+                            </div>
+                          ) : key === 'socialLinks' && (selectedSection === 'testimonials' || selectedSection === 'footer') ? (
+                            // SPECIAL HANDLING FOR SOCIAL LINKS WITH ICON, NAME AND LINK
+                            <div className="space-y-2">
+                              {((objValue as any[]) || []).map((socialItem: any, socialIndex: number) => (
+                                <div key={socialIndex} className="space-y-2 p-2 border rounded">
+                                  <ImageUpload
+                                    value={socialItem.iconUrl || ''}
+                                    onChange={(url) => {
+                                      const newSocials = [...((objValue as any[]) || [])];
+                                      newSocials[socialIndex] = { ...socialItem, iconUrl: url };
+                                      const newItem = { ...item, [key]: newSocials };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                    label=""
+                                    placeholder="Upload icon"
+                                  />
+                                  <Input
+                                    value={socialItem.name || ''}
+                                    onChange={(e) => {
+                                      const newSocials = [...((objValue as any[]) || [])];
+                                      newSocials[socialIndex] = { ...socialItem, name: e.target.value };
+                                      const newItem = { ...item, [key]: newSocials };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                    placeholder="Platform name (e.g., LinkedIn, Twitter)"
+                                    className="text-xs"
+                                  />
+                                  <Input
+                                    value={socialItem.link || ''}
+                                    onChange={(e) => {
+                                      const newSocials = [...((objValue as any[]) || [])];
+                                      newSocials[socialIndex] = { ...socialItem, link: e.target.value };
+                                      const newItem = { ...item, [key]: newSocials };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                    placeholder="Social media URL"
+                                    className="text-xs"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const newSocials = ((objValue as any[]) || []).filter((_: any, i: number) => i !== socialIndex);
+                                      const newItem = { ...item, [key]: newSocials };
+                                      handleArrayUpdate(fieldName, index, newItem);
+                                    }}
+                                    className="w-full"
+                                  >
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    Remove Social Link
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const newSocials = [...((objValue as any[]) || []), { iconUrl: '', name: '', link: '' }];
+                                  const newItem = { ...item, [key]: newSocials };
+                                  handleArrayUpdate(fieldName, index, newItem);
+                                }}
+                                className="text-xs w-full"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add Social Link
+                              </Button>
+                            </div>
                           ) : Array.isArray(objValue) ? (
                             <div className="space-y-1">
                               {(objValue as any[]).map((arrItem: any, arrIndex: number) => (

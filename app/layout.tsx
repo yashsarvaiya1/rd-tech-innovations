@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ContentProvider from "@/providers/ContentProviers"; // ADD THIS LINE
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,11 +14,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "RD Tech Innovations",
     description: "Transforming Ideas into Digital Reality",
-    url: "https://www.rdtechinnovations.com", // Update with actual domain later
+    url: "https://www.rdtechinnovations.com",
     siteName: "RD Tech Innovations",
     images: [
       {
-        url: "/og-image.jpg", // Add an OG image in public/ later
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "RD Tech Innovations",
@@ -47,7 +50,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ContentProvider> {/* ADD THIS WRAPPER */}
+          <Navbar />  
+          {children}
+          <Footer />
+        </ContentProvider> {/* ADD THIS CLOSING TAG */}
+      </body>
     </html>
   );
 }

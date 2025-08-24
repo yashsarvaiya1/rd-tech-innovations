@@ -38,7 +38,7 @@ export class StorageService {
     });
   }
 
-  // Upload image with preview and compression - FIXED with better error handling
+  // Upload image with preview and compression
   static async uploadImageWithPreview(file: File, fileName?: string): Promise<{url: string, preview: string}> {
     try {
       console.log(`Uploading image: ${file.name}`);
@@ -199,7 +199,7 @@ export class StorageService {
     }
   }
 
-  // FIXED: List all assets from storage
+  // List all assets from storage
   static async listAllAssets(): Promise<StorageFile[]> {
     try {
       console.log("Listing all assets from storage");
@@ -218,7 +218,6 @@ export class StorageService {
             name: itemRef.name,
             url: url,
             fullPath: itemRef.fullPath,
-            // Add more metadata if available
           });
         } catch (error) {
           console.warn(`Failed to get URL for ${itemRef.name}:`, error);
@@ -231,26 +230,6 @@ export class StorageService {
     } catch (error) {
       console.error("Error listing assets:", error);
       throw new FirebaseError("Failed to list assets");
-    }
-  }
-
-  // Delete file by URL and update Firestore references
-  static async deleteAssetAndUpdateReferences(fileUrl: string): Promise<void> {
-    try {
-      console.log(`Deleting asset and updating references: ${fileUrl}`);
-      
-      // Delete from storage
-      const fileRef = ref(rdTechStorage, fileUrl);
-      await deleteObject(fileRef);
-      
-      // TODO: Update Firestore documents to remove this URL
-      // This would require scanning all content documents and removing the URL
-      // For now, we'll just delete from storage
-      
-      console.log("Asset deleted successfully");
-    } catch (error) {
-      console.error("Error deleting asset:", error);
-      throw new FirebaseError("Failed to delete asset");
     }
   }
 

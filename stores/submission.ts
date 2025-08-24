@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
 import { SubmissionService } from "@/services/submissionService";
 import { EnquirySubmission, CareerSubmission } from "@/models/submission";
 
@@ -9,131 +9,172 @@ interface SubmissionState {
   error: string | null;
   success: string | null;
   dailySubmissionCount: number;
+  lastSubmissionDate: string | null;
   
   // Actions
-  submitEnquiry: (data: Omit<EnquirySubmission, "type" | "status">) => Promise<boolean>;
-  submitCareerApplication: (data: Omit<CareerSubmission, "type" | "status">) => Promise<boolean>;
+  submitEnquiry: (data: Omit<EnquirySubmission, "id" | "type" | "status" | "createdAt" | "updatedAt">) => Promise<boolean>;
+  submitCareerApplication: (data: Omit<CareerSubmission, "id" | "type" | "status" | "createdAt" | "updatedAt">) => Promise<boolean>;
   checkDailyLimit: () => boolean;
   incrementDailyCount: () => void;
   resetDailyCount: () => void;
   setError: (error: string | null) => void;
   setSuccess: (success: string | null) => void;
   clearMessages: () => void;
+  resetSubmissionState: () => void;
 }
 
 const DAILY_SUBMISSION_LIMIT = 3;
-const STORAGE_KEY = "dailySubmissions";
 
 export const useSubmissionStore = create<SubmissionState>()(
   devtools(
-    (set, get) => ({
-      // Initial State
-      loading: false,
-      error: null,
-      success: null,
-      dailySubmissionCount: 0,
+    persist(
+      subscribeWithSelector((set, get) => ({
+        // Initial State
+        loading: false,
+        error: null,
+        success: null,
+        dailySubmissionCount: 0,
+        lastSubmissionDate: null,
 
-      // Actions
-      submitEnquiry: async (data) => {
-        const { checkDailyLimit, incrementDailyCount } = get();
-        
-        if (!checkDailyLimit()) {
-          set({ error: "Daily submission limit reached. Please try again tomorrow." });
-          return false;
-        }
-        
-        try {
-          set({ loading: true, error: null, success: null });
+        // Actions
+        submitEnquiry: async (data) => {
+          const { checkDailyLimit, incrementDailyCount, setError, setSuccess } = get();
           
-          console.log("[SubmissionStore] Submitting enquiry");
-          await SubmissionService.createEnquirySubmission(data);
+          if (!checkDailyLimit()) {
+            setError("Daily submission limit reached. Please try again tomorrow.");
+            return false;
+          }
           
-          incrementDailyCount();
+          try {
+            set({ loading: true, error: null, success: null });
+            
+            console.log("[SubmissionStore] Submitting enquiry:", data);
+            
+            // Create the submission with proper typing
+            const submissionData: Omit<EnquirySubmission, "id" | "createdAt" | "updatedAt"> = {
+              ...data,
+              type: "enquiry",
+              status: "pending"
+            };
+            
+            await SubmissionService.createEnquirySubmission(submissionData);
+            
+            incrementDailyCount();
+            setSuccess("Your enquiry has been submitted successfully! We'll get back to you soon.");
+            
+            return true;
+            
+          } catch (error) {
+            console.error("[SubmissionStore] Error submitting enquiry:", error);
+            const errorMessage = error instanceof Error ? error.message : "Failed to submit enquiry. Please try again.";
+            setError(errorMessage);
+            return false;
+          } finally {
+            set({ loading: false });
+          }
+        },
+
+        submitCareerApplication: async (data) => {
+          const { checkDailyLimit, incrementDailyCount, setError, setSuccess } = get();
+          
+          if (!checkDailyLimit()) {
+            setError("Daily submission limit reached. Please try again tomorrow.");
+            return false;
+          }
+          
+          try {
+            set({ loading: true, error: null, success: null });
+            
+            console.log("[SubmissionStore] Submitting career application:", data);
+            
+            // Create the submission with proper typing
+            const submissionData: Omit<CareerSubmission, "id" | "createdAt" | "updatedAt"> = {
+              ...data,
+              type: "career",
+              status: "pending"
+            };
+            
+            await SubmissionService.createCareerSubmission(submissionData);
+            
+            incrementDailyCount();
+            setSuccess("Your application has been submitted successfully! We'll review it and contact you soon.");
+            
+            return true;
+            
+          } catch (error) {
+            console.error("[SubmissionStore] Error submitting career application:", error);
+            const errorMessage = error instanceof Error ? error.message : "Failed to submit application. Please try again.";
+            setError(errorMessage);
+            return false;
+          } finally {
+            set({ loading: false });
+          }
+        },
+
+        checkDailyLimit: () => {
+          const { dailySubmissionCount, lastSubmissionDate } = get();
+          const today = new Date().toDateString();
+          
+          // Reset count if it's a new day
+          if (lastSubmissionDate !== today) {
+            set({ 
+              dailySubmissionCount: 0, 
+              lastSubmissionDate: today 
+            });
+            return true;
+          }
+          
+          return dailySubmissionCount < DAILY_SUBMISSION_LIMIT;
+        },
+
+        incrementDailyCount: () => {
+          const { dailySubmissionCount } = get();
+          const today = new Date().toDateString();
+          const newCount = dailySubmissionCount + 1;
+          
           set({ 
-            success: "Your enquiry has been submitted successfully!", 
-            loading: false 
+            dailySubmissionCount: newCount,
+            lastSubmissionDate: today
           });
-          
-          return true;
-          
-        } catch (error) {
-          console.error("[SubmissionStore] Error submitting enquiry:", error);
+        },
+
+        resetDailyCount: () => {
           set({ 
-            error: "Failed to submit enquiry. Please try again.", 
-            loading: false 
+            dailySubmissionCount: 0,
+            lastSubmissionDate: null
           });
-          return false;
-        }
-      },
+        },
 
-      submitCareerApplication: async (data) => {
-        const { checkDailyLimit, incrementDailyCount } = get();
-        
-        if (!checkDailyLimit()) {
-          set({ error: "Daily submission limit reached. Please try again tomorrow." });
-          return false;
-        }
-        
-        try {
-          set({ loading: true, error: null, success: null });
-          
-          console.log("[SubmissionStore] Submitting career application");
-          await SubmissionService.createCareerSubmission(data);
-          
-          incrementDailyCount();
-          set({ 
-            success: "Your application has been submitted successfully!", 
-            loading: false 
+        setError: (error) => {
+          set({ error, success: null });
+        },
+
+        setSuccess: (success) => {
+          set({ success, error: null });
+        },
+
+        clearMessages: () => {
+          set({ error: null, success: null });
+        },
+
+        resetSubmissionState: () => {
+          set({
+            loading: false,
+            error: null,
+            success: null,
+            dailySubmissionCount: 0,
+            lastSubmissionDate: null
           });
-          
-          return true;
-          
-        } catch (error) {
-          console.error("[SubmissionStore] Error submitting career application:", error);
-          set({ 
-            error: "Failed to submit application. Please try again.", 
-            loading: false 
-          });
-          return false;
-        }
-      },
-
-      checkDailyLimit: () => {
-        const { dailySubmissionCount } = get();
-        return dailySubmissionCount < DAILY_SUBMISSION_LIMIT;
-      },
-
-      incrementDailyCount: () => {
-        const { dailySubmissionCount } = get();
-        const newCount = dailySubmissionCount + 1;
-        
-        set({ dailySubmissionCount: newCount });
-        
-        // Store in localStorage with date
-        const today = new Date().toDateString();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          date: today,
-          count: newCount
-        }));
-      },
-
-      resetDailyCount: () => {
-        set({ dailySubmissionCount: 0 });
-        localStorage.removeItem(STORAGE_KEY);
-      },
-
-      setError: (error) => {
-        set({ error });
-      },
-
-      setSuccess: (success) => {
-        set({ success });
-      },
-
-      clearMessages: () => {
-        set({ error: null, success: null });
-      },
-    }),
+        },
+      })),
+      {
+        name: "submission-store",
+        partialize: (state) => ({
+          dailySubmissionCount: state.dailySubmissionCount,
+          lastSubmissionDate: state.lastSubmissionDate,
+        }),
+      }
+    ),
     {
       name: "submission-store",
       enabled: process.env.NODE_ENV === "development",
@@ -141,23 +182,34 @@ export const useSubmissionStore = create<SubmissionState>()(
   )
 );
 
-// Initialize daily count from localStorage
-if (typeof window !== "undefined") {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
-      const { date, count } = JSON.parse(stored);
-      const today = new Date().toDateString();
-      
-      if (date === today) {
-        useSubmissionStore.setState({ dailySubmissionCount: count });
-      } else {
-        // Reset if it's a new day
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    } catch (error) {
-      console.warn("Error parsing stored submission data:", error);
-      localStorage.removeItem(STORAGE_KEY);
+// Custom hooks for specific use cases
+export const useSubmissionActions = () => {
+  return useSubmissionStore((state) => ({
+    submitEnquiry: state.submitEnquiry,
+    submitCareerApplication: state.submitCareerApplication,
+    clearMessages: state.clearMessages,
+    resetSubmissionState: state.resetSubmissionState,
+  }));
+};
+
+export const useSubmissionStatus = () => {
+  return useSubmissionStore((state) => ({
+    loading: state.loading,
+    error: state.error,
+    success: state.success,
+    canSubmit: state.checkDailyLimit(),
+    remainingSubmissions: Math.max(0, DAILY_SUBMISSION_LIMIT - state.dailySubmissionCount),
+  }));
+};
+
+// Auto-clear messages after a timeout
+useSubmissionStore.subscribe(
+  (state) => state.success || state.error,
+  (hasMessage) => {
+    if (hasMessage) {
+      setTimeout(() => {
+        useSubmissionStore.getState().clearMessages();
+      }, 5000); // Clear after 5 seconds
     }
   }
-}
+);

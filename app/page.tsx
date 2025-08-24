@@ -1,8 +1,16 @@
+import { Metadata } from 'next';
+import Navbar from '@/components/layout/Navbar';
+import HomePage from '@/components/pages/HomePage';
+
+export const metadata: Metadata = {
+  title: 'RD Tech Innovations - Transform Your Digital Dreams',
+  description: 'Leading software development company specializing in cutting-edge web applications, mobile apps, and digital solutions that drive business growth.',
+};
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold text-center">Welcome to RD Tech Innovations</h1>
-      <p className="text-lg text-gray-600 mt-4">Transforming Ideas into Digital Reality</p>
-    </main>
+    <>
+      <HomePage />
+    </>
   );
 }

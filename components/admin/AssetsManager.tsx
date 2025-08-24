@@ -68,14 +68,6 @@ export default function AssetsManager() {
     window.open(url, '_blank');
   };
 
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'Unknown size';
-    
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
-  };
-
   const isImage = (fileName: string) => {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
     return imageExtensions.some(ext => fileName.toLowerCase().includes(ext));
@@ -142,9 +134,6 @@ export default function AssetsManager() {
                         <ImageIcon className="h-12 w-12 text-gray-400" />
                       </div>
                     )}
-                    <div className="hidden flex items-center justify-center h-full">
-                      <ImageIcon className="h-12 w-12 text-gray-400" />
-                    </div>
                   </div>
                   
                   <CardContent className="p-4">
@@ -153,9 +142,6 @@ export default function AssetsManager() {
                         <h3 className="font-medium text-sm truncate" title={asset.name}>
                           {asset.name}
                         </h3>
-                        <p className="text-xs text-gray-500">
-                          {formatFileSize(asset.size)}
-                        </p>
                       </div>
                       
                       <div className="flex items-center space-x-2">
