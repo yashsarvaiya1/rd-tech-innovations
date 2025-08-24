@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
+import { useShallow } from "zustand/react/shallow";
 import { SubmissionService } from "@/services/submissionService";
 import { EnquirySubmission, CareerSubmission } from "@/models/submission";
 
@@ -12,8 +13,8 @@ interface SubmissionState {
   lastSubmissionDate: string | null;
   
   // Actions
-  submitEnquiry: (data: Omit<EnquirySubmission, "id" | "type" | "status" | "createdAt" | "updatedAt">) => Promise<boolean>;
-  submitCareerApplication: (data: Omit<CareerSubmission, "id" | "type" | "status" | "createdAt" | "updatedAt">) => Promise<boolean>;
+  submitEnquiry: (data: Omit<EnquirySubmission, "type" | "status">) => Promise<boolean>;
+  submitCareerApplication: (data: Omit<CareerSubmission, "type" | "status">) => Promise<boolean>;
   checkDailyLimit: () => boolean;
   incrementDailyCount: () => void;
   resetDailyCount: () => void;
@@ -50,14 +51,7 @@ export const useSubmissionStore = create<SubmissionState>()(
             
             console.log("[SubmissionStore] Submitting enquiry:", data);
             
-            // Create the submission with proper typing
-            const submissionData: Omit<EnquirySubmission, "id" | "createdAt" | "updatedAt"> = {
-              ...data,
-              type: "enquiry",
-              status: "pending"
-            };
-            
-            await SubmissionService.createEnquirySubmission(submissionData);
+            await SubmissionService.createEnquirySubmission(data);
             
             incrementDailyCount();
             setSuccess("Your enquiry has been submitted successfully! We'll get back to you soon.");
@@ -87,14 +81,7 @@ export const useSubmissionStore = create<SubmissionState>()(
             
             console.log("[SubmissionStore] Submitting career application:", data);
             
-            // Create the submission with proper typing
-            const submissionData: Omit<CareerSubmission, "id" | "createdAt" | "updatedAt"> = {
-              ...data,
-              type: "career",
-              status: "pending"
-            };
-            
-            await SubmissionService.createCareerSubmission(submissionData);
+            await SubmissionService.createCareerSubmission(data);
             
             incrementDailyCount();
             setSuccess("Your application has been submitted successfully! We'll review it and contact you soon.");
@@ -182,24 +169,28 @@ export const useSubmissionStore = create<SubmissionState>()(
   )
 );
 
-// Custom hooks for specific use cases
+// ✅ FIXED: Custom hooks with useShallow to prevent infinite loops
 export const useSubmissionActions = () => {
-  return useSubmissionStore((state) => ({
-    submitEnquiry: state.submitEnquiry,
-    submitCareerApplication: state.submitCareerApplication,
-    clearMessages: state.clearMessages,
-    resetSubmissionState: state.resetSubmissionState,
-  }));
+  return useSubmissionStore(
+    useShallow((state) => ({
+      submitEnquiry: state.submitEnquiry,
+      submitCareerApplication: state.submitCareerApplication,
+      clearMessages: state.clearMessages,
+      resetSubmissionState: state.resetSubmissionState,
+    }))
+  );
 };
 
 export const useSubmissionStatus = () => {
-  return useSubmissionStore((state) => ({
-    loading: state.loading,
-    error: state.error,
-    success: state.success,
-    canSubmit: state.checkDailyLimit(),
-    remainingSubmissions: Math.max(0, DAILY_SUBMISSION_LIMIT - state.dailySubmissionCount),
-  }));
+  return useSubmissionStore(
+    useShallow((state) => ({
+      loading: state.loading,
+      error: state.error,
+      success: state.success,
+      canSubmit: state.checkDailyLimit(),
+      remainingSubmissions: Math.max(0, DAILY_SUBMISSION_LIMIT - state.dailySubmissionCount),
+    }))
+  );
 };
 
 // Auto-clear messages after a timeout
@@ -209,7 +200,7 @@ useSubmissionStore.subscribe(
     if (hasMessage) {
       setTimeout(() => {
         useSubmissionStore.getState().clearMessages();
-      }, 5000); // Clear after 5 seconds
+      }, 5000);
     }
   }
 );

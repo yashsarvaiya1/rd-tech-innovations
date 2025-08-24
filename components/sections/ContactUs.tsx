@@ -3,23 +3,27 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { gsap } from 'gsap';
 import { useContentStore } from '@/stores/content';
+import { useSubmissionActions, useSubmissionStatus } from '@/stores/submission';
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function ContactUs() {
+  // ✅ FIXED: All hooks must be called before any conditional returns
   const { contactUs } = useContentStore();
+  const { submitEnquiry, clearMessages } = useSubmissionActions();
+  const { loading, error, success, canSubmit, remainingSubmissions } = useSubmissionStatus();
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true });
   
+  // ✅ Form state with correct field names
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    company: '',
-    message: ''
+    number: '',        // ✅ Correct: matches EnquirySubmission.number
+    requirement: ''    // ✅ Correct: matches EnquirySubmission.requirement
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+  // ✅ GSAP animation effect
   useEffect(() => {
     if (!isInView || !containerRef.current) return;
 
@@ -34,21 +38,14 @@ export default function ContactUs() {
     return () => ctx.revert();
   }, [isInView]);
 
-  if (!contactUs || contactUs.hidden) return null;
+  // ✅ Cleanup effect
+  useEffect(() => {
+    return () => {
+      clearMessages();
+    };
+  }, [clearMessages]);
 
-  const title = contactUs.title || '';
-  const description = contactUs.description || '';
-  const form = contactUs.form || {};
-
-  // Default form field labels
-  const formLabels = {
-    name: form.name || 'Full Name',
-    email: form.email || 'Email Address',
-    phone: form.phone || 'Phone Number',
-    company: form.company || 'Company Name',
-    message: form.message || 'Your Message'
-  };
-
+  // ✅ Event handlers - NOT using useCallback to avoid hook ordering issues
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -56,27 +53,33 @@ export default function ContactUs() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
+    
+    if (!canSubmit) return;
 
-    try {
-      // Simulate API call - replace with your actual submission logic
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Reset form and show success
+    const success = await submitEnquiry(formData);
+    
+    if (success) {
       setFormData({
         name: '',
         email: '',
-        phone: '',
-        company: '',
-        message: ''
+        number: '',
+        requirement: ''
       });
-      setSubmitStatus('success');
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
     }
+  };
+
+  // ✅ FIXED: Early return AFTER all hooks have been called
+  if (!contactUs || contactUs.hidden) return null;
+
+  const title = contactUs.title || '';
+  const description = contactUs.description || '';
+  const form = contactUs.form || {};
+
+  const formLabels = {
+    name: form.name || 'Full Name',
+    email: form.email || 'Email Address',
+    number: form.number || 'Phone Number',
+    requirement: form.requirement || 'Requirement'
   };
 
   if (!title && !description && Object.keys(form).length === 0) return null;
@@ -110,18 +113,36 @@ export default function ContactUs() {
 
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Contact Form */}
-          <motion.div 
-            className="contact-form"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.div className="contact-form">
             <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+              
+              {/* Daily Limit Warning */}
+              {!canSubmit && (
+                <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="flex items-center space-x-2 text-amber-800">
+                    <AlertCircle className="w-5 h-5" />
+                    <span className="font-semibold">Daily limit reached</span>
+                  </div>
+                  <p className="text-amber-700 text-sm mt-1">
+                    You've reached the daily submission limit. Please try again tomorrow.
+                  </p>
+                </div>
+              )}
+
+              {/* Remaining Submissions Counter */}
+              {canSubmit && remainingSubmissions <= 2 && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <p className="text-blue-800 text-sm">
+                    You have {remainingSubmissions} submission{remainingSubmissions !== 1 ? 's' : ''} remaining today.
+                  </p>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name Field */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {formLabels.name}
+                    {formLabels.name} *
                   </label>
                   <input
                     type="text"
@@ -129,7 +150,8 @@ export default function ContactUs() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                    disabled={loading || !canSubmit}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder={`Enter your ${formLabels.name.toLowerCase()}`}
                   />
                 </div>
@@ -137,7 +159,7 @@ export default function ContactUs() {
                 {/* Email Field */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {formLabels.email}
+                    {formLabels.email} *
                   </label>
                   <input
                     type="email"
@@ -145,70 +167,59 @@ export default function ContactUs() {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                    disabled={loading || !canSubmit}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder={`Enter your ${formLabels.email.toLowerCase()}`}
                   />
                 </div>
 
-                {/* Phone Field */}
+                {/* Number Field */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {formLabels.phone}
+                    {formLabels.number} *
                   </label>
                   <input
                     type="tel"
-                    name="phone"
-                    value={formData.phone}
+                    name="number"
+                    value={formData.number}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                    placeholder={`Enter your ${formLabels.phone.toLowerCase()}`}
+                    required
+                    disabled={loading || !canSubmit}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder={`Enter your ${formLabels.number.toLowerCase()}`}
                   />
                 </div>
 
-                {/* Company Field */}
+                {/* Requirement Field */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {formLabels.company}
-                  </label>
-                  <input
-                    type="text"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                    placeholder={`Enter your ${formLabels.company.toLowerCase()}`}
-                  />
-                </div>
-
-                {/* Message Field */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {formLabels.message}
+                    {formLabels.requirement} *
                   </label>
                   <textarea
-                    name="message"
-                    value={formData.message}
+                    name="requirement"
+                    value={formData.requirement}
                     onChange={handleInputChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white resize-none"
-                    placeholder={`Enter your ${formLabels.message.toLowerCase()}`}
+                    disabled={loading || !canSubmit}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder={`Enter your ${formLabels.requirement.toLowerCase()}`}
                   />
                 </div>
 
                 {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                  disabled={loading || !canSubmit}
+                  whileHover={{ scale: (loading || !canSubmit) ? 1 : 1.02 }}
+                  whileTap={{ scale: (loading || !canSubmit) ? 1 : 0.98 }}
                   className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
-                    isSubmitting 
+                    (loading || !canSubmit)
                       ? 'bg-gray-400 cursor-not-allowed' 
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
                   } text-white`}
                 >
-                  {isSubmitting ? (
+                  {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                       <span>Sending...</span>
@@ -216,31 +227,31 @@ export default function ContactUs() {
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      <span>Send Message</span>
+                      <span>{canSubmit ? 'Send Message' : 'Limit Reached'}</span>
                     </>
                   )}
                 </motion.button>
 
                 {/* Status Messages */}
-                {submitStatus === 'success' && (
+                {success && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center space-x-2 text-green-600 bg-green-50 p-4 rounded-xl"
+                    className="flex items-center space-x-2 text-green-600 bg-green-50 p-4 rounded-xl border border-green-200"
                   >
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Message sent successfully! We'll get back to you soon.</span>
+                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                    <span>{success}</span>
                   </motion.div>
                 )}
 
-                {submitStatus === 'error' && (
+                {error && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl"
+                    className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl border border-red-200"
                   >
-                    <AlertCircle className="w-5 h-5" />
-                    <span>Failed to send message. Please try again.</span>
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <span>{error}</span>
                   </motion.div>
                 )}
               </form>
@@ -248,12 +259,7 @@ export default function ContactUs() {
           </motion.div>
 
           {/* Contact Information */}
-          <motion.div 
-            className="contact-info space-y-8"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <motion.div className="contact-info space-y-8">
             <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-white/50 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h3>
               
@@ -290,7 +296,6 @@ export default function ContactUs() {
               </div>
             </div>
 
-            {/* Response Time Info */}
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-8 text-white">
               <h4 className="font-bold text-xl mb-4">Quick Response</h4>
               <p className="text-blue-100 leading-relaxed">

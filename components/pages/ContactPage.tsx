@@ -7,12 +7,8 @@ export default function ContactPage() {
   const { subscribeToRealTimeUpdates, fetchAllContent } = useContentStore();
 
   useEffect(() => {
-    // Initial data fetch
     fetchAllContent();
-    
-    // Set up real-time subscriptions
     const unsubscribe = subscribeToRealTimeUpdates();
-    
     return unsubscribe;
   }, [subscribeToRealTimeUpdates, fetchAllContent]);
 

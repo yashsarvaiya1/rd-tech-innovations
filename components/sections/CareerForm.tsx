@@ -1,115 +1,153 @@
 'use client'
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { gsap } from 'gsap';
 import { useContentStore } from '@/stores/content';
-import { Upload, Send, CheckCircle, AlertCircle, User, Mail, Phone, FileText, Briefcase } from 'lucide-react';
+import { useSubmissionActions, useSubmissionStatus } from '@/stores/submission';
+import { Upload, Send, CheckCircle, AlertCircle, User, Mail, Phone, FileText, Briefcase, MapPin } from 'lucide-react';
 
 export default function CareerForm() {
   const { career } = useContentStore();
+  const { submitCareerApplication, clearMessages } = useSubmissionActions();
+  const { loading, error, success, canSubmit, remainingSubmissions } = useSubmissionStatus();
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: true });
+  
+  // ✅ Form data matching CareerSubmission model exactly
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
-    phone: '',
-    position: '',
-    experience: '',
-    portfolio: '',
-    coverLetter: '',
-    resume: null as File | null
+    number: '',
+    location: '',
+    portfolioOrLink: '',
+    ctc: '',
+    about: '',
+    resumeUrl: '',
+    positions: [] as string[]
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    if (!isInView || !containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.timeline()
+        .from('.career-form-title', { y: 50, opacity: 0, duration: 1, ease: "power2.out" })
+        .from('.career-form-content', { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.5");
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [isInView]);
+
+  // ✅ FIXED: Empty dependency array to prevent infinite cleanup
+  useEffect(() => {
+    return () => {
+      clearMessages();
+    };
+  }, []);
 
   if (!career || career.hidden) return null;
 
+  const title = career.title || '';
   const form = career.form || {};
-  
+
   // Dynamic form field labels from Firestore
   const formLabels = {
-    fullName: form.fullName || 'Full Name',
+    name: form.name || 'Full Name',
     email: form.email || 'Email Address',
-    phone: form.phone || 'Phone Number',
-    position: form.position || 'Position Applied For',
-    experience: form.experience || 'Years of Experience',
-    portfolio: form.portfolio || 'Portfolio/LinkedIn URL',
-    coverLetter: form.coverLetter || 'Cover Letter',
-    resume: form.resume || 'Upload Resume'
+    number: form.number || 'Phone Number',
+    location: form.location || 'Location',
+    portfolioOrLink: form.portfolioOrLink || 'Portfolio/LinkedIn URL',
+    ctc: form.ctc || 'Expected CTC',
+    about: form.about || 'About Yourself',
+    resumeUrl: form.resumeUrl || 'Resume URL',
+    positions: form.positions || ['Developer', 'Designer', 'Manager'] // Default options
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData(prev => ({ ...prev, resume: file }));
-  };
+  const handlePositionsChange = useCallback((position: string) => {
+    setFormData(prev => ({
+      ...prev,
+      positions: prev.positions.includes(position)
+        ? prev.positions.filter(p => p !== position)
+        : [...prev.positions, position]
+    }));
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
+    
+    if (!canSubmit) return;
 
-    try {
-      // Create FormData for file upload
-      const submitData = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) {
-          submitData.append(key, value);
-        }
-      });
-
-      // Simulate API call - replace with your actual submission logic
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Reset form and show success
+    const success = await submitCareerApplication(formData);
+    
+    if (success) {
       setFormData({
-        fullName: '',
+        name: '',
         email: '',
-        phone: '',
-        position: '',
-        experience: '',
-        portfolio: '',
-        coverLetter: '',
-        resume: null
+        number: '',
+        location: '',
+        portfolioOrLink: '',
+        ctc: '',
+        about: '',
+        resumeUrl: '',
+        positions: []
       });
-      setSubmitStatus('success');
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+  }, [formData, canSubmit, submitCareerApplication]);
+
+  if (!title && Object.keys(form).length === 0) return null;
 
   return (
-    <div className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
-      <div className="max-w-4xl mx-auto px-6 md:px-8 lg:px-12">
+    <section 
+      ref={containerRef}
+      className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50 relative overflow-hidden"
+    >
+      <div className="max-w-4xl mx-auto px-6 md:px-8 lg:px-12 relative">
+        {title && (
+          <h2 className="career-form-title text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
+            {title}
+          </h2>
+        )}
+
         <motion.div
+          className="career-form-content bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100"
         >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Join Our Team</h2>
-            <p className="text-gray-600">We're always looking for talented individuals to join our growing team.</p>
-          </div>
+          {/* Daily Limit Warning */}
+          {!canSubmit && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <div className="flex items-center space-x-2 text-amber-800">
+                <AlertCircle className="w-5 h-5" />
+                <span className="font-semibold">Daily limit reached</span>
+              </div>
+              <p className="text-amber-700 text-sm mt-1">
+                You've reached the daily application limit. Please try again tomorrow.
+              </p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Full Name */}
+              {/* Name */}
               <div>
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                   <User className="w-4 h-4" />
-                  <span>{formLabels.fullName}</span>
+                  <span>{formLabels.name} *</span>
                 </label>
                 <input
                   type="text"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder={`Enter your ${formLabels.fullName.toLowerCase()}`}
+                  disabled={loading || !canSubmit}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -117,7 +155,7 @@ export default function CareerForm() {
               <div>
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                   <Mail className="w-4 h-4" />
-                  <span>{formLabels.email}</span>
+                  <span>{formLabels.email} *</span>
                 </label>
                 <input
                   type="email"
@@ -125,134 +163,156 @@ export default function CareerForm() {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder={`Enter your ${formLabels.email.toLowerCase()}`}
+                  disabled={loading || !canSubmit}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Phone */}
+              {/* Number */}
               <div>
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                   <Phone className="w-4 h-4" />
-                  <span>{formLabels.phone}</span>
+                  <span>{formLabels.number} *</span>
                 </label>
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
+                  name="number"
+                  value={formData.number}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder={`Enter your ${formLabels.phone.toLowerCase()}`}
+                  required
+                  disabled={loading || !canSubmit}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
 
-              {/* Position */}
+              {/* Location */}
               <div>
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                  <Briefcase className="w-4 h-4" />
-                  <span>{formLabels.position}</span>
+                  <MapPin className="w-4 h-4" />
+                  <span>{formLabels.location} *</span>
                 </label>
                 <input
                   type="text"
-                  name="position"
-                  value={formData.position}
+                  name="location"
+                  value={formData.location}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder={`Enter ${formLabels.position.toLowerCase()}`}
+                  disabled={loading || !canSubmit}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Experience */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {formLabels.experience}
-                </label>
-                <select
-                  name="experience"
-                  value={formData.experience}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                >
-                  <option value="">Select experience</option>
-                  <option value="0-1">0-1 years</option>
-                  <option value="1-3">1-3 years</option>
-                  <option value="3-5">3-5 years</option>
-                  <option value="5-10">5-10 years</option>
-                  <option value="10+">10+ years</option>
-                </select>
-              </div>
-
               {/* Portfolio */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {formLabels.portfolio}
+                  {formLabels.portfolioOrLink}
                 </label>
                 <input
                   type="url"
-                  name="portfolio"
-                  value={formData.portfolio}
+                  name="portfolioOrLink"
+                  value={formData.portfolioOrLink}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  disabled={loading || !canSubmit}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="https://your-portfolio.com"
                 />
               </div>
-            </div>
 
-            {/* Resume Upload */}
-            <div>
-              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                <Upload className="w-4 h-4" />
-                <span>{formLabels.resume}</span>
-              </label>
-              <div className="relative">
+              {/* CTC */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {formLabels.ctc} *
+                </label>
                 <input
-                  type="file"
-                  name="resume"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
+                  type="text"
+                  name="ctc"
+                  value={formData.ctc}
+                  onChange={handleInputChange}
+                  required
+                  disabled={loading || !canSubmit}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="e.g., 8-12 LPA"
                 />
-                <div className="mt-2 text-xs text-gray-500">
-                  Supported formats: PDF, DOC, DOCX (Max 5MB)
-                </div>
               </div>
             </div>
 
-            {/* Cover Letter */}
+            {/* Resume URL */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                <Upload className="w-4 h-4" />
+                <span>{formLabels.resumeUrl} *</span>
+              </label>
+              <input
+                type="url"
+                name="resumeUrl"
+                value={formData.resumeUrl}
+                onChange={handleInputChange}
+                required
+                disabled={loading || !canSubmit}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="https://drive.google.com/your-resume"
+              />
+            </div>
+
+            {/* Positions */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Interested Positions *
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {(Array.isArray(formLabels.positions) ? formLabels.positions : ['Developer', 'Designer', 'Manager']).map((position: string) => (
+                  <label
+                    key={position}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.positions.includes(position)}
+                      onChange={() => handlePositionsChange(position)}
+                      disabled={loading || !canSubmit}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
+                    />
+                    <span className="text-sm text-gray-700">{position}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* About */}
             <div>
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                 <FileText className="w-4 h-4" />
-                <span>{formLabels.coverLetter}</span>
+                <span>{formLabels.about} *</span>
               </label>
               <textarea
-                name="coverLetter"
-                value={formData.coverLetter}
+                name="about"
+                value={formData.about}
                 onChange={handleInputChange}
+                required
                 rows={6}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white resize-none"
-                placeholder="Tell us why you'd be a great fit for this position..."
+                disabled={loading || !canSubmit}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Tell us about your experience, skills, and why you'd be a great fit..."
               />
             </div>
 
             {/* Submit Button */}
             <motion.button
               type="submit"
-              disabled={isSubmitting}
-              whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-              whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+              disabled={loading || !canSubmit || formData.positions.length === 0}
+              whileHover={{ scale: (loading || !canSubmit) ? 1 : 1.02 }}
+              whileTap={{ scale: (loading || !canSubmit) ? 1 : 0.98 }}
               className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
-                isSubmitting 
+                (loading || !canSubmit || formData.positions.length === 0)
                   ? 'bg-gray-400 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
               } text-white`}
             >
-              {isSubmitting ? (
+              {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   <span>Submitting Application...</span>
@@ -260,36 +320,36 @@ export default function CareerForm() {
               ) : (
                 <>
                   <Send className="w-5 h-5" />
-                  <span>Submit Application</span>
+                  <span>{canSubmit ? 'Submit Application' : 'Limit Reached'}</span>
                 </>
               )}
             </motion.button>
 
             {/* Status Messages */}
-            {submitStatus === 'success' && (
+            {success && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center space-x-2 text-green-600 bg-green-50 p-4 rounded-xl"
+                className="flex items-center space-x-2 text-green-600 bg-green-50 p-4 rounded-xl border border-green-200"
               >
-                <CheckCircle className="w-5 h-5" />
-                <span>Application submitted successfully! We'll review it and get back to you soon.</span>
+                <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{success}</span>
               </motion.div>
             )}
 
-            {submitStatus === 'error' && (
+            {error && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl"
+                className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl border border-red-200"
               >
-                <AlertCircle className="w-5 h-5" />
-                <span>Failed to submit application. Please try again.</span>
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{error}</span>
               </motion.div>
             )}
           </form>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 }

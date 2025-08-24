@@ -1,11 +1,10 @@
 'use client'
 import { useEffect } from 'react';
 import { useContentStore } from '@/stores/content';
-import CompanyBrief from '../sections/CompanyBrief';
-import CompanyMarquee from '../sections/CompanyMarquee';
+import CompanyBrief from '../sections/CompanyBrief'; // Will serve as "About" section
 import WhyUs from '../sections/WhyUs';
 import Vision from '../sections/Vision';
-import EventsPhotoWall from '../sections/EventsPhotoWall'; // Add this
+import EventsPhotoWall from '../sections/EventsPhotoWall';
 
 export default function AboutPage() {
   const { subscribeToRealTimeUpdates, fetchAllContent } = useContentStore();
@@ -19,10 +18,9 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen pt-20">
       <CompanyBrief />
-      <CompanyMarquee />
       <WhyUs />
       <Vision />
-      <EventsPhotoWall /> {/* Add events section to about page */}
+      <EventsPhotoWall />
     </main>
   );
 }
