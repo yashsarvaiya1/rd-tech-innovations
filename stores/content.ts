@@ -7,6 +7,7 @@ import { Content } from "@/models/content";
 import { ContentService } from "@/services/contentService";
 
 interface PublicContentState {
+  initialize: any;
   // Data State
   content: Record<string, any>;
   loading: boolean;

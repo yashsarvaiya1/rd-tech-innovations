@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ContentProvider from "@/providers/ContentProviers"; // ADD THIS LINE
+import ContentProvider from "@/providers/ContentProviders";
+import ClientWrapper from "@/components/layout/ClientWrapper";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -51,11 +52,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ContentProvider> {/* ADD THIS WRAPPER */}
-          <Navbar />  
-          {children}
-          <Footer />
-        </ContentProvider> {/* ADD THIS CLOSING TAG */}
+        <ContentProvider>
+          <ClientWrapper>
+            <Navbar />
+            {children}
+            <Footer />
+          </ClientWrapper>
+        </ContentProvider>
       </body>
     </html>
   );

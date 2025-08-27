@@ -1,28 +1,54 @@
 'use client'
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { gsap } from 'gsap';
-import { useContentStore } from '@/stores/content';
+import { useSectionContent } from '@/stores/content';
 
 export default function Industries() {
-  const { industries } = useContentStore();
+  const { data: industries, loading, error } = useSectionContent('industries');
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true });
+  const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
+  // ✅ Enhanced background particles
+  const backgroundElements = useMemo(() => 
+    Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      size: Math.random() * 120 + 80,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      hue: 200 + (Math.random() * 60),
+      delay: Math.random() * 3
+    })), []
+  );
+
+  // ✅ Enhanced GSAP animations
   useEffect(() => {
-    if (!isInView || !containerRef.current) return;
+    if (!isInView || !containerRef.current || loading) return;
 
     const ctx = gsap.context(() => {
-      gsap.timeline()
-        .from('.industry-title', { y: 50, opacity: 0, duration: 1, ease: "power2.out" })
-        .from('.industry-description', { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.5")
-        .from('.industry-cards', { y: 40, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" }, "-=0.3");
+      const tl = gsap.timeline();
+      
+      tl.fromTo('.industry-content-left', 
+        { x: -100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 1.2, ease: "power3.out" }
+      )
+      .fromTo('.industry-content-right', 
+        { x: 100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 1, ease: "power2.out" }, 
+        "-=0.8"
+      )
+      .fromTo('.industry-item', 
+        { y: 60, opacity: 0, scale: 0.8 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "back.out(1.4)" }, 
+        "-=0.6"
+      );
     }, containerRef);
 
     return () => ctx.revert();
-  }, [isInView]);
+  }, [isInView, loading]);
 
-  if (!industries || industries.hidden) return null;
+  // ✅ Early return after hooks
+  if (loading || error || !industries || industries.hidden) return null;
 
   const title = industries.title || '';
   const description = industries.description || '';
@@ -30,85 +56,191 @@ export default function Industries() {
 
   if (!title && !description && industriesList.length === 0) return null;
 
+  // ✅ Dynamic scattered positioning for 1-15 industries with wider spans
+  const getScatteredLayout = (count: number) => {
+    if (count === 0) return [];
+    
+    // Predefined scattered positions for up to 15 industries with column spans
+    const positions = [
+      // 1 industry
+      [{ row: 2, col: 2, span: 2 }],
+      
+      // 2 industries
+      [{ row: 1, col: 1, span: 2 }, { row: 3, col: 4, span: 2 }],
+      
+      // 3 industries
+      [{ row: 1, col: 1, span: 2 }, { row: 2, col: 4, span: 2 }, { row: 4, col: 2, span: 2 }],
+      
+      // 4 industries
+      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 4, span: 2 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 4, span: 2 }],
+      
+      // 5 industries
+      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 4, span: 2 }, { row: 2, col: 2, span: 2 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 4, span: 2 }],
+      
+      // 6 industries
+      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 3, span: 2 }, { row: 1, col: 5, span: 1 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 3, span: 2 }, { row: 3, col: 5, span: 1 }],
+      
+      // 7 industries
+      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 2, span: 2 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 8 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 9 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 2, span: 2 }, { row: 2, col: 4, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 5, span: 1 }, { row: 4, col: 2, span: 2 }],
+      
+      // 10 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 2, span: 1 }, { row: 2, col: 4, span: 2 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 11 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 3, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 12 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 2, span: 1 }, { row: 2, col: 4, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 13 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 3, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 14 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 2, span: 1 }, { row: 2, col: 4, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
+      
+      // 15 industries
+      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 1 }, { row: 2, col: 2, span: 2 }, { row: 2, col: 3, span: 1 }, { row: 2, col: 4, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }]
+    ];
+    
+    return positions[Math.min(count - 1, 14)] || positions[14];
+  };
+
+  const scatteredPositions = getScatteredLayout(industriesList.length);
+
   return (
     <section 
       ref={containerRef}
-      className="py-20 bg-white relative overflow-hidden"
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden flex items-center py-20"
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-100/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-100/30 rounded-full blur-3xl" />
+      {/* ✅ Enhanced background with floating particles */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-slate-50/30 to-blue-50/40" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(147,51,234,0.06),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[conic-gradient(from_45deg_at_50%_50%,rgba(59,130,246,0.02),rgba(147,51,234,0.02),rgba(59,130,246,0.02))]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          {title && (
-            <h2 className="industry-title text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              {title}
-            </h2>
-          )}
+      {/* ✅ Floating background particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {backgroundElements.map((element) => (
+          <motion.div
+            key={element.id}
+            className="absolute rounded-full blur-2xl opacity-15"
+            style={{
+              width: element.size,
+              height: element.size,
+              top: `${element.top}%`,
+              left: `${element.left}%`,
+              background: `radial-gradient(circle, hsla(${element.hue}, 50%, 65%, 0.4), transparent 70%)`
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              x: [-15, 15, -15],
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.25, 0.1],
+              rotate: [0, 180, 360]
+            }}
+            transition={{
+              duration: 16 + Math.random() * 8,
+              repeat: Infinity,
+              delay: element.delay,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+        
+        {/* ✅ Split Layout: Left Content + Right Industries */}
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
-          {description && (
-            <p className="industry-description text-lg md:text-xl text-gray-600 leading-relaxed">
-              {description}
-            </p>
-          )}
-        </div>
-
-        {/* Industry Cards */}
-        {industriesList.length > 0 && (
-          <div className={`grid gap-6 ${
-            industriesList.length <= 4 ? 'grid-cols-2 md:grid-cols-4 max-w-4xl mx-auto' :
-            industriesList.length <= 6 ? 'grid-cols-3 md:grid-cols-6 max-w-5xl mx-auto' :
-            'grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
-          }`}>
-            {industriesList.map((industry: any, index: number) => {
-              const name = industry.name || '';
-              const iconUrl = industry.iconUrl || '';
-
-              return (
-                <motion.div
-                  key={index}
-                  className="industry-cards group p-8 bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 text-center border border-gray-100"
-                  whileHover={{ 
-                    y: -10, 
-                    scale: 1.05,
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {/* Industry Icon */}
-                  {iconUrl ? (
-                    <img
-                      src={iconUrl}
-                      alt={name}
-                      className="w-16 h-16 object-contain mx-auto mb-4 group-hover:scale-110 transition-transform"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <span className="text-white font-bold text-xl">
-                        {name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Industry Name */}
-                  {name && (
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {name}
-                    </h3>
-                  )}
-
-                  {/* Hover Glow */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                </motion.div>
-              );
-            })}
+          {/* ✅ Left Side: Title and Description ONLY */}
+          <div className="industry-content-left space-y-8">
+            {title && (
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
+                <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-purple-700 bg-clip-text text-transparent">
+                  {title}
+                </span>
+              </h2>
+            )}
+            
+            {description && (
+              <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-light">
+                {description}
+              </p>
+            )}
           </div>
-        )}
+
+          {/* ✅ Right Side: Scattered Industries Layout with Wider Containers */}
+          <div className="industry-content-right">
+            {industriesList.length > 0 && (
+              <div className="relative w-full h-80">
+                <div className="grid grid-cols-6 grid-rows-4 gap-2 h-full w-full">
+                  {industriesList.map((industry: any, index: number) => {
+                    const name = industry.name || '';
+                    const iconUrl = industry.iconUrl || '';
+                    const position = scatteredPositions[index];
+                    
+                    if (!position) return null;
+
+                    return (
+                      <motion.div
+                        key={index}
+                        className="industry-item group flex items-center space-x-2 px-3 py-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-white/60"
+                        style={{
+                          gridColumn: `${position.col} / span ${position.span}`,
+                          gridRow: position.row,
+                          height: '40px'
+                        }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          y: -2
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                      >
+                        {/* ✅ Small Logo/Icon */}
+                        <div className="flex-shrink-0">
+                          {iconUrl ? (
+                            <img
+                              src={iconUrl}
+                              alt={name}
+                              className="w-6 h-6 object-contain group-hover:scale-110 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                              <span className="text-white font-bold text-xs">
+                                {name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* ✅ Industry Name with Better Text Handling */}
+                        {name && (
+                          <span className="text-xs font-semibold text-slate-800 group-hover:text-blue-600 transition-colors leading-tight whitespace-nowrap overflow-hidden">
+                            {name}
+                          </span>
+                        )}
+
+                        {/* ✅ Subtle hover effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none" />
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );

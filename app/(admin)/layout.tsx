@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import ContentProvider from "@/providers/ContentProviers"; // ✅ Fixed typo
+import ContentProvider from "@/providers/ContentProviders"; // ✅ Fixed typo
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - RD Tech Innovations",
