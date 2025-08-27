@@ -110,6 +110,7 @@ export interface FooterContent {
   logoUrl?: string;
   hidden?: boolean; 
   address?: string;
+  number?:string;
   companyEmail?: string;
   text?: string;
   socialLinks?: { iconUrl: string; link: string }[];
@@ -145,6 +146,8 @@ export interface JobOpeningContent {
     title: string;
     experience: string;
     position: string;
+    positionValue: string;
+    experienceValue: string;
     viewDetailsButton: string;
     requiredSkillsTitle?: string;
     requiredSkills?: string[];

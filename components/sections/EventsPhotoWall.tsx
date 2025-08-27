@@ -1,29 +1,37 @@
 'use client'
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { gsap } from 'gsap';
-import { useContentStore } from '@/stores/content';
-import { Calendar, Users, Camera, Heart } from 'lucide-react';
+import { useSectionContent } from '@/stores/content';
 
 export default function EventsPhotoWall() {
-  const { eventsPhotoWall } = useContentStore();
+  const { data: eventsPhotoWall, loading, error } = useSectionContent('eventsPhotoWall');
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true });
+  const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
+  // ✅ Enhanced GSAP animations
   useEffect(() => {
-    if (!isInView || !containerRef.current) return;
+    if (!isInView || !containerRef.current || loading) return;
 
     const ctx = gsap.context(() => {
-      gsap.timeline()
-        .from('.events-title', { y: 50, opacity: 0, duration: 1, ease: "power2.out" })
-        .from('.events-description', { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.5")
-        .from('.events-stats', { y: 40, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" }, "-=0.3");
+      const tl = gsap.timeline();
+      
+      tl.fromTo('.events-title', 
+        { y: 60, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 1, ease: "power3.out" }
+      )
+      .fromTo('.events-description', 
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }, 
+        "-=0.7"
+      );
     }, containerRef);
 
     return () => ctx.revert();
-  }, [isInView]);
+  }, [isInView, loading]);
 
-  if (!eventsPhotoWall || eventsPhotoWall.hidden) return null;
+  // ✅ Early return after hooks
+  if (loading || error || !eventsPhotoWall || eventsPhotoWall.hidden) return null;
 
   const title = eventsPhotoWall.title || '';
   const description = eventsPhotoWall.description || '';
@@ -31,192 +39,146 @@ export default function EventsPhotoWall() {
 
   if (!title && !description && imageUrls.length === 0) return null;
 
-  // Duplicate images for seamless infinite scroll
-  const duplicatedImages = imageUrls.length > 0 ? [...imageUrls, ...imageUrls, ...imageUrls] : [];
+  // ✅ Create continuous masonry columns
+  const createContinuousMasonry = (images: string[]) => {
+    if (images.length === 0) return [];
+    
+    // Create enough duplicates for seamless loop
+    const totalImages = [];
+    while (totalImages.length < 200) { // More images for seamless loop
+      totalImages.push(...images);
+    }
+
+    return totalImages.map((img, index) => ({
+      url: img,
+      id: `masonry-${index}`,
+      height: 180 + (index % 4) * 60 // Consistent pattern: 180, 240, 300, 360
+    }));
+  };
+
+  const masonryImages = createContinuousMasonry(imageUrls);
 
   return (
     <section 
       ref={containerRef}
-      className="py-20 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white relative overflow-hidden"
+      className="h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 text-white relative overflow-hidden flex flex-col"
+      style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)' }}
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
+      {/* ✅ Enhanced background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-indigo-900/70 to-purple-900/90" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(139,69,199,0.12),transparent_50%)]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative">
-        {/* Header */}
-        <div className="text-center mb-16">
-          {title && (
-            <h2 className="events-title text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+      {/* ✅ Header section - compact */}
+      <div className="relative z-20 text-center py-8 px-6 bg-gradient-to-b from-slate-900/80 to-transparent">
+        {title && (
+          <h2 className="events-title text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
+            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
               {title}
-            </h2>
-          )}
-          
-          {description && (
-            <p className="events-description text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto mb-12">
-              {description}
-            </p>
-          )}
-        </div>
-
-        {/* Tilted Marquee Strips */}
-        {imageUrls.length > 0 && (
-          <div className="space-y-8 mb-16">
-            {/* First Marquee - Left to Right, Tilted */}
-            <div className="relative -rotate-3 overflow-hidden">
-              <div className="flex animate-marquee-left [animation-duration:40s] hover:[animation-play-state:paused]">
-                {duplicatedImages.slice(0, Math.ceil(duplicatedImages.length / 2)).map((imageUrl: string, index: number) => (
-                  <motion.div
-                    key={`left-${index}`}
-                    className="flex-shrink-0 mx-3 group relative"
-                    whileHover={{ scale: 1.1, rotate: 2 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="w-48 h-32 md:w-56 md:h-36 lg:w-64 lg:h-40 relative overflow-hidden rounded-2xl shadow-lg">
-                      <img
-                        src={imageUrl}
-                        alt={`Event moment ${index + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
-                      
-                      {/* Heart Icon on Hover */}
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Heart className="w-6 h-6 text-white fill-red-500" />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Second Marquee - Right to Left, Tilted Opposite */}
-            <div className="relative rotate-3 overflow-hidden">
-              <div className="flex animate-marquee-right [animation-duration:45s] hover:[animation-play-state:paused]">
-                {duplicatedImages.slice(Math.ceil(duplicatedImages.length / 2)).map((imageUrl: string, index: number) => (
-                  <motion.div
-                    key={`right-${index}`}
-                    className="flex-shrink-0 mx-3 group relative"
-                    whileHover={{ scale: 1.1, rotate: -2 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="w-48 h-32 md:w-56 md:h-36 lg:w-64 lg:h-40 relative overflow-hidden rounded-2xl shadow-lg">
-                      <img
-                        src={imageUrl}
-                        alt={`Event moment ${index + Math.ceil(duplicatedImages.length / 2) + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
-                      
-                      {/* Camera Icon on Hover */}
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Camera className="w-6 h-6 text-white" />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Third Marquee - Left to Right, Different Speed */}
-            {imageUrls.length > 6 && (
-              <div className="relative -rotate-2 overflow-hidden">
-                <div className="flex animate-marquee-left [animation-duration:35s] hover:[animation-play-state:paused]">
-                  {duplicatedImages.map((imageUrl: string, index: number) => (
-                    <motion.div
-                      key={`third-${index}`}
-                      className="flex-shrink-0 mx-3 group relative"
-                      whileHover={{ scale: 1.1, rotate: 1 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <div className="w-44 h-28 md:w-52 md:h-32 lg:w-60 lg:h-36 relative overflow-hidden rounded-2xl shadow-lg">
-                        <img
-                          src={imageUrl}
-                          alt={`Event highlight ${index + 1}`}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+            </span>
+          </h2>
         )}
-
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <motion.div 
-            className="events-stats group"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Camera className="w-8 h-8 text-white" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">{imageUrls.length}+</div>
-            <div className="text-gray-300 text-sm">Captured Moments</div>
-          </motion.div>
-
-          <motion.div 
-            className="events-stats group"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Calendar className="w-8 h-8 text-white" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">15+</div>
-            <div className="text-gray-300 text-sm">Team Events</div>
-          </motion.div>
-
-          <motion.div 
-            className="events-stats group"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Users className="w-8 h-8 text-white" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">50+</div>
-            <div className="text-gray-300 text-sm">Team Members</div>
-          </motion.div>
-
-          <motion.div 
-            className="events-stats group"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Heart className="w-8 h-8 text-white" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">2024</div>
-            <div className="text-gray-300 text-sm">Amazing Year</div>
-          </motion.div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="text-center mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            <Camera className="w-5 h-5 mr-2" />
-            Join Our Next Event
-          </motion.div>
-        </div>
+        
+        {description && (
+          <p className="events-description text-sm md:text-base text-slate-300 max-w-2xl mx-auto">
+            {description}
+          </p>
+        )}
       </div>
+
+      {/* ✅ Full Screen Masonry Gallery - Continuous Loop */}
+      {imageUrls.length > 0 && (
+        <div className="flex-1 relative overflow-hidden">
+          <div className="absolute inset-0 flex">
+            {/* Create multiple sets for seamless infinite scroll */}
+            {Array.from({ length: 3 }, (_, setIndex) => (
+              <motion.div
+                key={setIndex}
+                className="flex gap-3 min-w-full"
+                animate={{
+                  x: [0, -100 * 16] // Move exactly one full set width
+                }}
+                transition={{
+                  duration: 60, // Smooth 60 second cycle
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{
+                  animationDelay: `${setIndex * 20}s` // Stagger the sets
+                }}
+              >
+                {/* 16 columns for full screen coverage */}
+                {Array.from({ length: 16 }, (_, columnIndex) => (
+                  <div key={columnIndex} className="flex flex-col gap-3 w-60 flex-shrink-0">
+                    {masonryImages
+                      .filter((_, imgIndex) => imgIndex % 16 === columnIndex)
+                      .slice(0, 8) // Limit images per column for performance
+                      .map((image, index) => (
+                        <motion.div
+                          key={`${setIndex}-${image.id}-${index}`}
+                          className="relative group cursor-pointer overflow-hidden rounded-lg shadow-2xl flex-shrink-0"
+                          style={{
+                            height: `${image.height}px`,
+                            width: '240px'
+                          }}
+                          whileHover={{ 
+                            scale: 1.02,
+                            zIndex: 50
+                          }}
+                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        >
+                          <img
+                            src={image.url}
+                            alt={`Event moment ${index + 1}`}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            loading="lazy"
+                            style={{
+                              filter: 'brightness(0.9) contrast(1.1) saturate(1.1)'
+                            }}
+                          />
+                          
+                          {/* Gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-70 group-hover:opacity-40 transition-opacity duration-300" />
+                          
+                          {/* Hover glow */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </motion.div>
+                      ))}
+                  </div>
+                ))}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* ✅ Fade edges for seamless effect */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-900 via-indigo-900/80 to-transparent pointer-events-none z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-900 via-indigo-900/80 to-transparent pointer-events-none z-10" />
+          <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900/50 to-transparent pointer-events-none z-10" />
+          <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-slate-900/50 to-transparent pointer-events-none z-10" />
+        </div>
+      )}
+
+      {/* ✅ Enhanced empty state */}
+      {imageUrls.length === 0 && (title || description) && (
+        <div className="flex-1 flex items-center justify-center">
+          <motion.div 
+            className="text-center"
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2 }}
+          >
+            <div className="w-32 h-32 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg backdrop-blur-sm border border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-full shadow-lg" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">Photo Wall Coming Soon</h3>
+            <p className="text-slate-400 text-lg max-w-lg mx-auto leading-relaxed">
+              Amazing event photos will flow here once they're added to the gallery.
+            </p>
+          </motion.div>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,4 +1,4 @@
-// Updated ContentEditor.tsx
+// Updated ContentEditor.tsx - Footer section with number field
 'use client'
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -792,9 +792,9 @@ export default function ContentEditor() {
       footer: [
         { name: 'logoUrl', type: 'image', label: 'Logo' },
         { name: 'address', type: 'textarea', label: 'Address' },
+        { name: 'number', type: 'text', label: 'Phone Number' },
         { name: 'companyEmail', type: 'text', label: 'Company Email' },
         { name: 'text', type: 'textarea', label: 'Footer Text' },
-        { name: 'text2', type: 'textarea', label: 'Additional Footer Text' },
         { name: 'socialLinks', type: 'array', label: 'Social Media Links' }
       ],
       whyUs: [

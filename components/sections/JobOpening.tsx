@@ -2,150 +2,288 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
-import { useContentStore } from '@/stores/content';
-import { X, ZoomIn, Calendar, Users } from 'lucide-react';
+import { useSectionContent } from '@/stores/content';
+import { X, MapPin, Clock, Users, ChevronRight, Briefcase, CheckCircle } from 'lucide-react';
 
-export default function EventsPhotoWall() {
-  const { eventsPhotoWall } = useContentStore();
+export default function JobOpening() {
+  const { data: jobOpening, loading, error } = useSectionContent('jobOpening');
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true });
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const isInView = useInView(containerRef, { once: true, amount: 0.1 });
+  const [selectedJob, setSelectedJob] = useState<any | null>(null);
 
+  // ✅ Enhanced GSAP animations
   useEffect(() => {
-    if (!isInView || !containerRef.current) return;
+    if (!isInView || !containerRef.current || loading) return;
 
     const ctx = gsap.context(() => {
-      gsap.timeline()
-        .from('.events-title', { y: 50, opacity: 0, duration: 1, ease: "power2.out" })
-        .from('.events-description', { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.5")
-        .from('.events-photos', { y: 40, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" }, "-=0.3");
+      const tl = gsap.timeline();
+      
+      tl.fromTo('.job-title', 
+        { y: 80, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" }
+      )
+      .fromTo('.job-card', 
+        { y: 100, opacity: 0, scale: 0.8 },
+        { y: 0, opacity: 1, scale: 1, duration: 1, stagger: 0.2, ease: "back.out(1.4)" }, 
+        "-=0.8"
+      );
     }, containerRef);
 
     return () => ctx.revert();
-  }, [isInView]);
+  }, [isInView, loading]);
 
-  if (!eventsPhotoWall || eventsPhotoWall.hidden) return null;
+  // ✅ Early return after hooks
+  if (loading || error || !jobOpening || jobOpening.hidden) return null;
 
-  const title = eventsPhotoWall.title || '';
-  const description = eventsPhotoWall.description || '';
-  const imageUrls = eventsPhotoWall.imageUrls || [];
+  const title = jobOpening.title || '';
+  const cards = jobOpening.cards || [];
 
-  if (!title && !description && imageUrls.length === 0) return null;
+  if (!title && cards.length === 0) return null;
 
   return (
     <>
       <section 
         ref={containerRef}
-        className="py-20 bg-gradient-to-br from-gray-900 to-indigo-900 text-white relative overflow-hidden"
+        className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden py-20"
       >
-        {/* Background Elements */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-10 left-10 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl" />
+        {/* ✅ Enhanced background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-slate-50/30 to-blue-50/40" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.08),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(99,102,241,0.06),transparent_50%)]" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative">
-          {/* Header */}
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
+          {/* ✅ Header */}
           <div className="text-center mb-16">
             {title && (
-              <h2 className="events-title text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                {title}
+              <h2 className="job-title text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-8">
+                <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-slate-900 bg-clip-text text-transparent">
+                  {title}
+                </span>
               </h2>
-            )}
-            
-            {description && (
-              <p className="events-description text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
-                {description}
-              </p>
             )}
           </div>
 
-          {/* Photo Grid */}
-          {imageUrls.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {imageUrls.map((imageUrl: string, index: number) => (
+          {/* ✅ Job Cards Grid */}
+          {cards.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {cards.map((job: any, index: number) => (
                 <motion.div
                   key={index}
-                  className="events-photos group relative overflow-hidden rounded-2xl aspect-square cursor-pointer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelectedImage(imageUrl)}
+                  className="job-card group bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/60 cursor-pointer"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedJob(job)}
                 >
-                  <img
-                    src={imageUrl}
-                    alt={`Event photo ${index + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
-                  {/* Zoom Icon */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <ZoomIn className="w-6 h-6 text-white" />
+                  <div className="p-8 space-y-6">
+                    
+                    {/* Job Icon */}
+                    <div className="flex items-center justify-between">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Briefcase className="w-6 h-6 text-white" />
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                    </div>
+
+                    {/* Job Title */}
+                    {job.title && (
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {job.title}
+                      </h3>
+                    )}
+
+                    {/* Position - Label + Value */}
+                    {(job.position || job.positionValue) && (
+                      <div className="flex items-center space-x-3">
+                        <MapPin className="w-4 h-4 text-slate-500" />
+                        <div>
+                          {job.position && (
+                            <span className="text-sm text-slate-500 font-medium">{job.position}: </span>
+                          )}
+                          {job.positionValue && (
+                            <span className="text-slate-800 font-semibold">{job.positionValue}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Experience - Label + Value */}
+                    {(job.experience || job.experienceValue) && (
+                      <div className="flex items-center space-x-3">
+                        <Clock className="w-4 h-4 text-slate-500" />
+                        <div>
+                          {job.experience && (
+                            <span className="text-sm text-slate-500 font-medium">{job.experience}: </span>
+                          )}
+                          {job.experienceValue && (
+                            <span className="text-slate-800 font-semibold">{job.experienceValue}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* View Details Button */}
+                    <div className="pt-4 border-t border-slate-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-blue-600 hover:text-blue-700 font-semibold group-hover:translate-x-2 transition-all duration-300">
+                          {job.viewDetailsButton}
+                        </span>
+                        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ChevronRight className="w-4 h-4 text-blue-600" />
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Hover Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
                 </motion.div>
               ))}
             </div>
           )}
 
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">{imageUrls.length}+</div>
-              <div className="text-gray-300 text-sm">Memorable Moments</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">12+</div>
-              <div className="text-gray-300 text-sm">Team Events</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">50+</div>
-              <div className="text-gray-300 text-sm">Team Members</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">2024</div>
-              <div className="text-gray-300 text-sm">Amazing Year</div>
-            </div>
-          </div>
+          {/* ✅ Empty State */}
+          {cards.length === 0 && title && (
+            <motion.div 
+              className="text-center py-24"
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2 }}
+            >
+              <div className="w-32 h-32 bg-gradient-to-br from-blue-100/50 to-purple-100/50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg backdrop-blur-sm border border-white/60">
+                <Briefcase className="w-16 h-16 text-blue-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-slate-900 mb-6">No Open Positions</h3>
+              <p className="text-slate-600 text-xl max-w-lg mx-auto leading-relaxed">
+                We're always looking for talented individuals. Check back soon for new opportunities!
+              </p>
+            </motion.div>
+          )}
         </div>
       </section>
 
-      {/* Image Modal */}
+      {/* ✅ Job Details Modal */}
       <AnimatePresence>
-        {selectedImage && (
+        {selectedJob && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedJob(null)}
           >
             <motion.div
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative max-w-4xl max-h-[90vh] w-full h-full"
+              className="relative max-w-4xl max-h-[90vh] w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={selectedImage}
-                alt="Event photo"
-                className="w-full h-full object-contain rounded-2xl"
-              />
-              
               {/* Close Button */}
               <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                onClick={() => setSelectedJob(null)}
+                className="absolute top-4 right-4 w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors z-10"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-5 h-5 text-slate-600" />
               </button>
+
+              {/* Modal Content */}
+              <div className="max-h-[90vh] overflow-y-auto p-8 space-y-8">
+                
+                {/* Job Header */}
+                <div className="space-y-6">
+                  {/* Job Title */}
+                  {selectedJob.title && (
+                    <h2 className="text-3xl font-bold text-slate-900">{selectedJob.title}</h2>
+                  )}
+                  
+                  {/* Position & Experience in Modal - Label + Value */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    {/* Position Card */}
+                    {(selectedJob.position || selectedJob.positionValue) && (
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <MapPin className="w-5 h-5 text-blue-600" />
+                          {selectedJob.position && (
+                            <div className="text-blue-600 font-medium text-sm">{selectedJob.position}</div>
+                          )}
+                        </div>
+                        {selectedJob.positionValue && (
+                          <div className="text-slate-800 font-semibold text-lg">{selectedJob.positionValue}</div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Experience Card */}
+                    {(selectedJob.experience || selectedJob.experienceValue) && (
+                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <Clock className="w-5 h-5 text-green-600" />
+                          {selectedJob.experience && (
+                            <div className="text-green-600 font-medium text-sm">{selectedJob.experience}</div>
+                          )}
+                        </div>
+                        {selectedJob.experienceValue && (
+                          <div className="text-slate-800 font-semibold text-lg">{selectedJob.experienceValue}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Required Skills */}
+                {selectedJob.requiredSkills && selectedJob.requiredSkills.length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                      <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
+                      {selectedJob.requiredSkillsTitle || 'Required Skills'}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {selectedJob.requiredSkills.map((skill: string, index: number) => (
+                        <motion.div
+                          key={index}
+                          className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-slate-700 font-medium">{skill}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Responsibilities */}
+                {selectedJob.responsibilities && selectedJob.responsibilities.length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                      <Users className="w-6 h-6 text-blue-600 mr-3" />
+                      {selectedJob.responsibilityTitle || 'Responsibilities'}
+                    </h3>
+                    <div className="space-y-3">
+                      {selectedJob.responsibilities.map((responsibility: string, index: number) => (
+                        <motion.div
+                          key={index}
+                          className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5 flex-shrink-0">
+                            {index + 1}
+                          </div>
+                          <span className="text-slate-700 leading-relaxed">{responsibility}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
