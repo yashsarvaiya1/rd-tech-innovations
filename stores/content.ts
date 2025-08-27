@@ -66,35 +66,28 @@ const sections = [
   "jobOpening",
 ];
 
-// **NEW: Helper function to extract nested data properly**
+// FIXED: Helper function to extract nested data properly
 function extractSectionData(rawData: any, sectionId: string): any {
   console.log(`🔍 Extracting data for ${sectionId}:`, rawData);
   
-  // Check if data is nested under section name (like landingPage.landingPage)
-  if (rawData[sectionId]) {
-    console.log(`✅ Found nested data under ${sectionId}:`, rawData[sectionId]);
-    return rawData[sectionId];
-  }
+  // Initialize result object
+  const result: any = {};
   
-  // Check for dot notation fields (navbar.title, navbar.logoUrl, etc.)
-  const dotNotationData: any = {};
-  const directData: any = {};
-  
+  // Extract all fields from the raw Firestore document
   Object.keys(rawData).forEach(key => {
     if (key.startsWith(`${sectionId}.`)) {
-      // Handle "sectionId.field" format
+      // Handle dot notation fields like "navbar.logoUrl" -> logoUrl
       const fieldName = key.replace(`${sectionId}.`, '');
-      dotNotationData[fieldName] = rawData[key];
+      result[fieldName] = rawData[key];
+      console.log(`📝 Extracted ${sectionId}.${fieldName}:`, rawData[key]);
     } else if (!['id', 'updatedAt'].includes(key)) {
-      // Handle direct fields
-      directData[key] = rawData[key];
+      // Handle direct fields like "hidden", "title", etc.
+      result[key] = rawData[key];
+      console.log(`📝 Extracted direct field ${key}:`, rawData[key]);
     }
   });
   
-  // Merge dot notation and direct data, prioritizing dot notation
-  const result = { ...directData, ...dotNotationData };
-  
-  console.log(`📝 Final extracted data for ${sectionId}:`, result);
+  console.log(`✅ Final extracted data for ${sectionId}:`, result);
   return result;
 }
 
@@ -139,8 +132,10 @@ export const useContentStore = create<PublicContentState>()(
           if (sectionContent) {
             console.log(`[ContentStore] Raw fetched data for ${sectionId}:`, sectionContent);
             
-            // **UPDATED: Use helper function to extract data properly**
-            const cleanedData = extractSectionData(sectionContent, sectionId);
+            // FIXED: Extract the raw Firestore data correctly
+            // The ContentService returns structured data, we need the raw data
+            const rawData = (sectionContent as any)[sectionId] || sectionContent;
+            const cleanedData = extractSectionData(rawData, sectionId);
 
             set({
               content: { ...content, [sectionId]: sectionContent },
@@ -148,7 +143,7 @@ export const useContentStore = create<PublicContentState>()(
               loading: false
             }, false, "fetchSectionContent");
 
-            console.log(`[ContentStore] ✅ Successfully processed ${sectionId}`);
+            console.log(`[ContentStore] ✅ Successfully processed ${sectionId}:`, cleanedData);
           }
           
         } catch (error) {
@@ -184,9 +179,12 @@ export const useContentStore = create<PublicContentState>()(
               
               console.log(`[ContentStore] 📥 Processing ${sectionId} from fetchAll:`, content);
               
-              // **UPDATED: Use helper function to extract data properly**
-              const cleanedData = extractSectionData(content, sectionId);
+              // FIXED: Extract the raw data correctly
+              const rawData = (content as any)[sectionId] || content;
+              const cleanedData = extractSectionData(rawData, sectionId);
               sectionUpdates[sectionId] = cleanedData;
+              
+              console.log(`[ContentStore] ✅ Processed ${sectionId}:`, cleanedData);
             }
           });
           
@@ -204,7 +202,7 @@ export const useContentStore = create<PublicContentState>()(
         }
       },
 
-      // **UPDATED: Real-time updates with proper data extraction**
+      // FIXED: Real-time updates with proper data extraction
       subscribeToRealTimeUpdates: () => {
         const state = get();
         
@@ -226,7 +224,7 @@ export const useContentStore = create<PublicContentState>()(
                 
                 const currentState = get();
                 
-                // **UPDATED: Use helper function to extract data properly**
+                // FIXED: Extract data from the raw Firestore document
                 const cleanedData = extractSectionData(rawData, sectionId);
                 
                 set({
@@ -235,7 +233,7 @@ export const useContentStore = create<PublicContentState>()(
                   error: null
                 }, false, `realtime:${sectionId}`);
 
-                console.log(`[ContentStore] ✅ Real-time update processed for ${sectionId}`);
+                console.log(`[ContentStore] ✅ Real-time update processed for ${sectionId}:`, cleanedData);
               } else {
                 console.warn(`[ContentStore] ⚠️ Document ${sectionId} does not exist`);
               }
@@ -267,16 +265,22 @@ export const useContentStore = create<PublicContentState>()(
       },
 
       // Getters
-      getSectionContent: (sectionId) => {
+      getSectionContent: (sectionId: string) => {
         const { content } = get();
         return content[sectionId] || null;
       },
 
-      isSectionVisible: (sectionId, sectionKey) => {
+      isSectionVisible: (sectionId: string, sectionKey: string) => {
         const state = get();
         const sectionData = (state as any)[sectionId];
         return sectionData && !sectionData.hidden;
       },
+      
+      // Initialize function (if needed)
+      initialize: () => {
+        console.log("[ContentStore] Initializing content store");
+        get().fetchAllContent();
+      }
     }),
     {
       name: "public-content-store",
@@ -285,15 +289,18 @@ export const useContentStore = create<PublicContentState>()(
   )
 );
 
-// **UPDATED: Helper hook with better data access**
+// FIXED: Helper hook with better data access
 export const useSectionContent = (sectionId: string) => {
   const store = useContentStore();
   const sectionData = (store as any)[sectionId];
+  
+  console.log(`[useSectionContent] Hook called for ${sectionId}:`, sectionData);
   
   return {
     data: sectionData,
     loading: store.loading,
     error: store.error,
-    visible: !sectionData?.hidden
+    visible: !sectionData?.hidden,
+    refetch: () => store.fetchSectionContent(sectionId)
   };
 };

@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Phone } from 'lucide-react';
-import { useSectionContent } from '@/stores/content';
+import { useContentStore } from '@/stores/content';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { data: navbar, loading, error } = useSectionContent('navbar');
+  const { navbar } = useContentStore(); // Same pattern as Footer
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -21,45 +21,48 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  console.log('[Navbar] Render - navbar:', navbar, 'loading:', loading, 'error:', error);
+  // DEBUG: Log navbar data (same as Footer debug pattern)
+  console.log('=== NAVBAR DEBUG (Footer Pattern) ===');
+  console.log('navbar:', navbar);
+  console.log('navbar type:', typeof navbar);
+  console.log('navbar keys:', navbar ? Object.keys(navbar) : 'no navbar');
 
-  // Don't render if hidden, on admin/auth paths, or critical error
+  // Same pattern as Footer - hide if no data, hidden, or on admin/auth paths
   if (!navbar || navbar.hidden || pathname?.startsWith('/admin') || pathname?.startsWith('/auth')) {
-    console.log('[Navbar] Not rendering - hidden or admin/auth path');
     return null;
   }
 
-  if (loading) {
-    console.log('[Navbar] Loading state, not rendering');
-    return null;
-  }
+  // FIXED: Extract data using EXACT same pattern as Footer
+  const logoUrl = navbar.logoUrl || '';
+  const contactButton = navbar.contactButton || 'Contact';
+  const routesList = navbar.routesList || [];
 
-  if (error) {
-    console.error('[Navbar] Error state:', error);
-    return null;
-  }
+  // Additional debug for extracted data
+  console.log('EXTRACTED NAVBAR DATA:', { 
+    logoUrl, 
+    contactButton, 
+    routesList,
+    routesListType: typeof routesList,
+    routesListIsArray: Array.isArray(routesList),
+    routesListLength: Array.isArray(routesList) ? routesList.length : 'not array'
+  });
 
-  // Safely extract routes and other data, with fallback to empty array/object
-  const routesList = (navbar['navbar.routesList'] || navbar.routesList || navbar.navbar?.routesList || []).filter(Boolean);
-  const logoUrl = navbar['navbar.logoUrl'] || navbar.logoUrl || navbar.navbar?.logoUrl || '';
-  const contactButton = navbar['navbar.contactButton'] || navbar.contactButton || navbar.navbar?.contactButton || 'Contact';
-  const title = navbar['navbar.title'] || navbar.title || navbar.navbar?.title || '';
-
-  console.log('[Navbar] Processed navbar data:', { routesList, logoUrl, contactButton, title });
-
-  // Handle routesList as array of strings or objects
-  const routes = routesList.map((route: string | { name: string; path: string }) => {
+  // Process routes - handle both string array and object array
+  const routes = Array.isArray(routesList) ? routesList.map((route: any, index: number) => {
     if (typeof route === 'string') {
       const routeName = route;
       const routePath = routeName.toLowerCase() === 'home' ? '/' : `/${routeName.toLowerCase().replace(/\s+/g, '-')}`;
+      return { name: routeName, path: routePath };
+    } else if (route && typeof route === 'object') {
       return {
-        name: routeName,
-        path: routePath
+        name: route.name || route.title || `Route ${index + 1}`,
+        path: route.path || route.url || `/${(route.name || route.title || 'route').toLowerCase().replace(/\s+/g, '-')}`
       };
-    } else {
-      return route;
     }
-  });
+    return null;
+  }).filter(Boolean) : [];
+
+  console.log('FINAL PROCESSED ROUTES:', routes);
 
   return (
     <motion.nav
@@ -70,33 +73,38 @@ export default function Navbar() {
         isScrolled ? 'bg-white/90 backdrop-blur-lg shadow-2xl border border-gray-100' : 'bg-white/70 backdrop-blur-sm shadow-lg'
       }`}
     >
-      <div className="px-8 py-4 flex items-center justify-between">
-        {/* Logo */}
+      <div className="px-8 py-4 flex items-center justify-center relative">
+        {/* Logo - positioned absolutely to left */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 300 }}
+          className="absolute left-8"
         >
           <Link href="/" className="flex items-center">
             {logoUrl ? (
               <img
                 src={logoUrl}
-                alt={title || 'Logo'}
+                alt="Logo"
                 className="h-10 w-auto object-contain"
+                onError={(e) => {
+                  console.error('Logo failed to load:', logoUrl);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ) : (
               <div className="h-10 px-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center">
-                <span className="text-white font-bold text-sm">{title || 'Logo'}</span>
+                <span className="text-white font-bold text-sm">Logo</span>
               </div>
             )}
           </Link>
         </motion.div>
 
-        {/* Navigation Routes */}
+        {/* Navigation Routes - centered */}
         <div className="hidden lg:flex items-center space-x-8">
           {routes.length > 0 ? (
             routes.map((route: any, index: number) => (
               <motion.div
-                key={route.path}
+                key={route.path || index}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
@@ -120,12 +128,20 @@ export default function Navbar() {
               </motion.div>
             ))
           ) : (
-            <span className="text-gray-500 text-sm">No routes available</span> // Fallback for empty routes
+            <div className="text-center">
+              <span className="text-gray-500 text-sm">No navigation routes found</span>
+              <div className="text-xs text-red-500 mt-1">
+                Available fields: {navbar ? Object.keys(navbar).join(', ') : 'none'}
+              </div>
+              <div className="text-xs text-blue-500">
+                routesList: {JSON.stringify(routesList)}
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Contact Button */}
-        <div className="flex items-center space-x-4">
+        {/* Contact Button - positioned absolutely to right */}
+        <div className="absolute right-8 flex items-center space-x-4">
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -175,7 +191,7 @@ export default function Navbar() {
                   </Link>
                 ))
               ) : (
-                <span className="text-gray-500">No routes available</span>
+                <span className="text-gray-500">No navigation routes available</span>
               )}
               <Link
                 href="/contact"
