@@ -1,11 +1,12 @@
-'use client'
+'use client';
+
 import { useSectionContent } from '@/stores/content';
 import Link from 'next/link';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  ExternalLink, 
+import {
+  Mail,
+  Phone,
+  MapPin,
+  ExternalLink,
   Facebook,
   Twitter,
   Instagram,
@@ -15,31 +16,51 @@ import {
   ArrowUp,
   Calendar,
   Users,
-  Building
+  Building,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
+// Social icon mapper
+const getSocialIcon = (name: string) => {
+  const icon = name?.toLowerCase();
+  switch (icon) {
+    case 'facebook':
+      return <Facebook className="w-5 h-5" />;
+    case 'twitter':
+      return <Twitter className="w-5 h-5" />;
+    case 'instagram':
+      return <Instagram className="w-5 h-5" />;
+    case 'linkedin':
+      return <Linkedin className="w-5 h-5" />;
+    case 'github':
+      return <Github className="w-5 h-5" />;
+    case 'youtube':
+      return <Youtube className="w-5 h-5" />;
+    default:
+      return <ExternalLink className="w-4 h-4" />;
+  }
+};
 
 export default function Footer() {
   const { data: footer, loading, error } = useSectionContent('footer');
   const pathname = usePathname();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+  // Show/hide scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToTop = () => {
+  const scrollToTop = () =>
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
-  // Don't render on admin/auth pages or if hidden
+  // Avoid rendering in restricted pages or hidden
   if (!footer || footer.hidden || pathname?.startsWith('/admin') || pathname?.startsWith('/auth')) {
     return null;
   }
@@ -47,57 +68,41 @@ export default function Footer() {
   if (loading) {
     return (
       <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="animate-pulse">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="space-y-4">
-                  <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-800 rounded"></div>
-                  <div className="h-3 bg-gray-800 rounded w-5/6"></div>
-                </div>
-              ))}
-            </div>
+        <div className="max-w-7xl mx-auto px-6 animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-4">
+                <div className="h-4 bg-gray-700 rounded w-3/4" />
+                <div className="h-3 bg-gray-800 rounded" />
+                <div className="h-3 bg-gray-800 rounded w-5/6" />
+              </div>
+            ))}
           </div>
         </div>
       </footer>
     );
   }
 
-  if (error || !footer) {
-    return null;
-  }
+  if (error) return null;
 
-  // Extract footer data with fallbacks
-  const logoUrl = footer.logoUrl || '';
-  const address = footer.address || '';
-  const companyEmail = footer.companyEmail || '';
-  const companyPhone = footer.companyPhone || '';
-  const text = footer.text || '';
-  const text2 = footer.text2 || '';
-  const socialLinks = footer.socialLinks || [];
-  const quickLinks = footer.quickLinks || [];
-
-  // Social icon mapping
-  const getSocialIcon = (name: string) => {
-    const iconName = name?.toLowerCase();
-    switch (iconName) {
-      case 'facebook': return <Facebook className="w-5 h-5" />;
-      case 'twitter': return <Twitter className="w-5 h-5" />;
-      case 'instagram': return <Instagram className="w-5 h-5" />;
-      case 'linkedin': return <Linkedin className="w-5 h-5" />;
-      case 'github': return <Github className="w-5 h-5" />;
-      case 'youtube': return <Youtube className="w-5 h-5" />;
-      default: return <ExternalLink className="w-4 h-4" />;
-    }
-  };
+  // Extract footer data with defaults
+  const {
+    logoUrl = '',
+    address = '',
+    companyEmail = '',
+    companyPhone = '',
+    text = '',
+    text2 = '',
+    socialLinks = [],
+    quickLinks = [],
+  } = footer || {};
 
   const currentYear = new Date().getFullYear();
 
   return (
     <>
       <footer className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white relative overflow-hidden">
-        {/* Enhanced Background Pattern */}
+        {/* Background accents */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.08),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(139,92,246,0.06),transparent_50%)]" />
@@ -105,12 +110,11 @@ export default function Footer() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12 py-16">
-          {/* Main Footer Content */}
+          {/* Grid layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             
-            {/* Company Info Section */}
+            {/* Company Info */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Logo */}
               {logoUrl ? (
                 <Link href="/" className="inline-block group">
                   <img
@@ -122,33 +126,31 @@ export default function Footer() {
               ) : (
                 <Link href="/" className="inline-block">
                   <div className="h-12 px-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center">
-                    <span className="text-white font-bold text-lg">RD Tech Innovations</span>
+                    <span className="text-white font-bold text-lg">
+                      RD Tech Innovations
+                    </span>
                   </div>
                 </Link>
               )}
 
-              {/* Company Description */}
               {text && (
                 <p className="text-gray-300 leading-relaxed max-w-md text-sm lg:text-base">
                   {text}
                 </p>
               )}
-
-              {/* Additional Text */}
               {text2 && (
-                <p className="text-gray-400 text-sm max-w-md">
-                  {text2}
-                </p>
+                <p className="text-gray-400 text-sm max-w-md">{text2}</p>
               )}
 
-              {/* Social Links */}
               {socialLinks.length > 0 && (
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-white">Follow Us</h4>
+                  <h4 className="text-lg font-semibold mb-4 text-white">
+                    Follow Us
+                  </h4>
                   <div className="flex flex-wrap gap-3">
-                    {socialLinks.map((social: any, index: number) => (
+                    {socialLinks.map((social: any, idx: number) => (
                       <motion.a
-                        key={index}
+                        key={idx}
                         href={social.link}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -175,19 +177,21 @@ export default function Footer() {
               )}
             </div>
 
-            {/* Contact Info Section */}
+            {/* Contact Info */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold mb-6 text-white flex items-center">
                 <Building className="w-5 h-5 mr-2 text-blue-400" />
                 Contact Info
               </h3>
-              
+
               <div className="space-y-4">
                 {companyEmail && (
                   <div className="flex items-start space-x-3 group">
-                    <Mail className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <Mail className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Email</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                        Email
+                      </p>
                       <a
                         href={`mailto:${companyEmail}`}
                         className="text-gray-300 hover:text-white transition-colors text-sm"
@@ -200,9 +204,11 @@ export default function Footer() {
 
                 {companyPhone && (
                   <div className="flex items-start space-x-3 group">
-                    <Phone className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <Phone className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Phone</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                        Phone
+                      </p>
                       <a
                         href={`tel:${companyPhone}`}
                         className="text-gray-300 hover:text-white transition-colors text-sm"
@@ -215,9 +221,11 @@ export default function Footer() {
 
                 {address && (
                   <div className="flex items-start space-x-3 group">
-                    <MapPin className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <MapPin className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Address</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                        Address
+                      </p>
                       <p className="text-gray-300 leading-relaxed text-sm">
                         {address}
                       </p>
@@ -227,102 +235,61 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Quick Links Section */}
+            {/* Quick Links */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold mb-6 text-white flex items-center">
                 <Users className="w-5 h-5 mr-2 text-blue-400" />
                 Quick Links
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-3">
-                {quickLinks.length > 0 ? (
-                  quickLinks.map((link: any, index: number) => (
-                    <Link
-                      key={index}
-                      href={link.path || '/'}
-                      className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group"
-                    >
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
-                      {link.name}
-                    </Link>
-                  ))
-                ) : (
-                  // Default quick links if none provided
-                  <>
-                    <Link href="/about" className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
-                      About Us
-                    </Link>
-                    <Link href="/services" className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
-                      Services
-                    </Link>
-                    <Link href="/projects" className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
-                      Projects
-                    </Link>
-                    <Link href="/career" className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
-                      Careers
-                    </Link>
-                    <Link href="/contact" className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
-                      Contact
-                    </Link>
-                  </>
-                )}
+                {(quickLinks.length > 0 ? quickLinks : [
+                  { path: '/about', name: 'About Us' },
+                  { path: '/projects', name: 'Projects' },
+                  { path: '/career', name: 'Careers' },
+                  { path: '/contact', name: 'Contact' },
+                ]).map((link: { path: string; name: string }, idx: number) => (
+                  <Link
+                    key={idx}
+                    href={link.path || '/'}
+                    className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group"
+                  >
+                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors" />
+                    {link.name}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
-
-          {/* Newsletter Signup Section (Optional)
-          <div className="mt-12 pt-8 border-t border-gray-800">
-            <div className="text-center max-w-2xl mx-auto">
-              <h4 className="text-lg font-semibold text-white mb-2">Stay Updated</h4>
-              <p className="text-gray-400 text-sm mb-6">
-                Get the latest news and updates from our team
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors text-sm"
-                />
-                <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm">
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div> */}
 
           {/* Bottom Bar */}
           <div className="mt-4 pt-8 border-t border-gray-800">
             <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
-              <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                <p className="text-gray-400 text-sm text-center lg:text-right flex items-center">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  © {currentYear} RD Tech Innovations. All rights reserved.
-                </p>
-              </div>
+              <p className="text-gray-400 text-sm text-center lg:text-right flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                © {currentYear} RD Tech Innovations. All rights reserved.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Scroll to Top Button */}
-        {showScrollTop && (
-          <motion.button
-            onClick={scrollToTop}
-            className="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.1, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            title="Scroll to top"
-          >
-            <ArrowUp className="w-5 h-5" />
-          </motion.button>
-        )}
+        {/* Scroll-to-top */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              onClick={scrollToTop}
+              className="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              title="Scroll to top"
+            >
+              <ArrowUp className="w-5 h-5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </footer>
     </>
   );
