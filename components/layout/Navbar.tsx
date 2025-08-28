@@ -73,7 +73,7 @@ export default function Navbar() {
         isScrolled ? 'bg-white/90 backdrop-blur-lg shadow-2xl border border-gray-100' : 'bg-white/70 backdrop-blur-sm shadow-lg'
       }`}
     >
-      <div className="px-8 py-4 flex items-center justify-center relative">
+      <div className="px-8 py-6 flex items-center justify-center relative">
         {/* Logo - positioned absolutely to left */}
         <motion.div
           whileHover={{ scale: 1.05 }}

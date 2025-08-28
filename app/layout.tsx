@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import ContentProvider from "@/providers/ContentProviders";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-poppins" });
 
 export const metadata: Metadata = {
   title: "RD Tech Innovations - Transforming Ideas into Digital Reality",
-  description: "We craft cutting-edge solutions that drive innovation and growth. Expert in web development, mobile apps, cloud solutions, and technical consulting.",
-  keywords: ["tech innovations", "web development", "mobile apps", "cloud solutions", "RD Tech"],
+  description:
+    "We craft cutting-edge solutions that drive innovation and growth. Expert in web development, mobile apps, cloud solutions, and technical consulting.",
+  keywords: [
+    "tech innovations",
+    "web development",
+    "mobile apps",
+    "cloud solutions",
+    "RD Tech",
+  ],
   openGraph: {
     title: "RD Tech Innovations",
     description: "Transforming Ideas into Digital Reality",
@@ -49,12 +57,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${poppins.variable} antialiased`}
+      >
         <ContentProvider>
-            <Navbar />
-            {children}
-            <Footer />
+          <Navbar />
+          {children}
+          <Footer />
         </ContentProvider>
       </body>
     </html>

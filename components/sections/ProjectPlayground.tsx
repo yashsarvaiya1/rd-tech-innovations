@@ -6,18 +6,77 @@ import { useSectionContent } from '@/stores/content';
 import { ExternalLink, Github, X, Filter, Code, Folder, FileText, Search } from 'lucide-react';
 
 export default function ProjectPlayground() {
+  // ✅ ALL HOOKS MUST BE CALLED FIRST - NO EARLY RETURNS BEFORE HOOKS
   const { data: projects, loading, error } = useSectionContent('projects');
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
-  // ✅ State management
+  // ✅ State management - ALWAYS called
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
   const [draggedItem, setDraggedItem] = useState<{ type: string; value: string } | null>(null);
 
-  // ✅ Enhanced GSAP animations
+  // ✅ Extract unique industries and technologies - ALWAYS called
+  const allIndustries = useMemo(() => {
+    if (!projects || loading || error || projects.hidden) {
+      return [];
+    }
+
+    const cards = projects.cards || [];
+    const industries = new Set<string>();
+
+    cards.forEach((project: any) => {
+      (project.industryTags || []).forEach((tag: string) => industries.add(tag));
+    });
+
+    return Array.from(industries);
+  }, [projects, loading, error]);
+
+  // ✅ Extract unique technologies - ALWAYS called  
+  const allTechnologies = useMemo(() => {
+    if (!projects || loading || error || projects.hidden) {
+      return [];
+    }
+
+    const cards = projects.cards || [];
+    const technologies = new Set<string>();
+
+    cards.forEach((project: any) => {
+      (project.techTags || []).forEach((tag: string) => technologies.add(tag));
+    });
+
+    return Array.from(technologies);
+  }, [projects, loading, error]);
+
+  // ✅ Filter projects based on selected filters - ALWAYS called
+  const filteredProjects = useMemo(() => {
+    if (!projects || loading || error || projects.hidden) {
+      return [];
+    }
+
+    const cards = projects.cards || [];
+
+    if (selectedIndustries.length === 0 && selectedTechnologies.length === 0) {
+      return cards;
+    }
+
+    return cards.filter((project: any) => {
+      const projectIndustries = project.industryTags || [];
+      const projectTechnologies = project.techTags || [];
+
+      const industryMatch = selectedIndustries.length === 0 || 
+        selectedIndustries.some(industry => projectIndustries.includes(industry));
+      
+      const techMatch = selectedTechnologies.length === 0 || 
+        selectedTechnologies.some(tech => projectTechnologies.includes(tech));
+
+      return industryMatch && techMatch;
+    });
+  }, [projects, loading, error, selectedIndustries, selectedTechnologies]);
+
+  // ✅ Enhanced GSAP animations - ALWAYS called
   useEffect(() => {
-    if (!isInView || !containerRef.current || loading) return;
+    if (!isInView || !containerRef.current || loading || !projects || projects.hidden) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
@@ -49,52 +108,20 @@ export default function ProjectPlayground() {
     }, containerRef);
 
     return () => ctx.revert();
-  }, [isInView, loading]);
+  }, [isInView, loading, projects]);
 
-  // ✅ Early return after hooks
-  if (loading || error || !projects || projects.hidden) return null;
+  // ✅ NOW AFTER ALL HOOKS - CONDITIONAL RENDERING IS SAFE
+  if (loading || error || !projects || projects.hidden) {
+    return null;
+  }
 
   const title = projects.title || '';
   const text = projects.text || '';
   const cards = projects.cards || [];
 
-  if (!title && !text && cards.length === 0) return null;
-
-  // ✅ Extract unique industries and technologies
-  const { allIndustries, allTechnologies } = useMemo(() => {
-    const industries = new Set<string>();
-    const technologies = new Set<string>();
-
-    cards.forEach((project: any) => {
-      (project.industryTags || []).forEach((tag: string) => industries.add(tag));
-      (project.techTags || []).forEach((tag: string) => technologies.add(tag));
-    });
-
-    return {
-      allIndustries: Array.from(industries),
-      allTechnologies: Array.from(technologies)
-    };
-  }, [cards]);
-
-  // ✅ Filter projects based on selected filters
-  const filteredProjects = useMemo(() => {
-    if (selectedIndustries.length === 0 && selectedTechnologies.length === 0) {
-      return cards;
-    }
-
-    return cards.filter((project: any) => {
-      const projectIndustries = project.industryTags || [];
-      const projectTechnologies = project.techTags || [];
-
-      const industryMatch = selectedIndustries.length === 0 || 
-        selectedIndustries.some(industry => projectIndustries.includes(industry));
-      
-      const techMatch = selectedTechnologies.length === 0 || 
-        selectedTechnologies.some(tech => projectTechnologies.includes(tech));
-
-      return industryMatch && techMatch;
-    });
-  }, [cards, selectedIndustries, selectedTechnologies]);
+  if (!title && !text && cards.length === 0) {
+    return null;
+  }
 
   // ✅ Drag and drop handlers
   const handleDragStart = (type: string, value: string) => {
@@ -334,7 +361,7 @@ export default function ProjectPlayground() {
                                     ) : (
                                       <ExternalLink className="w-2 h-2" />
                                     )}
-                                    <span className="truncate max-w-[40px]">{linkName}</span>
+                                    <span className="truncate max-w-[80px]">{linkName}</span>
                                   </motion.a>
                                 );
                               })}

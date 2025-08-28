@@ -5,14 +5,15 @@ import { gsap } from 'gsap';
 import { useSectionContent } from '@/stores/content';
 
 export default function Technologies() {
+  // ✅ ALL HOOKS MUST BE CALLED FIRST - NO EARLY RETURNS BEFORE HOOKS
   const { data: technologies, loading, error } = useSectionContent('technologies');
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
   
-  // ✅ State for active category - will be set to first category automatically
+  // ✅ State for active category - ALWAYS called
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // ✅ Enhanced background particles
+  // ✅ Enhanced background particles - ALWAYS called
   const backgroundElements = useMemo(() => 
     Array.from({ length: 8 }, (_, i) => ({
       id: i,
@@ -24,18 +25,15 @@ export default function Technologies() {
     })), []
   );
 
-  // ✅ Early return after hooks
-  if (loading || error || !technologies || technologies.hidden) return null;
-
-  const title = technologies.title || '';
-  const description = technologies.description || '';
-  const techCategories = technologies.techCategories || [];
-  const tech = technologies.tech || [];
-
-  if (!title && !description && techCategories.length === 0 && tech.length === 0) return null;
-
-  // ✅ Group technologies by category (with proper filtering)
+  // ✅ ALWAYS call useMemo - even if data is not available
   const groupedTech = useMemo(() => {
+    if (!technologies || loading || error || technologies.hidden) {
+      return {};
+    }
+    
+    const techCategories = technologies.techCategories || [];
+    const tech = technologies.tech || [];
+    
     if (techCategories.length === 0) return {};
     
     return techCategories.reduce((acc: any, category: string) => {
@@ -46,18 +44,21 @@ export default function Technologies() {
       );
       return acc;
     }, {});
-  }, [techCategories, tech]);
+  }, [technologies, loading, error]);
 
-  // ✅ Set first category as active when data loads
+  // ✅ Set first category as active when data loads - ALWAYS called
   useEffect(() => {
+    if (!technologies || loading || error || technologies.hidden) return;
+    
+    const techCategories = technologies.techCategories || [];
     if (techCategories.length > 0 && !activeCategory) {
       setActiveCategory(techCategories[0]);
     }
-  }, [techCategories, activeCategory]);
+  }, [technologies, loading, error, activeCategory]);
 
-  // ✅ Enhanced GSAP animations
+  // ✅ Enhanced GSAP animations - ALWAYS called
   useEffect(() => {
-    if (!isInView || !containerRef.current || loading) return;
+    if (!isInView || !containerRef.current || loading || !technologies || technologies.hidden) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
@@ -79,7 +80,21 @@ export default function Technologies() {
     }, containerRef);
 
     return () => ctx.revert();
-  }, [isInView, loading]);
+  }, [isInView, loading, technologies]);
+
+  // ✅ NOW AFTER ALL HOOKS - CONDITIONAL RENDERING IS SAFE
+  if (loading || error || !technologies || technologies.hidden) {
+    return null;
+  }
+
+  const title = technologies.title || '';
+  const description = technologies.description || '';
+  const techCategories = technologies.techCategories || [];
+  const tech = technologies.tech || [];
+
+  if (!title && !description && techCategories.length === 0 && tech.length === 0) {
+    return null;
+  }
 
   // ✅ Get technologies for active category
   const activeTech = activeCategory ? groupedTech[activeCategory] || [] : [];
@@ -332,8 +347,6 @@ export default function Technologies() {
             })}
           </motion.div>
         )}
-
-        {/* ✅ Show nothing when no category selected and no fallback data */}
       </div>
     </section>
   );
