@@ -1,3 +1,4 @@
+// Updated ContentEditor.tsx - Footer section with number field
 'use client'
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminStore } from "@/stores/admin";
-import { Content } from "@/models/content";
+import { Content, NavbarContent, ContactUsContent, CareerContent } from "@/models/content";
 import { ContentService } from "@/services/contentService";
 import ImageUpload from "./ImageUpload";
 import DependentSelect from "./DependentSelect";
@@ -70,8 +71,28 @@ export default function ContentEditor() {
     if (content && selectedSection) {
       const sectionKey = selectedSection as keyof Omit<Content, "id" | "seoTitle" | "seoDescription">;
       const sectionContent = content[sectionKey] || {};
-      
-      setLocalContent(sectionContent as Record<string, any>);
+      console.log("Initial content for", selectedSection, ":", sectionContent); // Debug log
+      // Type guard and initialize form only for contactUs and career
+      const updatedContent = { ...sectionContent } as any;
+      if (selectedSection === 'contactUs') {
+        const contactUsContent = sectionContent as ContactUsContent | undefined;
+        updatedContent.form = {
+          ...getDefaultForm('contactUs'),
+          ...contactUsContent?.form || {}
+        };
+      } else if (selectedSection === 'career') {
+        const careerContent = sectionContent as CareerContent | undefined;
+        updatedContent.form = {
+          ...getDefaultForm('career'),
+          ...careerContent?.form || {}
+        };
+      }
+      // Handle routesList for navbar
+      if (selectedSection === 'navbar') {
+        const navbarContent = sectionContent as NavbarContent | undefined;
+        updatedContent.routesList = navbarContent?.routesList || [];
+      }
+      setLocalContent(updatedContent as Record<string, any>);
       setHasChanges(false);
     }
   }, [content, selectedSection]);
@@ -101,11 +122,20 @@ export default function ContentEditor() {
   }
 
   const handleFieldChange = (field: string, value: any) => {
-    setLocalContent((prev: Record<string, any>) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setLocalContent((prev: Record<string, any>) => {
+      if (field === 'form' && typeof value === 'object' && value !== null) {
+        return {
+          ...prev,
+          [field]: { ...prev[field], ...value }
+        };
+      }
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
     setHasChanges(true);
+    console.log("Updated localContent:", localContent); // Debug log
   };
 
   const handleSave = async () => {
@@ -169,6 +199,9 @@ export default function ContentEditor() {
 
   const getDefaultArrayItem = (section: string, field: string): any => {
     switch (section) {
+      case 'navbar':
+        if (field === 'routesList') return { name: '', path: '' };
+        break;
       case 'companyBrief':
         if (field === 'tags') return { text1: '', text2: '' };
         break;
@@ -186,7 +219,7 @@ export default function ContentEditor() {
           about: '', 
           industryTags: [], 
           techTags: [], 
-          links: [],  // Will be array of { name: '', url: '' }
+          links: [], 
           imageUrl: '' 
         };
         break;
@@ -196,7 +229,7 @@ export default function ContentEditor() {
           designation: '', 
           companyName: '', 
           imageUrl: '', 
-          socialLinks: [],  // Will be array of { iconUrl: '', name: '', link: '' }
+          socialLinks: [], 
           message: ''
         };
         break;
@@ -224,14 +257,51 @@ export default function ContentEditor() {
       case 'footer':
         if (field === 'socialLinks') return { iconUrl: '', name: '', link: '' };
         break;
+      case 'contactUs':
+        if (field === 'form') return getDefaultForm('contactUs');
+        break;
+      case 'career':
+        if (field === 'form') return getDefaultForm('career');
+        break;
       default:
         return '';
     }
     return '';
   };
 
+  const getDefaultForm = (section: string): Record<string, any> => {
+    switch (section) {
+      case 'contactUs':
+        return {
+          title: '',
+          about: '',
+          name: '',
+          email: '',
+          number: '',
+          requirement: ''
+        };
+      case 'career':
+        return {
+          title: '',
+          about: '',
+          name: '',
+          email: '',
+          number: '',
+          location: '',
+          portfolioOrLink: '',
+          ctc: '',
+          candidateAbout: '',
+          resumeUrl: '',
+          positions: []
+        };
+      default:
+        return {};
+    }
+  };
+
   const renderField = (fieldName: string, fieldType: string) => {
     const value = localContent[fieldName] || (fieldType === 'array' ? [] : '');
+    console.log("Rendering field", fieldName, "with value:", value); // Debug log
 
     switch (fieldType) {
       case 'textarea':
@@ -340,17 +410,30 @@ export default function ContentEditor() {
         );
 
       case 'form-fields':
+        const formValue = (localContent.form || getDefaultForm(selectedSection)) as Record<string, any>;
+        console.log("Form value for", fieldName, ":", formValue); // Debug log
         return (
           <div className="space-y-4">
             <Label className="text-sm font-medium">Form Field Labels</Label>
-            {Object.entries(value || {}).map(([key, label]) => (
-              <div key={key}>
+            {Object.entries(formValue).map(([key, label]) => (
+              <div key={key} className="flex flex-col space-y-1">
                 <Label className="text-xs text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                <Input
-                  value={label as string}
-                  onChange={(e) => handleFieldChange(fieldName, { ...value, [key]: e.target.value })}
-                  placeholder={`Label for ${key}`}
-                />
+                {key === 'about' ? (
+                  <Textarea
+                    value={label as string}
+                    onChange={(e) => handleFieldChange('form', { ...formValue, [key]: e.target.value })}
+                    placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                    rows={3}
+                    className="text-xs"
+                  />
+                ) : (
+                  <Input
+                    value={label as string}
+                    onChange={(e) => handleFieldChange('form', { ...formValue, [key]: e.target.value })}
+                    placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                    className="text-xs"
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -433,7 +516,6 @@ export default function ContentEditor() {
                               rows={2}
                             />
                           ) : key === 'links' && selectedSection === 'projects' ? (
-                            // SPECIAL HANDLING FOR PROJECT LINKS WITH NAME AND URL
                             <div className="space-y-2">
                               {((objValue as any[]) || []).map((linkItem: any, linkIndex: number) => (
                                 <div key={linkIndex} className="flex space-x-2 p-2 border rounded">
@@ -489,7 +571,6 @@ export default function ContentEditor() {
                               </Button>
                             </div>
                           ) : key === 'socialLinks' && (selectedSection === 'testimonials' || selectedSection === 'footer') ? (
-                            // SPECIAL HANDLING FOR SOCIAL LINKS WITH ICON, NAME AND LINK
                             <div className="space-y-2">
                               {((objValue as any[]) || []).map((socialItem: any, socialIndex: number) => (
                                 <div key={socialIndex} className="space-y-2 p-2 border rounded">
@@ -661,7 +742,7 @@ export default function ContentEditor() {
     const fieldMaps: Record<string, FieldConfig[]> = {
       navbar: [
         { name: 'logoUrl', type: 'image', label: 'Logo' },
-        { name: 'routesList', type: 'route-names', label: 'Navigation Routes' },
+        { name: 'routesList', type: 'array', label: 'Navigation Routes' }, // Changed to 'array' to handle { name, path }
         { name: 'contactButton', type: 'text', label: 'Contact Button Text' }
       ],
       landingPage: [
@@ -704,16 +785,16 @@ export default function ContentEditor() {
         { name: 'industries', type: 'array', label: 'Industries' }
       ],
       contactUs: [
-        { name: 'title', type: 'text', label: 'Title' },
-        { name: 'description', type: 'textarea', label: 'Description' },
+        { name: 'title', type: 'text', label: 'Section Title' },
+        { name: 'description', type: 'textarea', label: 'Section Description' },
         { name: 'form', type: 'form-fields', label: 'Form Field Labels' }
       ],
       footer: [
         { name: 'logoUrl', type: 'image', label: 'Logo' },
         { name: 'address', type: 'textarea', label: 'Address' },
+        { name: 'number', type: 'text', label: 'Phone Number' },
         { name: 'companyEmail', type: 'text', label: 'Company Email' },
         { name: 'text', type: 'textarea', label: 'Footer Text' },
-        { name: 'text2', type: 'textarea', label: 'Additional Footer Text' },
         { name: 'socialLinks', type: 'array', label: 'Social Media Links' }
       ],
       whyUs: [
@@ -734,7 +815,7 @@ export default function ContentEditor() {
         { name: 'imageUrls', type: 'image-array', label: 'Event Photos' }
       ],
       career: [
-        { name: 'title', type: 'text', label: 'Title' },
+        { name: 'title', type: 'text', label: 'Section Title' },
         { name: 'form', type: 'form-fields', label: 'Career Form Field Labels' }
       ],
       jobOpening: [

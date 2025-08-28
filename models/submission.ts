@@ -1,13 +1,17 @@
+// Update your models/submission.ts
 export interface EnquirySubmission {
+  id?: string; // ✅ Add optional ID field
   type: "enquiry";
   name: string;
   email: string;
   number: string;
   requirement: string;
   status: string;
+  createdAt?: any; // ✅ Add optional created at field
 }
 
 export interface CareerSubmission {
+  id?: string; // ✅ Add optional ID field
   type: "career";
   name: string;
   email: string;
@@ -19,6 +23,7 @@ export interface CareerSubmission {
   resumeUrl: string;
   positions: string[];
   status: string;
+  createdAt?: any; // ✅ Add optional created at field
 }
 
 export type Submission = EnquirySubmission | CareerSubmission;

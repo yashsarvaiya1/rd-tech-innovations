@@ -5,7 +5,7 @@ import { FirebaseError } from "./base";
 
 export class SubmissionService {
   
-  // Fetch all submissions
+  // ✅ FIXED: Fetch all submissions with document IDs
   static async fetchAllSubmissions(): Promise<Submission[]> {
     try {
       console.log("Fetching all submissions...");
@@ -19,6 +19,7 @@ export class SubmissionService {
         
         if (data.type === "career") {
           submission = {
+            id: doc.id, // ✅ ADD DOCUMENT ID
             type: "career",
             name: data.name || "N/A",
             email: data.email || "N/A",
@@ -30,22 +31,25 @@ export class SubmissionService {
             resumeUrl: data.resumeUrl,
             positions: data.positions || [],
             status: data.status || "pending",
-          };
+            createdAt: data.createdAt, // ✅ ADD CREATED AT
+          } as CareerSubmission & { id: string; createdAt: any };
         } else {
           submission = {
+            id: doc.id, // ✅ ADD DOCUMENT ID
             type: "enquiry",
             name: data.name || "N/A",
             email: data.email || "N/A",
             number: data.number || "N/A",
             requirement: data.requirement || "N/A",
             status: data.status || "pending",
-          };
+            createdAt: data.createdAt, // ✅ ADD CREATED AT
+          } as EnquirySubmission & { id: string; createdAt: any };
         }
         
         submissions.push(submission);
       });
       
-      console.log(`Fetched ${submissions.length} submissions`);
+      console.log(`Fetched ${submissions.length} submissions with IDs`);
       return submissions;
       
     } catch (error) {
@@ -54,7 +58,7 @@ export class SubmissionService {
     }
   }
 
-  // Fetch submissions by type
+  // ✅ FIXED: Fetch submissions by type with document IDs
   static async fetchSubmissionsByType(type: "enquiry" | "career"): Promise<Submission[]> {
     try {
       console.log(`Fetching ${type} submissions...`);
@@ -73,6 +77,7 @@ export class SubmissionService {
         
         if (type === "career") {
           submission = {
+            id: doc.id, // ✅ ADD DOCUMENT ID
             type: "career",
             name: data.name || "N/A",
             email: data.email || "N/A",
@@ -84,22 +89,25 @@ export class SubmissionService {
             resumeUrl: data.resumeUrl,
             positions: data.positions || [],
             status: data.status || "pending",
-          };
+            createdAt: data.createdAt, // ✅ ADD CREATED AT
+          } as CareerSubmission & { id: string; createdAt: any };
         } else {
           submission = {
+            id: doc.id, // ✅ ADD DOCUMENT ID
             type: "enquiry",
             name: data.name || "N/A",
             email: data.email || "N/A",
             number: data.number || "N/A",
             requirement: data.requirement || "N/A",
             status: data.status || "pending",
-          };
+            createdAt: data.createdAt, // ✅ ADD CREATED AT
+          } as EnquirySubmission & { id: string; createdAt: any };
         }
         
         submissions.push(submission);
       });
       
-      console.log(`Fetched ${submissions.length} ${type} submissions`);
+      console.log(`Fetched ${submissions.length} ${type} submissions with IDs`);
       return submissions;
       
     } catch (error) {
@@ -108,7 +116,7 @@ export class SubmissionService {
     }
   }
 
-  // Update submission status
+  // Update submission status using document ID
   static async updateSubmissionStatus(submissionId: string, status: string): Promise<void> {
     try {
       console.log(`Updating submission ${submissionId} status to: ${status}`);
@@ -127,6 +135,8 @@ export class SubmissionService {
     }
   }
 
+  // Rest of your methods remain the same...
+  
   // Create new enquiry submission
   static async createEnquirySubmission(
     data: Omit<EnquirySubmission, "type" | "status">
