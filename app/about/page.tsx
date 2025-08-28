@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 export { default } from "@/components/pages/AboutPage";
 
 export const metadata: Metadata = {
