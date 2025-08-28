@@ -1,9 +1,8 @@
 'use client'
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { onSnapshot, doc, DocumentData } from "firebase/firestore";
+import { onSnapshot, doc } from "firebase/firestore";
 import { rdTechDb, collections } from "@/firebase";
-import { Content } from "@/models/content";
 import { ContentService } from "@/services/contentService";
 
 interface PublicContentState {

@@ -1,7 +1,24 @@
-'use client'
-import { useEffect } from 'react';
+'use client';
+
+import { useEffect, Suspense } from 'react';
 import { useContentStore } from '@/stores/content';
-import ProjectPlayground from '../sections/ProjectPlayground';
+import dynamic from 'next/dynamic';
+
+// Lazy load ProjectPlayground
+const ProjectPlayground = dynamic(() => import('../sections/ProjectPlayground'), {
+  ssr: false,
+  loading: () => <SectionLoader label="Loading projects..." />,
+});
+
+// Shared loader component (can be moved to common/ later)
+function SectionLoader({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-center py-16 text-gray-500">
+      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+      {label}
+    </div>
+  );
+}
 
 export default function ProjectsPage() {
   const { subscribeToRealTimeUpdates, fetchAllContent } = useContentStore();
@@ -14,7 +31,9 @@ export default function ProjectsPage() {
 
   return (
     <main className="min-h-screen pt-20">
-      <ProjectPlayground />
+      <Suspense fallback={<SectionLoader label="Loading projects..." />}>
+        <ProjectPlayground />
+      </Suspense>
     </main>
   );
 }
