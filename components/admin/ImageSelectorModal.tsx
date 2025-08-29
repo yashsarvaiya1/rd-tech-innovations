@@ -2,7 +2,6 @@
 import {
   AlertCircle,
   CheckCircle,
-  Eye,
   FileImage,
   Image as ImageIcon,
   Loader2,
@@ -20,9 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type StorageFile, StorageService } from "@/services/storageService";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ImageSelectorModalProps {
   isOpen: boolean;
@@ -49,7 +48,7 @@ export default function ImageSelectorModal({
   useEffect(() => {
     if (searchTerm.trim()) {
       const filtered = assets.filter((asset) =>
-        asset.name.toLowerCase().includes(searchTerm.toLowerCase())
+        asset.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
       setFilteredAssets(filtered);
     } else {
@@ -89,7 +88,7 @@ export default function ImageSelectorModal({
       setSearchTerm("");
       setSelectedImage("");
     }
-  }, [isOpen]);
+  }, [isOpen, loadAssets]);
 
   const handleImageSelect = (url: string) => {
     onSelect(url);
@@ -101,7 +100,7 @@ export default function ImageSelectorModal({
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -128,7 +127,7 @@ export default function ImageSelectorModal({
     }
   };
 
-  const handlePreviewImage = (url: string) => {
+  const _handlePreviewImage = (url: string) => {
     window.open(url, "_blank");
   };
 
@@ -228,7 +227,9 @@ export default function ImageSelectorModal({
 
           {/* File info overlay */}
           <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm text-gray-900 text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity border-t border-gray-200">
-            <div className="truncate font-heading font-medium">{asset.name}</div>
+            <div className="truncate font-heading font-medium">
+              {asset.name}
+            </div>
             {asset.size && (
               <div className="text-xs text-gray-600 font-sans">
                 {(asset.size / 1024).toFixed(1)} KB

@@ -1,7 +1,7 @@
 "use client";
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
-import { ExternalLink, Heart, Layers, Star } from "lucide-react";
+import { ExternalLink, Heart, Layers } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { useSectionContent } from "@/stores/content";

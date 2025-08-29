@@ -1,22 +1,21 @@
 "use client";
 import {
   AlertCircle,
+  CheckCircle,
   Eye,
   FolderOpen,
   Image as ImageIcon,
   Loader2,
   Upload,
   X,
-  CheckCircle,
 } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { StorageService } from "@/services/storageService";
 import ImageSelectorModal from "./ImageSelectorModal";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface ImageUploadProps {
   value?: string;
@@ -49,7 +48,7 @@ export default function ImageUpload({
       setPreview(value);
       setError("");
     }
-  }, [value]);
+  }, [value, preview]);
 
   // Auto-clear messages
   useEffect(() => {
@@ -139,15 +138,21 @@ export default function ImageUpload({
           {label}
         </Label>
         <p className="text-sm text-muted-foreground font-sans">
-          Upload a new image or select from your gallery. Supports JPG, PNG, WebP, and GIF formats.
+          Upload a new image or select from your gallery. Supports JPG, PNG,
+          WebP, and GIF formats.
         </p>
       </div>
 
       {/* Alerts */}
       {error && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+        <Alert
+          variant="destructive"
+          className="bg-destructive/10 border-destructive/20"
+        >
           <AlertCircle className="h-5 w-5" />
-          <AlertDescription className="font-sans font-medium">{error}</AlertDescription>
+          <AlertDescription className="font-sans font-medium">
+            {error}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -267,17 +272,23 @@ export default function ImageUpload({
                   {uploading ? (
                     <>
                       <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                      <span className="text-xs text-primary font-sans font-medium">Uploading...</span>
+                      <span className="text-xs text-primary font-sans font-medium">
+                        Uploading...
+                      </span>
                     </>
                   ) : (
                     <>
                       <CheckCircle className="h-3 w-3 text-emerald-600" />
-                      <span className="text-xs text-emerald-600 font-sans font-medium">Ready</span>
+                      <span className="text-xs text-emerald-600 font-sans font-medium">
+                        Ready
+                      </span>
                     </>
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground font-mono break-all max-w-32 bg-muted/20 p-2 rounded border">
-                  {preview.length > 50 ? `${preview.substring(0, 47)}...` : preview}
+                  {preview.length > 50
+                    ? `${preview.substring(0, 47)}...`
+                    : preview}
                 </div>
               </div>
             </div>
@@ -293,7 +304,9 @@ export default function ImageUpload({
                   <ImageIcon className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-heading font-semibold">No Image Selected</p>
+                  <p className="text-sm font-heading font-semibold">
+                    No Image Selected
+                  </p>
                   <p className="text-xs font-sans">{placeholder}</p>
                 </div>
               </div>

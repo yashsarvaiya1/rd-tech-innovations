@@ -1,23 +1,23 @@
 "use client";
-import { 
-  Edit, 
-  ExternalLink, 
-  Globe, 
-  Zap, 
-  Eye, 
-  Link2, 
-  Settings,
+import {
+  AlertCircle,
   CheckCircle,
-  AlertCircle 
+  Edit,
+  ExternalLink,
+  Eye,
+  Globe,
+  Link2,
+  Settings,
+  Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useAvailableRoutes } from "@/hooks/useAvailableRoutes";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RouteNameEditorProps {
   value: string[];
@@ -32,7 +32,9 @@ export default function RouteNameEditor({
 }: RouteNameEditorProps) {
   const [routeNames, setRouteNames] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<{ [key: number]: string }>({});
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: number]: string;
+  }>({});
 
   // Use the dynamic hook
   const availableRoutes = useAvailableRoutes();
@@ -47,7 +49,7 @@ export default function RouteNameEditor({
       onChange(defaultNames);
     }
     setHasChanges(false);
-  }, [value, availableRoutes]);
+  }, [value, availableRoutes, onChange]);
 
   const validateName = (name: string, index: number): string | null => {
     if (!name.trim()) {
@@ -60,8 +62,9 @@ export default function RouteNameEditor({
       return "Display name must be less than 50 characters";
     }
     // Check for duplicates
-    const duplicateIndex = routeNames.findIndex((n, i) => 
-      i !== index && n.trim().toLowerCase() === name.trim().toLowerCase()
+    const duplicateIndex = routeNames.findIndex(
+      (n, i) =>
+        i !== index && n.trim().toLowerCase() === name.trim().toLowerCase(),
     );
     if (duplicateIndex !== -1) {
       return "Display name must be unique";
@@ -115,13 +118,17 @@ export default function RouteNameEditor({
             <div>
               <Label className="text-lg font-heading font-bold text-foreground flex items-center space-x-2">
                 Website Navigation Routes
-                <Badge variant="outline" className="text-xs font-heading bg-primary/10 text-primary border-primary/30">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-heading bg-primary/10 text-primary border-primary/30"
+                >
                   <Zap className="h-3 w-3 mr-1" />
                   Auto-detected
                 </Badge>
               </Label>
               <p className="text-muted-foreground font-sans mt-1">
-                Routes are automatically detected from your app structure. Admin and Auth pages are excluded.
+                Routes are automatically detected from your app structure. Admin
+                and Auth pages are excluded.
               </p>
             </div>
           </div>
@@ -141,7 +148,10 @@ export default function RouteNameEditor({
 
       {/* Validation Alert */}
       {hasValidationErrors && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+        <Alert
+          variant="destructive"
+          className="bg-destructive/10 border-destructive/20"
+        >
           <AlertCircle className="h-5 w-5" />
           <AlertDescription className="font-sans">
             Please fix the validation errors below before saving.
@@ -163,24 +173,27 @@ export default function RouteNameEditor({
       <div className="space-y-4">
         {availableRoutes.map((route, index) => {
           const hasError = validationErrors[index];
-          
+
           return (
-            <Card key={route.path} className={`bg-card border-border shadow-sm ${hasError ? 'border-destructive/50' : ''}`}>
+            <Card
+              key={route.path}
+              className={`bg-card border-border shadow-sm ${hasError ? "border-destructive/50" : ""}`}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-heading flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Link2 className="h-4 w-4 text-primary" />
                     <span>Route Configuration</span>
                   </div>
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="text-xs font-heading bg-muted text-muted-foreground"
                   >
                     {route.path === "/" ? "Home" : route.path.slice(1)}
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Display Name Input */}
@@ -189,7 +202,10 @@ export default function RouteNameEditor({
                       <Label className="text-sm font-heading font-semibold text-foreground">
                         Display Name
                       </Label>
-                      <Badge variant="outline" className="text-xs font-heading bg-emerald-50 text-emerald-700 border-emerald-200">
+                      <Badge
+                        variant="outline"
+                        className="text-xs font-heading bg-emerald-50 text-emerald-700 border-emerald-200"
+                      >
                         <Edit className="h-3 w-3 mr-1" />
                         Editable
                       </Badge>
@@ -199,7 +215,7 @@ export default function RouteNameEditor({
                       onChange={(e) => handleNameChange(index, e.target.value)}
                       placeholder={route.displayName}
                       disabled={disabled}
-                      className={`bg-background border-border font-sans ${hasError ? 'border-destructive focus:border-destructive' : ''}`}
+                      className={`bg-background border-border font-sans ${hasError ? "border-destructive focus:border-destructive" : ""}`}
                     />
                     {hasError && (
                       <p className="text-xs text-destructive font-sans flex items-center space-x-1">
@@ -229,13 +245,20 @@ export default function RouteNameEditor({
                 <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                   <div className="flex items-center space-x-2 mb-2">
                     <Eye className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-heading font-semibold text-primary">Visitor Experience</span>
+                    <span className="text-sm font-heading font-semibold text-primary">
+                      Visitor Experience
+                    </span>
                   </div>
                   <div className="text-sm text-foreground font-sans">
-                    Visitors will see <strong>"{routeNames[index] || route.displayName}"</strong> in navigation
+                    Visitors will see{" "}
+                    <strong>"{routeNames[index] || route.displayName}"</strong>{" "}
+                    in navigation
                     <span className="mx-2">→</span>
-                    Clicking navigates to <strong>
-                      {route.path === "/" ? "Home page" : `${route.path.slice(1)} page`}
+                    Clicking navigates to{" "}
+                    <strong>
+                      {route.path === "/"
+                        ? "Home page"
+                        : `${route.path.slice(1)} page`}
                     </strong>
                   </div>
                 </div>
@@ -252,11 +275,16 @@ export default function RouteNameEditor({
             <Settings className="h-4 w-4 text-emerald-600" />
           </div>
           <div className="space-y-2">
-            <h4 className="font-heading font-semibold text-foreground">Dynamic Route Detection</h4>
+            <h4 className="font-heading font-semibold text-foreground">
+              Dynamic Route Detection
+            </h4>
             <p className="text-sm text-muted-foreground font-sans">
-              Routes are automatically detected from your Next.js app structure. Only public-facing pages are included in navigation. 
-              Admin (<code className="text-xs bg-muted px-1 rounded">/admin</code>) and Authentication 
-              (<code className="text-xs bg-muted px-1 rounded">/auth</code>) routes are automatically excluded.
+              Routes are automatically detected from your Next.js app structure.
+              Only public-facing pages are included in navigation. Admin (
+              <code className="text-xs bg-muted px-1 rounded">/admin</code>) and
+              Authentication (
+              <code className="text-xs bg-muted px-1 rounded">/auth</code>)
+              routes are automatically excluded.
             </p>
             <div className="flex items-center space-x-4 text-xs text-muted-foreground font-sans">
               <span className="flex items-center space-x-1">

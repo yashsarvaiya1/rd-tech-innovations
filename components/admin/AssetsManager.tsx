@@ -1,17 +1,17 @@
 "use client";
 import {
   AlertCircle,
+  Calendar,
   CheckCircle,
   Download,
   Eye,
+  FileText,
+  FolderOpen,
   Image as ImageIcon,
   Loader2,
   RefreshCw,
   Trash2,
   Upload,
-  FolderOpen,
-  FileText,
-  Calendar,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -19,7 +19,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { type StorageFile, StorageService } from "@/services/storageService";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { type StorageFile, StorageService } from "@/services/storageService";
 
 export default function AssetsManager() {
   const [assets, setAssets] = useState<StorageFile[]>([]);
@@ -55,7 +55,7 @@ export default function AssetsManager() {
 
       const assetsList = await StorageService.listAllAssets();
       setAssets(assetsList);
-      
+
       if (assetsList.length === 0) {
         setSuccess("No assets found. Upload some files to get started!");
       }
@@ -69,7 +69,7 @@ export default function AssetsManager() {
 
   useEffect(() => {
     loadAssets();
-  }, []);
+  }, [loadAssets]);
 
   const handleDelete = async () => {
     if (!deleteDialog.asset) return;
@@ -81,7 +81,9 @@ export default function AssetsManager() {
       await StorageService.deleteAssetByPath(deleteDialog.asset.fullPath);
 
       // Remove from local state
-      setAssets((prev) => prev.filter((a) => a.fullPath !== deleteDialog.asset!.fullPath));
+      setAssets((prev) =>
+        prev.filter((a) => a.fullPath !== deleteDialog.asset?.fullPath),
+      );
 
       setSuccess(`✅ "${deleteDialog.asset.name}" deleted successfully!`);
       setTimeout(() => setSuccess(""), 5000);
@@ -112,7 +114,9 @@ export default function AssetsManager() {
     setViewDialog({ open: false, asset: null });
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -124,7 +128,7 @@ export default function AssetsManager() {
       // This is a placeholder for the upload functionality
       setSuccess("File upload feature coming soon!");
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err: any) {
+    } catch (_err: any) {
       setError("Failed to upload file. Please try again.");
     } finally {
       setUploading(false);
@@ -146,17 +150,18 @@ export default function AssetsManager() {
     return "File";
   };
 
-  const formatFileSize = (bytes: number) => {
+  const _formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
 
-  const filteredAssets = assets.filter(asset =>
-    asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    asset.fullPath.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAssets = assets.filter(
+    (asset) =>
+      asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      asset.fullPath.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -182,13 +187,15 @@ export default function AssetsManager() {
             <Badge variant="outline" className="font-heading">
               {filteredAssets.length} of {assets.length} files
             </Badge>
-            <Button 
-              variant="outline" 
-              onClick={loadAssets} 
+            <Button
+              variant="outline"
+              onClick={loadAssets}
               disabled={loading}
               className="font-heading"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
               Refresh
             </Button>
           </div>
@@ -200,7 +207,10 @@ export default function AssetsManager() {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="search" className="text-foreground font-heading font-semibold">
+              <Label
+                htmlFor="search"
+                className="text-foreground font-heading font-semibold"
+              >
                 Search Assets
               </Label>
               <Input
@@ -220,7 +230,9 @@ export default function AssetsManager() {
                   variant="outline"
                   disabled={uploading}
                   className="w-full md:w-auto font-heading"
-                  onClick={() => document.getElementById('file-upload')?.click()}
+                  onClick={() =>
+                    document.getElementById("file-upload")?.click()
+                  }
                 >
                   {uploading ? (
                     <>
@@ -250,9 +262,14 @@ export default function AssetsManager() {
 
       {/* Alerts */}
       {error && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+        <Alert
+          variant="destructive"
+          className="bg-destructive/10 border-destructive/20"
+        >
           <AlertCircle className="h-5 w-5" />
-          <AlertDescription className="font-sans font-medium">{error}</AlertDescription>
+          <AlertDescription className="font-sans font-medium">
+            {error}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -278,15 +295,25 @@ export default function AssetsManager() {
             <div className="flex items-center justify-center py-16">
               <div className="text-center">
                 <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-                <span className="text-lg font-heading font-semibold text-muted-foreground">Loading assets...</span>
-                <p className="text-sm text-muted-foreground font-sans mt-2">Please wait while we fetch your files</p>
+                <span className="text-lg font-heading font-semibold text-muted-foreground">
+                  Loading assets...
+                </span>
+                <p className="text-sm text-muted-foreground font-sans mt-2">
+                  Please wait while we fetch your files
+                </p>
               </div>
             </div>
           ) : filteredAssets.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredAssets.map((asset) => (
-                <Card key={asset.fullPath} className="overflow-hidden bg-background border-border hover:shadow-lg transition-shadow duration-300">
-                  <div className="aspect-video bg-muted/20 relative group cursor-pointer" onClick={() => openViewDialog(asset)}>
+                <Card
+                  key={asset.fullPath}
+                  className="overflow-hidden bg-background border-border hover:shadow-lg transition-shadow duration-300"
+                >
+                  <div
+                    className="aspect-video bg-muted/20 relative group cursor-pointer"
+                    onClick={() => openViewDialog(asset)}
+                  >
                     {isImage(asset.name) ? (
                       <img
                         src={asset.url}
@@ -300,7 +327,10 @@ export default function AssetsManager() {
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center">
                           <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                          <Badge variant="secondary" className="text-xs font-heading">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs font-heading"
+                          >
                             {getFileType(asset.name)}
                           </Badge>
                         </div>
@@ -321,7 +351,8 @@ export default function AssetsManager() {
                       </h3>
                       <p className="text-xs text-muted-foreground font-sans flex items-center mt-1">
                         <Calendar className="h-3 w-3 mr-1" />
-                        {new Date().toLocaleDateString()} {/* You can add actual date from asset if available */}
+                        {new Date().toLocaleDateString()}{" "}
+                        {/* You can add actual date from asset if available */}
                       </p>
                     </div>
 
@@ -336,9 +367,9 @@ export default function AssetsManager() {
                         View
                       </Button>
 
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         asChild
                         className="font-heading"
                       >
@@ -379,10 +410,9 @@ export default function AssetsManager() {
                 {searchTerm ? "No assets found" : "No Assets Found"}
               </h3>
               <p className="text-muted-foreground font-sans max-w-md mx-auto">
-                {searchTerm 
+                {searchTerm
                   ? `No assets match "${searchTerm}". Try adjusting your search terms.`
-                  : "Upload some files to see them here. Supported formats: images, PDFs, and documents."
-                }
+                  : "Upload some files to see them here. Supported formats: images, PDFs, and documents."}
               </p>
               {searchTerm && (
                 <Button
@@ -407,8 +437,9 @@ export default function AssetsManager() {
               Delete Asset
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-sans">
-              Are you sure you want to delete <strong>"{deleteDialog.asset?.name}"</strong>? 
-              This action cannot be undone and the file will be permanently removed.
+              Are you sure you want to delete{" "}
+              <strong>"{deleteDialog.asset?.name}"</strong>? This action cannot
+              be undone and the file will be permanently removed.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -451,7 +482,7 @@ export default function AssetsManager() {
               View Asset: {viewDialog.asset?.name}
             </DialogTitle>
           </DialogHeader>
-          
+
           {viewDialog.asset && (
             <div className="space-y-4">
               {isImage(viewDialog.asset.name) ? (
@@ -473,14 +504,25 @@ export default function AssetsManager() {
                   </div>
                 </div>
               )}
-              
+
               <div className="bg-muted/20 p-4 rounded-lg font-mono text-sm">
-                <p><strong>Path:</strong> {viewDialog.asset.fullPath}</p>
-                <p><strong>URL:</strong> <a href={viewDialog.asset.url} target="_blank" className="text-primary hover:underline">{viewDialog.asset.url}</a></p>
+                <p>
+                  <strong>Path:</strong> {viewDialog.asset.fullPath}
+                </p>
+                <p>
+                  <strong>URL:</strong>{" "}
+                  <a
+                    href={viewDialog.asset.url}
+                    target="_blank"
+                    className="text-primary hover:underline"
+                  >
+                    {viewDialog.asset.url}
+                  </a>
+                </p>
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button
               variant="outline"

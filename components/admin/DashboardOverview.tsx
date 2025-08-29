@@ -1,25 +1,31 @@
 "use client";
 import {
-  Briefcase,
-  CheckCircle,
-  Clock,
-  MessageSquare,
-  TrendingUp,
-  Users,
-  BarChart3,
-  Shield,
-  Calendar,
   Activity,
   AlertCircle,
+  BarChart3,
+  Briefcase,
+  Calendar,
+  CheckCircle,
   ChevronRight,
+  Clock,
+  MessageSquare,
+  Shield,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminStore } from "@/stores/admin";
-import { Button } from "@/components/ui/button";
 
 export default function DashboardOverview() {
-  const { submissionStats, submissions, admins, selectedSection, setSelectedSection } = useAdminStore();
+  const {
+    submissionStats,
+    submissions,
+    admins,
+    selectedSection,
+    setSelectedSection,
+  } = useAdminStore();
 
   const recentSubmissions = submissions.slice(0, 5);
   const totalSubmissions = submissionStats?.total || 0;
@@ -27,17 +33,20 @@ export default function DashboardOverview() {
   const completedSubmissions = submissionStats?.completed || 0;
 
   // Calculate completion rate
-  const completionRate = totalSubmissions > 0 
-    ? Math.round((completedSubmissions / totalSubmissions) * 100) 
-    : 0;
+  const completionRate =
+    totalSubmissions > 0
+      ? Math.round((completedSubmissions / totalSubmissions) * 100)
+      : 0;
 
   const stats = [
     {
       title: "Total Submissions",
       value: totalSubmissions,
       icon: <MessageSquare className="h-6 w-6 text-primary" />,
-      change: pendingSubmissions > 0 ? `${pendingSubmissions} new` : "All caught up",
-      changeType: pendingSubmissions > 0 ? "increase" as const : "neutral" as const,
+      change:
+        pendingSubmissions > 0 ? `${pendingSubmissions} new` : "All caught up",
+      changeType:
+        pendingSubmissions > 0 ? ("increase" as const) : ("neutral" as const),
       bgColor: "bg-blue-50",
       iconBg: "bg-primary/10",
     },
@@ -46,7 +55,8 @@ export default function DashboardOverview() {
       value: pendingSubmissions,
       icon: <Clock className="h-6 w-6 text-amber-600" />,
       change: pendingSubmissions > 0 ? "Needs attention" : "All clear",
-      changeType: pendingSubmissions > 0 ? "warning" as const : "neutral" as const,
+      changeType:
+        pendingSubmissions > 0 ? ("warning" as const) : ("neutral" as const),
       bgColor: "bg-amber-50",
       iconBg: "bg-amber-100",
     },
@@ -55,7 +65,8 @@ export default function DashboardOverview() {
       value: completedSubmissions,
       icon: <CheckCircle className="h-6 w-6 text-emerald-600" />,
       change: `${completionRate}% rate`,
-      changeType: completionRate > 75 ? "increase" as const : "neutral" as const,
+      changeType:
+        completionRate > 75 ? ("increase" as const) : ("neutral" as const),
       bgColor: "bg-emerald-50",
       iconBg: "bg-emerald-100",
     },
@@ -127,11 +138,13 @@ export default function DashboardOverview() {
           <MessageSquare className="h-5 w-5 mr-3 text-primary" />
           <div className="text-left">
             <div className="font-semibold">Contact Submissions</div>
-            <div className="text-sm text-muted-foreground">View and manage inquiries</div>
+            <div className="text-sm text-muted-foreground">
+              View and manage inquiries
+            </div>
           </div>
           <ChevronRight className="h-4 w-4 ml-auto" />
         </Button>
-        
+
         <Button
           variant="outline"
           className="h-auto p-4 justify-start font-heading"
@@ -140,11 +153,13 @@ export default function DashboardOverview() {
           <Briefcase className="h-5 w-5 mr-3 text-primary" />
           <div className="text-left">
             <div className="font-semibold">Career Applications</div>
-            <div className="text-sm text-muted-foreground">Review job applications</div>
+            <div className="text-sm text-muted-foreground">
+              Review job applications
+            </div>
           </div>
           <ChevronRight className="h-4 w-4 ml-auto" />
         </Button>
-        
+
         <Button
           variant="outline"
           className="h-auto p-4 justify-start font-heading"
@@ -153,7 +168,9 @@ export default function DashboardOverview() {
           <Users className="h-5 w-5 mr-3 text-primary" />
           <div className="text-left">
             <div className="font-semibold">Manage Admins</div>
-            <div className="text-sm text-muted-foreground">Add or remove admin users</div>
+            <div className="text-sm text-muted-foreground">
+              Add or remove admin users
+            </div>
           </div>
           <ChevronRight className="h-4 w-4 ml-auto" />
         </Button>
@@ -162,7 +179,10 @@ export default function DashboardOverview() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <Card key={index} className={`${stat.bgColor} border-border shadow-lg hover:shadow-xl transition-shadow duration-300`}>
+          <Card
+            key={index}
+            className={`${stat.bgColor} border-border shadow-lg hover:shadow-xl transition-shadow duration-300`}
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -177,7 +197,7 @@ export default function DashboardOverview() {
                   {stat.icon}
                 </div>
               </div>
-              
+
               <div className="flex items-center">
                 {getChangeIcon(stat.changeType)}
                 <span className="text-sm font-sans font-medium ml-2 text-foreground">
@@ -228,9 +248,11 @@ export default function DashboardOverview() {
                           <p className="text-sm text-muted-foreground font-sans">
                             {submission.email}
                           </p>
-                          <span className="text-xs text-muted-foreground">•</span>
-                          <Badge 
-                            variant="outline" 
+                          <span className="text-xs text-muted-foreground">
+                            •
+                          </span>
+                          <Badge
+                            variant="outline"
                             className="text-xs capitalize"
                           >
                             {submission.type}
@@ -238,7 +260,7 @@ export default function DashboardOverview() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <Badge className={getStatusColor(submission.status)}>
                         {submission.status}
@@ -247,7 +269,7 @@ export default function DashboardOverview() {
                     </div>
                   </div>
                 ))}
-                
+
                 <div className="pt-4 border-t border-border">
                   <Button
                     variant="outline"
@@ -306,15 +328,15 @@ export default function DashboardOverview() {
                         {email}
                       </p>
                       <div className="flex items-center space-x-2">
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className="text-xs bg-primary/10 text-primary border-primary/30"
                         >
                           Administrator
                         </Badge>
                         {index === 0 && (
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className="text-xs bg-accent/10 text-accent border-accent/30"
                           >
                             Primary
@@ -324,7 +346,7 @@ export default function DashboardOverview() {
                     </div>
                   </div>
                 ))}
-                
+
                 <div className="pt-4 border-t border-border">
                   <Button
                     variant="outline"

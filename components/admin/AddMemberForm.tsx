@@ -3,20 +3,17 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
+  Mail,
+  Shield,
   Trash2,
   UserPlus,
   Users,
-  Mail,
-  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useAdminStore } from "@/stores/admin";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +22,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAdminStore } from "@/stores/admin";
 
 export default function AddMemberForm() {
   const { admins, addAdminEmail, removeAdmin, loading, error, clearError } =
@@ -88,7 +88,9 @@ export default function AddMemberForm() {
 
     try {
       await removeAdmin(removeDialog.email);
-      setSuccess(`✅ Administrator ${removeDialog.email} removed successfully!`);
+      setSuccess(
+        `✅ Administrator ${removeDialog.email} removed successfully!`,
+      );
       setTimeout(() => setSuccess(""), 5000);
     } catch (error: any) {
       console.error("Error removing admin:", error);
@@ -128,9 +130,14 @@ export default function AddMemberForm() {
 
       {/* Error Alert */}
       {error && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+        <Alert
+          variant="destructive"
+          className="bg-destructive/10 border-destructive/20"
+        >
           <AlertCircle className="h-5 w-5" />
-          <AlertDescription className="font-sans font-medium">{error}</AlertDescription>
+          <AlertDescription className="font-sans font-medium">
+            {error}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -155,7 +162,10 @@ export default function AddMemberForm() {
         <CardContent className="p-6 bg-card/90">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground font-heading font-semibold">
+              <Label
+                htmlFor="email"
+                className="text-foreground font-heading font-semibold"
+              >
                 Email Address
               </Label>
               <div className="relative">
@@ -172,7 +182,7 @@ export default function AddMemberForm() {
                   className="pl-10 bg-background border-border focus:border-primary font-sans"
                 />
               </div>
-              {email && !email.includes('@') && (
+              {email && !email.includes("@") && (
                 <p className="text-sm text-muted-foreground font-sans">
                   Please enter a valid email address
                 </p>
@@ -185,7 +195,13 @@ export default function AddMemberForm() {
             </div>
             <Button
               type="submit"
-              disabled={isSubmitting || loading || !email.trim() || !email.includes('@') || admins.includes(email.trim().toLowerCase())}
+              disabled={
+                isSubmitting ||
+                loading ||
+                !email.trim() ||
+                !email.includes("@") ||
+                admins.includes(email.trim().toLowerCase())
+              }
               className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-heading font-semibold"
             >
               {isSubmitting ? (
@@ -212,7 +228,10 @@ export default function AddMemberForm() {
               <Users className="h-5 w-5 mr-3 text-primary" />
               Current Administrators
             </div>
-            <Badge variant="secondary" className="bg-primary/10 text-primary font-heading">
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary font-heading"
+            >
               {admins.length} total
             </Badge>
           </CardTitle>
@@ -221,7 +240,9 @@ export default function AddMemberForm() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin mr-3 text-primary" />
-              <span className="font-sans text-muted-foreground">Loading administrators...</span>
+              <span className="font-sans text-muted-foreground">
+                Loading administrators...
+              </span>
             </div>
           ) : admins.length > 0 ? (
             <div className="space-y-4">
@@ -241,15 +262,15 @@ export default function AddMemberForm() {
                         {adminEmail}
                       </p>
                       <div className="flex items-center space-x-2">
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className="text-xs bg-primary/10 text-primary"
                         >
                           Administrator
                         </Badge>
                         {index === 0 && (
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className="text-xs border-accent text-accent"
                           >
                             Primary
@@ -277,7 +298,8 @@ export default function AddMemberForm() {
                 <Alert className="bg-amber-50 border-amber-200">
                   <AlertCircle className="h-5 w-5 text-amber-600" />
                   <AlertDescription className="text-amber-800 font-sans">
-                    This is the last administrator. At least one admin must remain to manage the system.
+                    This is the last administrator. At least one admin must
+                    remain to manage the system.
                   </AlertDescription>
                 </Alert>
               )}
@@ -307,8 +329,9 @@ export default function AddMemberForm() {
               Remove Administrator
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-sans">
-              Are you sure you want to remove <strong>{removeDialog.email}</strong> as an administrator? 
-              This action cannot be undone.
+              Are you sure you want to remove{" "}
+              <strong>{removeDialog.email}</strong> as an administrator? This
+              action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">

@@ -1,5 +1,6 @@
 "use client";
 import {
+  Bell,
   Briefcase,
   Building,
   Calendar,
@@ -20,17 +21,16 @@ import {
   Navigation,
   Phone,
   Settings,
+  Shield,
   UserPlus,
   Users,
-  Bell,
-  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/stores/admin";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SectionItem {
   id: string;
@@ -268,17 +268,15 @@ export default function Sidebar() {
                   >
                     <div className="flex items-center space-x-2">
                       {group.icon && (
-                        <div className="flex-shrink-0">
-                          {group.icon}
-                        </div>
+                        <div className="flex-shrink-0">{group.icon}</div>
                       )}
                       <span>{group.title}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       {/* Show total pending items for priority group */}
                       {group.title === "Priority" && totalPendingItems > 0 && (
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className="bg-amber-100 text-amber-800 border-amber-200 text-xs font-heading"
                         >
                           {totalPendingItems}
@@ -308,32 +306,42 @@ export default function Sidebar() {
                               isSelected
                                 ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
                                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                              item.priority && !isSelected && "hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 border border-transparent"
+                              item.priority &&
+                                !isSelected &&
+                                "hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 border border-transparent",
                             )}
                             onClick={() => setSelectedSection(item.id)}
                           >
                             <div className="flex items-start justify-between w-full">
                               <div className="flex items-start space-x-3 flex-1 min-w-0">
-                                <div className={cn(
-                                  "mt-0.5 flex-shrink-0",
-                                  isSelected ? "text-primary-foreground" : ""
-                                )}>
+                                <div
+                                  className={cn(
+                                    "mt-0.5 flex-shrink-0",
+                                    isSelected ? "text-primary-foreground" : "",
+                                  )}
+                                >
                                   {item.icon}
                                 </div>
                                 <div className="text-left flex-1 min-w-0">
-                                  <div className={cn(
-                                    "text-sm font-heading font-semibold truncate",
-                                    isSelected ? "text-primary-foreground" : ""
-                                  )}>
+                                  <div
+                                    className={cn(
+                                      "text-sm font-heading font-semibold truncate",
+                                      isSelected
+                                        ? "text-primary-foreground"
+                                        : "",
+                                    )}
+                                  >
                                     {item.label}
                                   </div>
                                   {item.description && (
-                                    <div className={cn(
-                                      "text-xs truncate font-sans",
-                                      isSelected 
-                                        ? "text-primary-foreground/80" 
-                                        : "text-muted-foreground"
-                                    )}>
+                                    <div
+                                      className={cn(
+                                        "text-xs truncate font-sans",
+                                        isSelected
+                                          ? "text-primary-foreground/80"
+                                          : "text-muted-foreground",
+                                      )}
+                                    >
                                       {item.description}
                                     </div>
                                   )}
@@ -346,22 +354,22 @@ export default function Sidebar() {
                                 {item.priority && (
                                   <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                                 )}
-                                
+
                                 {/* Count badge */}
                                 {item.count !== undefined && item.count > 0 && (
                                   <Badge
                                     variant="secondary"
                                     className={cn(
                                       "text-xs px-2 py-0 h-5 leading-none font-heading",
-                                      isSelected 
-                                        ? "bg-primary-foreground/20 text-primary-foreground" 
-                                        : "bg-amber-100 text-amber-800 border-amber-200"
+                                      isSelected
+                                        ? "bg-primary-foreground/20 text-primary-foreground"
+                                        : "bg-amber-100 text-amber-800 border-amber-200",
                                     )}
                                   >
                                     {item.count}
                                   </Badge>
                                 )}
-                                
+
                                 {/* Hidden badge */}
                                 {isHidden && (
                                   <Badge
@@ -370,7 +378,7 @@ export default function Sidebar() {
                                       "text-xs px-1.5 py-0 h-5 leading-none font-heading",
                                       isSelected
                                         ? "border-primary-foreground/30 text-primary-foreground/80"
-                                        : "border-orange-300 text-orange-700 bg-orange-50"
+                                        : "border-orange-300 text-orange-700 bg-orange-50",
                                     )}
                                   >
                                     <EyeOff className="h-2.5 w-2.5" />
@@ -396,7 +404,11 @@ export default function Sidebar() {
               Admin Dashboard v2.0
             </p>
             <p className="text-xs text-muted-foreground font-sans mt-1">
-              {sectionGroups.reduce((total, group) => total + group.items.length, 0)} sections available
+              {sectionGroups.reduce(
+                (total, group) => total + group.items.length,
+                0,
+              )}{" "}
+              sections available
             </p>
           </div>
         </div>

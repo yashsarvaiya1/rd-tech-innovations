@@ -109,41 +109,7 @@ export default function ContentEditor() {
   }, []);
 
   // Load content when section changes
-  useEffect(() => {
-    if (content && selectedSection) {
-      const sectionKey = selectedSection as keyof Omit<
-        Content,
-        "id" | "seoTitle" | "seoDescription"
-      >;
-      const sectionContent = content[sectionKey] || {};
-      console.log("Initial content for", selectedSection, ":", sectionContent);
-
-      // Type guard and initialize form only for contactUs and career
-      const updatedContent = { ...sectionContent } as any;
-      if (selectedSection === "contactUs") {
-        const contactUsContent = sectionContent as ContactUsContent | undefined;
-        updatedContent.form = {
-          ...getDefaultForm("contactUs"),
-          ...(contactUsContent?.form || {}),
-        };
-      } else if (selectedSection === "career") {
-        const careerContent = sectionContent as CareerContent | undefined;
-        updatedContent.form = {
-          ...getDefaultForm("career"),
-          ...(careerContent?.form || {}),
-        };
-      }
-
-      // Handle routesList for navbar
-      if (selectedSection === "navbar") {
-        const navbarContent = sectionContent as NavbarContent | undefined;
-        updatedContent.routesList = navbarContent?.routesList || [];
-      }
-
-      setLocalContent(updatedContent as Record<string, any>);
-      setHasChanges(false);
-    }
-  }, [content, selectedSection]);
+  
 
   // Auto-clear success message
   useEffect(() => {
@@ -198,6 +164,42 @@ export default function ContentEditor() {
         return {};
     }
   };
+
+  useEffect(() => {
+    if (content && selectedSection) {
+      const sectionKey = selectedSection as keyof Omit<
+        Content,
+        "id" | "seoTitle" | "seoDescription"
+      >;
+      const sectionContent = content[sectionKey] || {};
+      console.log("Initial content for", selectedSection, ":", sectionContent);
+
+      // Type guard and initialize form only for contactUs and career
+      const updatedContent = { ...sectionContent } as any;
+      if (selectedSection === "contactUs") {
+        const contactUsContent = sectionContent as ContactUsContent | undefined;
+        updatedContent.form = {
+          ...getDefaultForm("contactUs"),
+          ...(contactUsContent?.form || {}),
+        };
+      } else if (selectedSection === "career") {
+        const careerContent = sectionContent as CareerContent | undefined;
+        updatedContent.form = {
+          ...getDefaultForm("career"),
+          ...(careerContent?.form || {}),
+        };
+      }
+
+      // Handle routesList for navbar
+      if (selectedSection === "navbar") {
+        const navbarContent = sectionContent as NavbarContent | undefined;
+        updatedContent.routesList = navbarContent?.routesList || [];
+      }
+
+      setLocalContent(updatedContent as Record<string, any>);
+      setHasChanges(false);
+    }
+  }, [content, selectedSection, getDefaultForm]);
 
   const handleFieldChange = (field: string, value: any) => {
     setLocalContent((prev: Record<string, any>) => {
@@ -483,7 +485,9 @@ export default function ContentEditor() {
           getDefaultForm(selectedSection)) as Record<string, any>;
         return (
           <div className="space-y-4">
-            <Label className="text-sm font-heading font-semibold">Form Field Labels</Label>
+            <Label className="text-sm font-heading font-semibold">
+              Form Field Labels
+            </Label>
             {Object.entries(formValue).map(([key, label]) => (
               <div key={key} className="flex flex-col space-y-1">
                 <Label className="text-xs text-muted-foreground capitalize font-heading">
@@ -562,7 +566,10 @@ export default function ContentEditor() {
                                 <SelectContent className="bg-white border-border shadow-xl">
                                   {dependencyOptions.techCategories.map(
                                     (category) => (
-                                      <SelectItem key={category} value={category}>
+                                      <SelectItem
+                                        key={category}
+                                        value={category}
+                                      >
                                         {category}
                                       </SelectItem>
                                     ),
@@ -699,8 +706,15 @@ export default function ContentEditor() {
                                       ...((objValue as any[]) || []),
                                       { name: "", url: "" },
                                     ];
-                                    const newItem = { ...item, [key]: newLinks };
-                                    handleArrayUpdate(fieldName, index, newItem);
+                                    const newItem = {
+                                      ...item,
+                                      [key]: newLinks,
+                                    };
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
                                   }}
                                   className="text-xs"
                                 >
@@ -831,7 +845,11 @@ export default function ContentEditor() {
                                       ...item,
                                       [key]: newSocials,
                                     };
-                                    handleArrayUpdate(fieldName, index, newItem);
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
                                   }}
                                   className="text-xs w-full"
                                 >
@@ -875,7 +893,8 @@ export default function ContentEditor() {
                                           const newArray = (
                                             objValue as any[]
                                           ).filter(
-                                            (_: any, i: number) => i !== arrIndex,
+                                            (_: any, i: number) =>
+                                              i !== arrIndex,
                                           );
                                           const newItem = {
                                             ...item,
@@ -898,9 +917,19 @@ export default function ContentEditor() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => {
-                                    const newArray = [...(objValue as any[]), ""];
-                                    const newItem = { ...item, [key]: newArray };
-                                    handleArrayUpdate(fieldName, index, newItem);
+                                    const newArray = [
+                                      ...(objValue as any[]),
+                                      "",
+                                    ];
+                                    const newItem = {
+                                      ...item,
+                                      [key]: newArray,
+                                    };
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
                                   }}
                                   className="text-xs"
                                 >
@@ -1118,9 +1147,14 @@ export default function ContentEditor() {
 
       {/* Alerts */}
       {error && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+        <Alert
+          variant="destructive"
+          className="bg-destructive/10 border-destructive/20"
+        >
           <AlertCircle className="h-5 w-5" />
-          <AlertDescription className="font-sans font-medium">{error}</AlertDescription>
+          <AlertDescription className="font-sans font-medium">
+            {error}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -1139,7 +1173,10 @@ export default function ContentEditor() {
           <CardTitle className="flex items-center justify-between text-foreground font-heading">
             Section Content
             {hasChanges && (
-              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
+              <Badge
+                variant="outline"
+                className="bg-amber-100 text-amber-800 border-amber-200"
+              >
                 Unsaved Changes
               </Badge>
             )}
@@ -1149,7 +1186,10 @@ export default function ContentEditor() {
           <div className="space-y-6">
             {sectionFields.map((field) => (
               <div key={field.name}>
-                <Label htmlFor={field.name} className="text-foreground font-heading font-semibold">
+                <Label
+                  htmlFor={field.name}
+                  className="text-foreground font-heading font-semibold"
+                >
                   {field.label}
                 </Label>
                 <div className="mt-2">
@@ -1161,9 +1201,13 @@ export default function ContentEditor() {
             <div className="flex items-center justify-between pt-6 border-t border-border">
               <div className="text-sm text-muted-foreground font-sans">
                 {hasChanges ? (
-                  <span className="text-amber-600 font-medium">⚠️ You have unsaved changes</span>
+                  <span className="text-amber-600 font-medium">
+                    ⚠️ You have unsaved changes
+                  </span>
                 ) : (
-                  <span className="text-emerald-600 font-medium">✅ All changes saved</span>
+                  <span className="text-emerald-600 font-medium">
+                    ✅ All changes saved
+                  </span>
                 )}
               </div>
               <Button

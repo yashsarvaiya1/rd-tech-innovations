@@ -1,6 +1,7 @@
 "use client";
 import {
   AlertCircle,
+  AlertTriangle,
   Briefcase,
   Calendar,
   CheckCircle,
@@ -16,15 +17,20 @@ import {
   RefreshCw,
   User,
   XCircle,
-  AlertTriangle,
-  ArrowDown,
-  ArrowUp,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -40,14 +46,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type {
   CareerSubmission,
   EnquirySubmission,
@@ -98,7 +96,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
     (type: "success" | "error" | "info", message: string) => {
       setNotification({ type, message });
     },
-    []
+    [],
   );
 
   const filteredSubmissions = submissions
@@ -141,7 +139,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
 
       const now = new Date();
       const diffInMinutes = Math.floor(
-        (now.getTime() - date.getTime()) / (1000 * 60)
+        (now.getTime() - date.getTime()) / (1000 * 60),
       );
       const diffInHours = Math.floor(diffInMinutes / 60);
       const diffInDays = Math.floor(diffInHours / 24);
@@ -179,14 +177,14 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
   const handleStatusChange = async (
     submission: Submission,
     index: number,
-    newStatus: string
+    newStatus: string,
   ) => {
     const documentId = (submission as any).id;
 
     if (!documentId) {
       showNotification(
         "error",
-        "Cannot update: No document ID found. Please refresh the page."
+        "Cannot update: No document ID found. Please refresh the page.",
       );
       return;
     }
@@ -199,7 +197,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
       await updateSubmissionStatus(documentId, newStatus);
       showNotification(
         "success",
-        `Status updated to ${newStatus} successfully!`
+        `Status updated to ${newStatus} successfully!`,
       );
       await fetchSubmissionsByType(type);
     } catch (error) {
@@ -225,7 +223,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
   const openConfirmDialog = (
     submission: Submission,
     index: number,
-    newStatus: string
+    newStatus: string,
   ) => {
     setConfirmDialog({ open: true, submission, newStatus, index });
   };
@@ -244,7 +242,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
       handleStatusChange(
         confirmDialog.submission,
         confirmDialog.index,
-        confirmDialog.newStatus
+        confirmDialog.newStatus,
       );
     }
   };
@@ -556,7 +554,9 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
                             className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-sans"
                           >
                             <Phone className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{submission.number}</span>
+                            <span className="truncate">
+                              {submission.number}
+                            </span>
                           </a>
                         </TableCell>
 
@@ -602,7 +602,12 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
                             <TableCell className="min-w-[120px]">
                               <div className="flex items-center gap-2 font-sans">
                                 <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                <span className="truncate" title={(submission as CareerSubmission).location}>
+                                <span
+                                  className="truncate"
+                                  title={
+                                    (submission as CareerSubmission).location
+                                  }
+                                >
                                   {(submission as CareerSubmission).location ||
                                     "N/A"}
                                 </span>
@@ -612,8 +617,12 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
                             <TableCell className="min-w-[100px]">
                               <div className="flex items-center gap-2 font-sans">
                                 <Briefcase className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                <span className="truncate" title={(submission as CareerSubmission).ctc}>
-                                  {(submission as CareerSubmission).ctc || "N/A"}
+                                <span
+                                  className="truncate"
+                                  title={(submission as CareerSubmission).ctc}
+                                >
+                                  {(submission as CareerSubmission).ctc ||
+                                    "N/A"}
                                 </span>
                               </div>
                             </TableCell>
@@ -635,7 +644,9 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
                                     className="flex items-center gap-2"
                                   >
                                     <Download className="h-4 w-4" />
-                                    <span className="hidden sm:inline">View</span>
+                                    <span className="hidden sm:inline">
+                                      View
+                                    </span>
                                   </a>
                                 </Button>
                               ) : (
@@ -672,7 +683,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
                         <TableCell className="min-w-[120px]">
                           <Badge
                             className={`${getStatusColor(
-                              submission.status
+                              submission.status,
                             )} transition-colors font-heading`}
                           >
                             <div className="flex items-center space-x-1">
@@ -696,7 +707,9 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
                               {isUpdating ? (
                                 <>
                                   <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span className="ml-2 hidden sm:inline">Updating...</span>
+                                  <span className="ml-2 hidden sm:inline">
+                                    Updating...
+                                  </span>
                                 </>
                               ) : (
                                 <SelectValue />

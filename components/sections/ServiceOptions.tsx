@@ -2,9 +2,9 @@
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
 import { ArrowRight, Phone, Star, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { useSectionContent } from "@/stores/content";
-import { useRouter } from "next/navigation";
 
 export default function ServiceOptions() {
   const {
@@ -30,7 +30,7 @@ export default function ServiceOptions() {
         hue: 220 + Math.random() * 60,
         delay: Math.random() * 2,
       })),
-    []
+    [],
   );
 
   // ✅ Enhanced GSAP timeline animations
@@ -55,7 +55,7 @@ export default function ServiceOptions() {
           rotationX: 0,
           duration: 1.2,
           ease: "power3.out",
-        }
+        },
       )
         .fromTo(
           ".service-description",
@@ -71,7 +71,7 @@ export default function ServiceOptions() {
             duration: 1,
             ease: "power2.out",
           },
-          "-=0.6"
+          "-=0.6",
         )
         .fromTo(
           ".service-card",
@@ -93,7 +93,7 @@ export default function ServiceOptions() {
               ease: "power2.out",
             },
           },
-          "-=0.4"
+          "-=0.4",
         )
         .fromTo(
           ".bg-particle",
@@ -110,7 +110,7 @@ export default function ServiceOptions() {
             stagger: 0.1,
             ease: "back.out(1.7)",
           },
-          "-=1"
+          "-=1",
         );
     }, containerRef);
 
@@ -121,20 +121,20 @@ export default function ServiceOptions() {
   const handleContactClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     console.log("Contact button clicked, attempting navigation...");
-    
+
     // Method 1: Try Next.js router first
     try {
-      router.push('/contact');
+      router.push("/contact");
       console.log("Next.js router navigation attempted");
-    } catch (routerError) {
+    } catch (_routerError) {
       console.log("Router failed, trying window.location");
-      
+
       // Method 2: Fallback to window.location
       try {
         window.location.href = "/contact";
-      } catch (locationError) {
+      } catch (_locationError) {
         // Method 3: Last resort - reload with contact
         console.log("Window.location failed, trying replace");
         window.location.replace("/contact");
@@ -260,7 +260,7 @@ export default function ServiceOptions() {
                 <motion.div
                   key={index}
                   className={`service-card group relative bg-card/80 backdrop-blur-sm rounded-xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-border/50 ${getCardHeight(
-                    cards.length
+                    cards.length,
                   )}`}
                   whileHover={{
                     y: -8,
@@ -331,18 +331,19 @@ export default function ServiceOptions() {
                           type="button"
                           onClick={handleContactClick}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
+                            if (e.key === "Enter" || e.key === " ") {
                               e.preventDefault();
                               handleContactClick(e as any);
                             }
                           }}
                           className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           tabIndex={0}
-                          role="button"
-                          aria-label={`Contact us about ${text || 'this service'}`}
+                          aria-label={`Contact us about ${text || "this service"}`}
                         >
                           <Phone className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm font-medium">{contactButton}</span>
+                          <span className="text-sm font-medium">
+                            {contactButton}
+                          </span>
                           <ArrowRight className="w-4 h-4 flex-shrink-0" />
                         </button>
                       </div>

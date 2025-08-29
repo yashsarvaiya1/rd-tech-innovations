@@ -1,6 +1,12 @@
 "use client";
 import { Plus, X } from "lucide-react";
-import { useEffect, useState, useCallback, useRef, KeyboardEvent } from "react";
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -37,7 +43,7 @@ export default function DependentSelect({
 }: DependentSelectProps) {
   const [selectedValue, setSelectedValue] = useState<string>("");
   const [availableOptions, setAvailableOptions] = useState<string[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [_isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLButtonElement>(null);
   const addButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -45,7 +51,7 @@ export default function DependentSelect({
     // Filter out already selected options
     const available = options.filter((option) => !value.includes(option));
     setAvailableOptions(available);
-    
+
     // Reset selected value if it's no longer available
     if (selectedValue && !available.includes(selectedValue)) {
       setSelectedValue("");
@@ -56,7 +62,7 @@ export default function DependentSelect({
     if (selectedValue && !value.includes(selectedValue) && !disabled) {
       onChange([...value, selectedValue]);
       setSelectedValue("");
-      
+
       // Return focus to select after adding
       setTimeout(() => {
         selectRef.current?.focus();
@@ -64,11 +70,14 @@ export default function DependentSelect({
     }
   }, [selectedValue, value, onChange, disabled]);
 
-  const handleRemove = useCallback((optionToRemove: string) => {
-    if (!disabled) {
-      onChange(value.filter((item) => item !== optionToRemove));
-    }
-  }, [value, onChange, disabled]);
+  const handleRemove = useCallback(
+    (optionToRemove: string) => {
+      if (!disabled) {
+        onChange(value.filter((item) => item !== optionToRemove));
+      }
+    },
+    [value, onChange, disabled],
+  );
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && selectedValue && !disabled) {
@@ -84,7 +93,7 @@ export default function DependentSelect({
 
   return (
     <div className="space-y-4">
-      <Label 
+      <Label
         htmlFor={id}
         className="text-foreground font-heading font-semibold flex items-center gap-1"
       >
@@ -94,7 +103,7 @@ export default function DependentSelect({
 
       {/* Selected Items Display */}
       {value.length > 0 && (
-        <div 
+        <div
           className="space-y-2"
           role="region"
           aria-label={`Selected ${label.toLowerCase()}`}
@@ -103,7 +112,7 @@ export default function DependentSelect({
             Selected ({value.length}):
           </div>
           <div className="flex flex-wrap gap-2 p-3 bg-muted/20 rounded-lg border border-border">
-            {value.map((item, index) => (
+            {value.map((item, _index) => (
               <Badge
                 key={item}
                 variant="secondary"
@@ -136,13 +145,13 @@ export default function DependentSelect({
           </div>
           <div className="flex items-center gap-3 p-4 bg-card rounded-lg border border-border shadow-sm">
             <div className="flex-1">
-              <Select 
-                value={selectedValue} 
+              <Select
+                value={selectedValue}
                 onValueChange={handleSelectChange}
                 disabled={disabled}
                 onOpenChange={setIsOpen}
               >
-                <SelectTrigger 
+                <SelectTrigger
                   ref={selectRef}
                   className="bg-background border-border focus:border-primary font-sans"
                   id={id}
@@ -151,14 +160,14 @@ export default function DependentSelect({
                 >
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
-                <SelectContent 
+                <SelectContent
                   className="bg-white border-border shadow-xl"
                   position="popper"
                   sideOffset={4}
                 >
                   {availableOptions.map((option) => (
-                    <SelectItem 
-                      key={option} 
+                    <SelectItem
+                      key={option}
                       value={option}
                       className="bg-white hover:bg-muted/50 focus:bg-primary/10 cursor-pointer font-sans"
                     >
@@ -178,7 +187,7 @@ export default function DependentSelect({
               disabled={!selectedValue || disabled}
               className="shrink-0 bg-primary/10 border-primary/30 hover:bg-primary/20 hover:border-primary/50 font-heading"
               aria-label={`Add selected ${label.toLowerCase()}`}
-              title={`Add ${selectedValue || 'selected item'}`}
+              title={`Add ${selectedValue || "selected item"}`}
             >
               <Plus className="h-4 w-4 mr-1" />
               Add
@@ -186,7 +195,7 @@ export default function DependentSelect({
           </div>
         </div>
       ) : (
-        <div 
+        <div
           className="text-sm text-muted-foreground p-4 border border-dashed border-border rounded-lg text-center bg-muted/20"
           role="status"
           aria-live="polite"
@@ -206,7 +215,8 @@ export default function DependentSelect({
                 All Options Selected ✓
               </div>
               <div className="text-xs">
-                You have selected all available options ({value.length} of {options.length}).
+                You have selected all available options ({value.length} of{" "}
+                {options.length}).
               </div>
             </div>
           )}
@@ -215,9 +225,8 @@ export default function DependentSelect({
 
       {/* Accessibility Information */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {value.length > 0 && (
-          `${value.length} ${label.toLowerCase()} selected. ${availableOptions.length} options remaining.`
-        )}
+        {value.length > 0 &&
+          `${value.length} ${label.toLowerCase()} selected. ${availableOptions.length} options remaining.`}
       </div>
     </div>
   );
