@@ -1,24 +1,26 @@
-'use client'
-import { useEffect, useRef, useMemo } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { gsap } from 'gsap';
-import { useSectionContent } from '@/stores/content';
+"use client";
+import { motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useMemo, useRef } from "react";
+import { useSectionContent } from "@/stores/content";
 
 export default function WhyUs() {
-  const { data: whyUs, loading, error } = useSectionContent('whyUs');
+  const { data: whyUs, loading, error } = useSectionContent("whyUs");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
   // ✅ Enhanced background particles
-  const backgroundElements = useMemo(() => 
-    Array.from({ length: 12 }, (_, i) => ({
-      id: i,
-      size: Math.random() * 120 + 80,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      hue: 190 + (Math.random() * 70),
-      delay: Math.random() * 3
-    })), []
+  const backgroundElements = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        id: i,
+        size: Math.random() * 120 + 80,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        hue: 190 + Math.random() * 70,
+        delay: Math.random() * 3,
+      })),
+    [],
   );
 
   // ✅ Enhanced GSAP animations
@@ -27,26 +29,43 @@ export default function WhyUs() {
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
-      
-      tl.fromTo('.whyus-title', 
+
+      tl.fromTo(
+        ".whyus-title",
         { y: 80, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" }
+        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" },
       )
-      .fromTo('.whyus-row', 
-        { y: 100, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power3.out" }, 
-        "-=0.8"
-      )
-      .fromTo('.whyus-tag', 
-        { y: 60, opacity: 0, scale: 0.8 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.05, ease: "back.out(1.4)" }, 
-        "-=0.6"
-      )
-      .fromTo('.whyus-text-item', 
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power2.out" }, 
-        "-=0.4"
-      );
+        .fromTo(
+          ".whyus-row",
+          { y: 100, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power3.out" },
+          "-=0.8",
+        )
+        .fromTo(
+          ".whyus-tag",
+          { y: 60, opacity: 0, scale: 0.8 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.05,
+            ease: "back.out(1.4)",
+          },
+          "-=0.6",
+        )
+        .fromTo(
+          ".whyus-text-item",
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: "power2.out",
+          },
+          "-=0.4",
+        );
     }, containerRef);
 
     return () => ctx.revert();
@@ -55,16 +74,23 @@ export default function WhyUs() {
   // ✅ Early return after hooks
   if (loading || error || !whyUs || whyUs.hidden) return null;
 
-  const title = whyUs.title || '';
-  const title2 = whyUs.title2 || '';
-  const description = whyUs.description || '';
+  const title = whyUs.title || "";
+  const title2 = whyUs.title2 || "";
+  const description = whyUs.description || "";
   const tags = whyUs.tags || [];
   const text = whyUs.text || [];
 
-  if (!title && !title2 && !description && tags.length === 0 && text.length === 0) return null;
+  if (
+    !title &&
+    !title2 &&
+    !description &&
+    tags.length === 0 &&
+    text.length === 0
+  )
+    return null;
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-primary/10 relative overflow-hidden"
     >
@@ -87,27 +113,26 @@ export default function WhyUs() {
               height: element.size,
               top: `${element.top}%`,
               left: `${element.left}%`,
-              background: `radial-gradient(circle, hsla(${element.hue}, 50%, 70%, 0.3), transparent 70%)`
+              background: `radial-gradient(circle, hsla(${element.hue}, 50%, 70%, 0.3), transparent 70%)`,
             }}
             animate={{
               y: [-25, 25, -25],
               x: [-20, 20, -20],
               scale: [1, 1.2, 1],
               opacity: [0.15, 0.3, 0.15],
-              rotate: [0, 180, 360]
+              rotate: [0, 180, 360],
             }}
             transition={{
               duration: 20 + Math.random() * 10,
               repeat: Infinity,
               delay: element.delay,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10 space-y-16 py-20">
-        
         {/* ✅ Row 1: Title (Center) */}
         {title && (
           <div className="whyus-title text-center">
@@ -121,7 +146,6 @@ export default function WhyUs() {
 
         {/* ✅ Row 2: Content Left + Tags Right */}
         <div className="whyus-row grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          
           {/* Left: Content */}
           <div className="space-y-6">
             {title2 && (
@@ -134,7 +158,7 @@ export default function WhyUs() {
                 <p className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed font-sans font-medium">
                   {description}
                 </p>
-                
+
                 {/* ✅ Decorative line */}
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-1 bg-gradient-to-r from-primary to-primary/70 rounded-full" />
@@ -144,17 +168,17 @@ export default function WhyUs() {
               </div>
             )}
           </div>
-          
+
           {/* Right: Tags Grid (Compact) */}
           <div className="grid grid-cols-2 gap-3">
             {tags.slice(0, 4).map((tag: any, index: number) => (
               <motion.div
                 key={index}
                 className="whyus-tag group p-4 md:p-5 bg-card/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 border border-border/60 text-center"
-                whileHover={{ 
-                  y: -6, 
+                whileHover={{
+                  y: -6,
                   scale: 1.03,
-                  boxShadow: "0 20px 40px rgba(39, 180, 198, 0.15)"
+                  boxShadow: "0 20px 40px rgba(39, 180, 198, 0.15)",
                 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
@@ -171,7 +195,7 @@ export default function WhyUs() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Description/label */}
                   {tag.text2 && (
                     <div>
@@ -193,7 +217,6 @@ export default function WhyUs() {
 
         {/* ✅ Row 3: Right Top (Text Points) + Right Bottom (Extra Tags) */}
         <div className="whyus-row grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-          
           {/* Left: Empty space or additional content */}
           <div className="lg:order-2">
             {/* Right Top: Text Points */}
@@ -207,7 +230,9 @@ export default function WhyUs() {
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
                     <div className="flex-shrink-0 w-7 h-7 bg-gradient-to-r from-primary to-primary/70 rounded-full flex items-center justify-center">
-                      <span className="text-primary-foreground font-heading font-bold text-sm">{index + 1}</span>
+                      <span className="text-primary-foreground font-heading font-bold text-sm">
+                        {index + 1}
+                      </span>
                     </div>
                     <p className="text-muted-foreground leading-relaxed text-sm md:text-base font-sans group-hover:text-foreground transition-colors">
                       {textItem}
@@ -224,10 +249,10 @@ export default function WhyUs() {
                   <motion.div
                     key={index + 4}
                     className="whyus-tag group p-5 bg-card/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 border border-border/60 flex items-center space-x-4"
-                    whileHover={{ 
-                      y: -6, 
+                    whileHover={{
+                      y: -6,
                       scale: 1.02,
-                      boxShadow: "0 20px 40px rgba(39, 180, 198, 0.15)"
+                      boxShadow: "0 20px 40px rgba(39, 180, 198, 0.15)",
                     }}
                   >
                     <div className="text-center">
@@ -242,7 +267,7 @@ export default function WhyUs() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Enhanced hover effects */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none" />
                   </motion.div>
@@ -250,19 +275,19 @@ export default function WhyUs() {
               </div>
             )}
           </div>
-          
+
           {/* Right: Spacer or additional visual element */}
           <div className="lg:order-1 flex items-center justify-center">
-            <motion.div 
+            <motion.div
               className="w-32 h-32 bg-gradient-to-br from-muted/50 to-primary/20 rounded-full backdrop-blur-sm border border-border/40 flex items-center justify-center"
               animate={{
                 rotate: [0, 360],
-                scale: [1, 1.1, 1]
+                scale: [1, 1.1, 1],
               }}
               transition={{
                 duration: 20,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "linear",
               }}
             >
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full shadow-lg" />

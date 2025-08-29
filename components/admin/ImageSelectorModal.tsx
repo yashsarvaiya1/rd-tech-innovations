@@ -1,23 +1,27 @@
-'use client'
-import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+"use client";
+import {
+  AlertCircle,
+  CheckCircle,
+  Eye,
+  FileImage,
+  Image as ImageIcon,
+  Loader2,
+  Search,
+  Upload,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { StorageService, StorageFile } from "@/services/storageService";
-import { 
-  X, 
-  Upload, 
-  Image as ImageIcon, 
-  Loader2, 
-  AlertCircle, 
-  CheckCircle,
-  Search,
-  Eye,
-  FileImage
-} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type StorageFile, StorageService } from "@/services/storageService";
 
 interface ImageSelectorModalProps {
   isOpen: boolean;
@@ -25,7 +29,11 @@ interface ImageSelectorModalProps {
   onSelect: (url: string) => void;
 }
 
-export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageSelectorModalProps) {
+export default function ImageSelectorModal({
+  isOpen,
+  onClose,
+  onSelect,
+}: ImageSelectorModalProps) {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [assets, setAssets] = useState<StorageFile[]>([]);
@@ -34,9 +42,39 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
   const [success, setSuccess] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState<string>("");
-  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(
+    new Set(),
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+
+  useEffect(() => {
+    // Filter assets based on search term
+    if (searchTerm.trim()) {
+      const filtered = assets.filter((asset) =>
+        asset.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      setFilteredAssets(filtered);
+    } else {
+      setFilteredAssets(assets);
+    }
+  }, [assets, searchTerm]);
+
+  const loadAssets = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const assetsList = await StorageService.listAllAssets();
+      setAssets(assetsList);
+      setFilteredAssets(assetsList);
+    } catch (error: any) {
+      setError(error.message || "Failed to load images");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -49,34 +87,7 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
       setSelectedImage("");
       setImageLoadErrors(new Set());
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    // Filter assets based on search term
-    if (searchTerm.trim()) {
-      const filtered = assets.filter(asset => 
-        asset.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredAssets(filtered);
-    } else {
-      setFilteredAssets(assets);
-    }
-  }, [assets, searchTerm]);
-
-  const loadAssets = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      
-      const assetsList = await StorageService.listAllAssets();
-      setAssets(assetsList);
-      setFilteredAssets(assetsList);
-    } catch (error: any) {
-      setError(error.message || "Failed to load images");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isOpen, loadAssets]);
 
   const handleImageSelect = (url: string) => {
     onSelect(url);
@@ -87,7 +98,9 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -98,16 +111,15 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
     try {
       // Validate and upload
       const result = await StorageService.uploadImageWithPreview(file);
-      
+
       // Refresh the gallery
       await loadAssets();
-      
+
       setSuccess("Image uploaded successfully!");
       setTimeout(() => {
         onSelect(result.url);
         onClose();
       }, 1000);
-      
     } catch (error: any) {
       setError(error.message || "Failed to upload image");
     } finally {
@@ -119,17 +131,17 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
   };
 
   const handlePreviewImage = (url: string) => {
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   const handleImageError = (url: string) => {
-    console.log('Image failed to load:', url);
-    setImageLoadErrors(prev => new Set(prev).add(url));
+    console.log("Image failed to load:", url);
+    setImageLoadErrors((prev) => new Set(prev).add(url));
   };
 
   const handleImageLoad = (url: string) => {
     // Remove from error set if image loads successfully
-    setImageLoadErrors(prev => {
+    setImageLoadErrors((prev) => {
       const newSet = new Set(prev);
       newSet.delete(url);
       return newSet;
@@ -137,8 +149,16 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
   };
 
   const isImage = (fileName: string) => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
-    return imageExtensions.some(ext => fileName.toLowerCase().includes(ext));
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".bmp",
+    ];
+    return imageExtensions.some((ext) => fileName.toLowerCase().includes(ext));
   };
 
   return (
@@ -162,13 +182,18 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
         {success && (
           <Alert className="border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">{success}</AlertDescription>
+            <AlertDescription className="text-green-800">
+              {success}
+            </AlertDescription>
           </Alert>
         )}
 
         <Tabs defaultValue="gallery" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="gallery" className="flex items-center space-x-2">
+            <TabsTrigger
+              value="gallery"
+              className="flex items-center space-x-2"
+            >
               <ImageIcon className="h-4 w-4" />
               <span>Select From Gallery</span>
               <Badge variant="outline" className="ml-1">
@@ -205,14 +230,14 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                   {filteredAssets.map((asset) => {
                     const hasError = imageLoadErrors.has(asset.url);
                     const isImageFile = isImage(asset.name);
-                    
+
                     return (
                       <div
                         key={asset.fullPath}
                         className={`relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all duration-200 ${
-                          selectedImage === asset.url 
-                            ? 'border-blue-500 ring-2 ring-blue-200 shadow-lg' 
-                            : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+                          selectedImage === asset.url
+                            ? "border-blue-500 ring-2 ring-blue-200 shadow-lg"
+                            : "border-gray-200 hover:border-blue-300 hover:shadow-md"
                         }`}
                         onClick={() => setSelectedImage(asset.url)}
                       >
@@ -227,15 +252,15 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                               onError={() => handleImageError(asset.url)}
                               onLoad={() => handleImageLoad(asset.url)}
                               style={{
-                                objectFit: 'cover',
-                                objectPosition: 'center'
+                                objectFit: "cover",
+                                objectPosition: "center",
                               }}
                             />
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-blue-50 to-indigo-100">
                               <FileImage className="h-8 w-8 text-blue-400 mb-2" />
                               <span className="text-xs text-blue-600 font-medium">
-                                {hasError ? 'Failed to load' : 'Image file'}
+                                {hasError ? "Failed to load" : "Image file"}
                               </span>
                             </div>
                           )}
@@ -245,7 +270,7 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                             <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
                           </div>
                         </div>
-                        
+
                         {/* ✅ Enhanced overlay with better actions */}
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
                           <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 space-x-2">
@@ -272,10 +297,12 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                             </Button>
                           </div>
                         </div>
-                        
+
                         {/* ✅ Improved file name display */}
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="truncate font-medium">{asset.name}</div>
+                          <div className="truncate font-medium">
+                            {asset.name}
+                          </div>
                           {asset.size && (
                             <div className="text-xs opacity-75">
                               {(asset.size / 1024).toFixed(1)} KB
@@ -297,13 +324,12 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                 <div className="text-center py-12">
                   <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {searchTerm ? 'No images found' : 'No images available'}
+                    {searchTerm ? "No images found" : "No images available"}
                   </h3>
                   <p className="text-gray-600">
-                    {searchTerm 
-                      ? `No images match "${searchTerm}"` 
-                      : 'Upload some images to get started'
-                    }
+                    {searchTerm
+                      ? `No images match "${searchTerm}"`
+                      : "Upload some images to get started"}
                   </p>
                 </div>
               )}
@@ -321,15 +347,22 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                     />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-blue-900">Image selected</p>
-                    <p className="text-xs text-blue-600">Ready to use this image</p>
+                    <p className="text-sm font-medium text-blue-900">
+                      Image selected
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      Ready to use this image
+                    </p>
                   </div>
                 </div>
                 <div className="space-x-2">
-                  <Button variant="outline" onClick={() => setSelectedImage("")}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedImage("")}
+                  >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => handleImageSelect(selectedImage)}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
@@ -350,11 +383,11 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                 onChange={handleFileChange}
                 className="hidden"
               />
-              
+
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
                 <Upload className="h-8 w-8 text-blue-600" />
               </div>
-              
+
               <div className="text-center mb-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Upload New Image
@@ -369,8 +402,8 @@ export default function ImageSelectorModal({ isOpen, onClose, onSelect }: ImageS
                 </div>
               </div>
 
-              <Button 
-                onClick={handleUploadClick} 
+              <Button
+                onClick={handleUploadClick}
                 disabled={uploading}
                 className="min-w-[140px]"
                 size="lg"

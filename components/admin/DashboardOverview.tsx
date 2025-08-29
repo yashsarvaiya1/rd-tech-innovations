@@ -1,16 +1,15 @@
-'use client'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useAdminStore } from "@/stores/admin";
-import { 
-  MessageSquare, 
-  Briefcase, 
-  Users, 
-  TrendingUp,
-  Clock,
+"use client";
+import {
+  Briefcase,
   CheckCircle,
-  XCircle
+  Clock,
+  MessageSquare,
+  TrendingUp,
+  Users,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAdminStore } from "@/stores/admin";
 
 export default function DashboardOverview() {
   const { submissionStats, submissions, admins } = useAdminStore();
@@ -23,37 +22,41 @@ export default function DashboardOverview() {
       value: submissionStats?.total || 0,
       icon: <MessageSquare className="h-5 w-5 text-blue-600" />,
       change: "+12%",
-      changeType: "increase" as const
+      changeType: "increase" as const,
     },
     {
       title: "Pending Review",
       value: submissionStats?.pending || 0,
       icon: <Clock className="h-5 w-5 text-yellow-600" />,
       change: "3 new",
-      changeType: "neutral" as const
+      changeType: "neutral" as const,
     },
     {
       title: "Completed",
       value: submissionStats?.completed || 0,
       icon: <CheckCircle className="h-5 w-5 text-green-600" />,
       change: "+8%",
-      changeType: "increase" as const
+      changeType: "increase" as const,
     },
     {
       title: "Admin Users",
       value: admins.length,
       icon: <Users className="h-5 w-5 text-purple-600" />,
       change: "Active",
-      changeType: "neutral" as const
-    }
+      changeType: "neutral" as const,
+    },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'lost': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "lost":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -71,20 +74,30 @@ export default function DashboardOverview() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    {stat.title}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
                 </div>
-                <div className="p-2 bg-gray-50 rounded-lg">
-                  {stat.icon}
-                </div>
+                <div className="p-2 bg-gray-50 rounded-lg">{stat.icon}</div>
               </div>
               <div className="mt-4 flex items-center">
-                <TrendingUp className={`h-4 w-4 mr-1 ${
-                  stat.changeType === 'increase' ? 'text-green-600' : 'text-gray-400'
-                }`} />
-                <span className={`text-sm ${
-                  stat.changeType === 'increase' ? 'text-green-600' : 'text-gray-600'
-                }`}>
+                <TrendingUp
+                  className={`h-4 w-4 mr-1 ${
+                    stat.changeType === "increase"
+                      ? "text-green-600"
+                      : "text-gray-400"
+                  }`}
+                />
+                <span
+                  className={`text-sm ${
+                    stat.changeType === "increase"
+                      ? "text-green-600"
+                      : "text-gray-600"
+                  }`}
+                >
                   {stat.change}
                 </span>
               </div>
@@ -105,17 +118,24 @@ export default function DashboardOverview() {
           <CardContent>
             {recentSubmissions.length > 0 ? (
               <div className="space-y-4">
-                {recentSubmissions.map((submission, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                {recentSubmissions.map((submission, _index) => (
+                  <div
+                    key={_index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
-                      {submission.type === 'career' ? (
+                      {submission.type === "career" ? (
                         <Briefcase className="h-4 w-4 text-gray-600" />
                       ) : (
                         <MessageSquare className="h-4 w-4 text-gray-600" />
                       )}
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{submission.name}</p>
-                        <p className="text-xs text-gray-600">{submission.email}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {submission.name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {submission.email}
+                        </p>
                       </div>
                     </div>
                     <Badge className={getStatusColor(submission.status)}>
@@ -125,7 +145,9 @@ export default function DashboardOverview() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600 text-center py-4">No recent submissions</p>
+              <p className="text-gray-600 text-center py-4">
+                No recent submissions
+              </p>
             )}
           </CardContent>
         </Card>
@@ -141,7 +163,10 @@ export default function DashboardOverview() {
             {admins.length > 0 ? (
               <div className="space-y-2">
                 {admins.map((email, index) => (
-                  <div key={index} className="flex items-center p-2 bg-gray-50 rounded">
+                  <div
+                    key={index}
+                    className="flex items-center p-2 bg-gray-50 rounded"
+                  >
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
                       <span className="text-sm font-medium text-blue-600">
                         {email.charAt(0).toUpperCase()}

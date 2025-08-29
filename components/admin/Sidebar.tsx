@@ -1,34 +1,33 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useAdminStore } from "@/stores/admin";
-import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  MessageSquare,
   Briefcase,
-  UserPlus,
-  Navigation,
-  Home,
   Building,
-  Info,
-  Settings,
-  Wrench,
-  FolderOpen,
-  MessageCircle,
-  Monitor,
-  Globe,
-  Phone,
-  Users,
-  Eye,
   Calendar,
   ChevronDown,
   ChevronRight,
-  HelpCircle,
+  Eye,
   EyeOff,
+  FolderOpen,
+  Globe,
+  HelpCircle,
+  Home,
   ImageIcon,
+  Info,
+  LayoutDashboard,
+  MessageCircle,
+  MessageSquare,
+  Monitor,
+  Navigation,
+  Phone,
+  Settings,
+  UserPlus,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useAdminStore } from "@/stores/admin";
 
 interface SectionItem {
   id: string;
@@ -56,7 +55,7 @@ export default function Sidebar() {
     setExpandedGroups((prev) =>
       prev.includes(groupTitle)
         ? prev.filter((g) => g !== groupTitle)
-        : [...prev, groupTitle]
+        : [...prev, groupTitle],
     );
   };
 
@@ -203,12 +202,13 @@ export default function Sidebar() {
         <nav className="space-y-6">
           {sectionGroups.map((group) => {
             const isExpanded = expandedGroups.includes(
-              group.title.toLowerCase().replace(" ", "")
+              group.title.toLowerCase().replace(" ", ""),
             );
 
             return (
               <div key={group.title}>
                 <button
+                  type="button"
                   onClick={() =>
                     toggleGroup(group.title.toLowerCase().replace(" ", ""))
                   }
@@ -238,7 +238,7 @@ export default function Sidebar() {
                             "w-full justify-start h-auto py-2 px-3",
                             selectedSection === item.id
                               ? "bg-blue-100 text-blue-900 hover:bg-blue-200"
-                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-100",
                           )}
                           onClick={() => setSelectedSection(item.id)}
                         >

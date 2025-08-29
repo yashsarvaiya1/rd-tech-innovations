@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Phone } from 'lucide-react';
-import { useContentStore } from '@/stores/content';
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, Phone, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useContentStore } from "@/stores/content";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -16,40 +16,45 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Hide Navbar for admin/auth or missing data
-  if (!navbar || navbar.hidden || pathname?.startsWith('/admin') || pathname?.startsWith('/auth')) {
+  if (
+    !navbar ||
+    navbar.hidden ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/auth")
+  ) {
     return null;
   }
 
   // Extract safe values
-  const logoUrl = navbar.logoUrl || '';
-  const contactButton = navbar.contactButton || 'Contact';
+  const logoUrl = navbar.logoUrl || "";
+  const contactButton = navbar.contactButton || "Contact";
   const routesList = navbar.routesList || [];
 
   // Normalize routes (handle both ["Home", "About"] and [{ name, path }])
   const routes = Array.isArray(routesList)
     ? routesList
         .map((route: any, index: number) => {
-          if (typeof route === 'string') {
+          if (typeof route === "string") {
             const routeName = route;
             const routePath =
-              routeName.toLowerCase() === 'home'
-                ? '/'
-                : `/${routeName.toLowerCase().replace(/\s+/g, '-')}`;
+              routeName.toLowerCase() === "home"
+                ? "/"
+                : `/${routeName.toLowerCase().replace(/\s+/g, "-")}`;
             return { name: routeName, path: routePath };
-          } else if (route && typeof route === 'object') {
+          } else if (route && typeof route === "object") {
             return {
               name: route.name || route.title || `Route ${index + 1}`,
               path:
                 route.path ||
                 route.url ||
-                `/${(route.name || route.title || 'route')
+                `/${(route.name || route.title || "route")
                   .toLowerCase()
-                  .replace(/\s+/g, '-')}`,
+                  .replace(/\s+/g, "-")}`,
             };
           }
           return null;
@@ -61,18 +66,18 @@ export default function Navbar() {
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-8 right-8 z-50 mt-4 mx-auto max-w-7xl rounded-xl overflow-hidden transition-all duration-500 ${
         isScrolled
-          ? 'bg-background/90 backdrop-blur-lg shadow-2xl border border-border'
-          : 'bg-background/70 backdrop-blur-sm shadow-lg'
+          ? "bg-background/90 backdrop-blur-lg shadow-2xl border border-border"
+          : "bg-background/70 backdrop-blur-sm shadow-lg"
       }`}
     >
       <div className="px-8 py-6 flex items-center justify-center relative">
         {/* Logo */}
         <motion.div
           whileHover={{ scale: 1.05 }}
-          transition={{ type: 'spring', stiffness: 300 }}
+          transition={{ type: "spring", stiffness: 300 }}
           className="absolute left-8"
         >
           <Link href="/" className="flex items-center">
@@ -82,13 +87,15 @@ export default function Navbar() {
                 alt="Logo"
                 className="h-10 w-auto object-contain rounded-lg"
                 onError={(e) => {
-                  console.error('Logo failed to load:', logoUrl);
-                  e.currentTarget.style.display = 'none';
+                  console.error("Logo failed to load:", logoUrl);
+                  e.currentTarget.style.display = "none";
                 }}
               />
             ) : (
               <div className="h-10 px-4 bg-gradient-to-r from-primary/90 via-primary/70 to-accent/50 rounded-lg flex items-center">
-                <span className="text-primary-foreground font-heading font-bold text-sm">Logo</span>
+                <span className="text-primary-foreground font-heading font-bold text-sm">
+                  Logo
+                </span>
               </div>
             )}
           </Link>
@@ -109,8 +116,8 @@ export default function Navbar() {
                   href={route?.path}
                   className={`text-sm font-semibold font-sans transition-all duration-300 relative ${
                     pathname === route?.path
-                      ? 'text-primary'
-                      : 'text-foreground hover:text-primary'
+                      ? "text-primary"
+                      : "text-foreground hover:text-primary"
                   }`}
                 >
                   {route?.name}
@@ -119,7 +126,7 @@ export default function Navbar() {
                       layoutId="navbar-indicator"
                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
                       transition={{
-                        type: 'spring',
+                        type: "spring",
                         stiffness: 300,
                         damping: 30,
                       }}
@@ -129,7 +136,9 @@ export default function Navbar() {
               </motion.div>
             ))
           ) : (
-            <span className="text-muted-foreground text-sm font-sans">No navigation routes</span>
+            <span className="text-muted-foreground text-sm font-sans">
+              No navigation routes
+            </span>
           )}
         </div>
 
@@ -164,7 +173,7 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
             className="lg:hidden border-t border-border bg-background rounded-b-xl overflow-hidden scrollbar-clean"
@@ -177,14 +186,16 @@ export default function Navbar() {
                     href={route?.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`block py-2 text-foreground hover:text-primary transition-colors font-sans font-medium ${
-                      pathname === route?.path ? 'text-primary' : ''
+                      pathname === route?.path ? "text-primary" : ""
                     }`}
                   >
                     {route?.name}
                   </Link>
                 ))
               ) : (
-                <span className="text-muted-foreground font-sans">No navigation routes</span>
+                <span className="text-muted-foreground font-sans">
+                  No navigation routes
+                </span>
               )}
 
               <Link

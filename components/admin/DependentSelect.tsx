@@ -1,10 +1,16 @@
-'use client'
-import { useState, useEffect } from "react";
+"use client";
+import { Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Plus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DependentSelectProps {
   options: string[];
@@ -15,20 +21,20 @@ interface DependentSelectProps {
   emptyMessage?: string;
 }
 
-export default function DependentSelect({ 
-  options, 
-  value, 
-  onChange, 
-  placeholder, 
+export default function DependentSelect({
+  options,
+  value,
+  onChange,
+  placeholder,
   label,
-  emptyMessage = "No options available" 
+  emptyMessage = "No options available",
 }: DependentSelectProps) {
   const [selectedValue, setSelectedValue] = useState<string>("");
   const [availableOptions, setAvailableOptions] = useState<string[]>([]);
 
   useEffect(() => {
     // Filter out already selected options
-    const available = options.filter(option => !value.includes(option));
+    const available = options.filter((option) => !value.includes(option));
     setAvailableOptions(available);
   }, [options, value]);
 
@@ -40,18 +46,22 @@ export default function DependentSelect({
   };
 
   const handleRemove = (optionToRemove: string) => {
-    onChange(value.filter(item => item !== optionToRemove));
+    onChange(value.filter((item) => item !== optionToRemove));
   };
 
   return (
     <div className="space-y-3">
       <Label>{label}</Label>
-      
+
       {/* Selected Items */}
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {value.map((item, index) => (
-            <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+          {value.map((item) => (
+            <Badge
+              key={item}
+              variant="secondary"
+              className="flex items-center space-x-1"
+            >
               <span>{item}</span>
               <Button
                 type="button"
@@ -82,7 +92,7 @@ export default function DependentSelect({
               ))}
             </SelectContent>
           </Select>
-          
+
           <Button
             type="button"
             variant="outline"

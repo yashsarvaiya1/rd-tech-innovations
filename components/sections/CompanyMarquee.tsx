@@ -1,11 +1,15 @@
-'use client';
-import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { gsap } from 'gsap';
-import { useSectionContent } from '@/stores/content';
+"use client";
+import { motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
+import { useSectionContent } from "@/stores/content";
 
 export default function CompanyMarquee() {
-  const { data: companyMarquee, loading, error } = useSectionContent('companyMarquee');
+  const {
+    data: companyMarquee,
+    loading,
+    error,
+  } = useSectionContent("companyMarquee");
   const containerRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.2 });
@@ -24,12 +28,12 @@ export default function CompanyMarquee() {
 
       if (!firstChild) return;
 
-      const images = marqueeElement.querySelectorAll('img');
-      const imagePromises = Array.from(images).map(img => {
+      const images = marqueeElement.querySelectorAll("img");
+      const imagePromises = Array.from(images).map((img) => {
         if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-          img.addEventListener('load', resolve, { once: true });
-          img.addEventListener('error', resolve, { once: true });
+        return new Promise((resolve) => {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
         });
       });
 
@@ -52,10 +56,11 @@ export default function CompanyMarquee() {
             x: (x) => {
               // ✅ Wrap so it never snaps
               const current = parseFloat(x);
-              const wrapped = ((current % -oneSetWidth) + -oneSetWidth) % -oneSetWidth;
+              const wrapped =
+                ((current % -oneSetWidth) + -oneSetWidth) % -oneSetWidth;
               return `${wrapped}px`;
-            }
-          }
+            },
+          },
         });
       });
     };
@@ -72,28 +77,34 @@ export default function CompanyMarquee() {
 
     const container = containerRef.current;
     if (container) {
-      container.addEventListener('mouseenter', handleMouseEnter);
-      container.addEventListener('mouseleave', handleMouseLeave);
+      container.addEventListener("mouseenter", handleMouseEnter);
+      container.addEventListener("mouseleave", handleMouseLeave);
     }
 
     return () => {
       clearTimeout(timeoutId);
       if (tween) tween.kill();
       if (container) {
-        container.removeEventListener('mouseenter', handleMouseEnter);
-        container.removeEventListener('mouseleave', handleMouseLeave);
+        container.removeEventListener("mouseenter", handleMouseEnter);
+        container.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
   }, [isInView, companyLogos.length]);
 
-  if (loading || error || !companyMarquee || companyMarquee.hidden || companyLogos.length === 0) {
+  if (
+    loading ||
+    error ||
+    !companyMarquee ||
+    companyMarquee.hidden ||
+    companyLogos.length === 0
+  ) {
     return null;
   }
 
   const duplicatedLogos = [...companyLogos, ...companyLogos, ...companyLogos];
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="py-12 md:py-16 bg-gradient-to-br from-background via-muted/20 to-primary/8 overflow-hidden"
     >
@@ -102,9 +113,9 @@ export default function CompanyMarquee() {
           <div
             ref={marqueeRef}
             className="flex space-x-8"
-            style={{ 
-              width: 'max-content',
-              willChange: 'transform'
+            style={{
+              width: "max-content",
+              willChange: "transform",
             }}
           >
             {duplicatedLogos.map((logoUrl: string, index: number) => (

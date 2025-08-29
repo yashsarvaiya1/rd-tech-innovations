@@ -1,11 +1,19 @@
-'use client'
-import { useState, useRef, useEffect } from "react";
+"use client";
+import {
+  AlertCircle,
+  Eye,
+  FolderOpen,
+  Image as ImageIcon,
+  Loader2,
+  Upload,
+  X,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StorageService } from "@/services/storageService";
 import ImageSelectorModal from "./ImageSelectorModal";
-import { Upload, X, Eye, Loader2, AlertCircle, Image as ImageIcon, FolderOpen } from "lucide-react";
 
 interface ImageUploadProps {
   value?: string;
@@ -15,12 +23,12 @@ interface ImageUploadProps {
   className?: string;
 }
 
-export default function ImageUpload({ 
-  value, 
-  onChange, 
-  label, 
+export default function ImageUpload({
+  value,
+  onChange,
+  label,
   placeholder = "Upload an image",
-  className = ""
+  className = "",
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string>("");
@@ -29,13 +37,15 @@ export default function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    console.log('ImageUpload received value:', value);
+    console.log("ImageUpload received value:", value);
     if (value && value !== preview) {
       setPreview(value);
     }
-  }, [value]);
+  }, [value, preview]);
 
-  const handleDirectUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDirectUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -44,15 +54,14 @@ export default function ImageUpload({
 
     try {
       StorageService.validateImageFile(file);
-      
+
       const previewUrl = await StorageService.createImagePreview(file);
       setPreview(previewUrl);
-      
+
       const result = await StorageService.uploadImageWithPreview(file);
-      
+
       onChange(result.url);
       setPreview(result.url);
-      
     } catch (error: any) {
       console.error("Error uploading image:", error);
       setError(error.message || "Failed to upload image");
@@ -83,26 +92,26 @@ export default function ImageUpload({
 
   const handleViewImage = () => {
     if (preview) {
-      window.open(preview, '_blank');
+      window.open(preview, "_blank");
     }
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.error('Image failed to load:', preview);
-    (e.target as HTMLImageElement).style.display = 'none';
+    console.error("Image failed to load:", preview);
+    (e.target as HTMLImageElement).style.display = "none";
     setError("Failed to load image. Please try uploading again.");
   };
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.log('Image loaded successfully:', preview);
-    (e.target as HTMLImageElement).style.display = 'block';
+    console.log("Image loaded successfully:", preview);
+    (e.target as HTMLImageElement).style.display = "block";
     setError("");
   };
 
   return (
     <div className={`space-y-3 ${className}`}>
       <Label>{label}</Label>
-      
+
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -118,7 +127,7 @@ export default function ImageUpload({
           onChange={handleDirectUpload}
           className="hidden"
         />
-        
+
         {/* Upload from Device Button */}
         <Button
           type="button"
@@ -164,7 +173,7 @@ export default function ImageUpload({
               <Eye className="h-4 w-4" />
               <span>Preview</span>
             </Button>
-            
+
             <Button
               type="button"
               variant="ghost"
@@ -189,7 +198,7 @@ export default function ImageUpload({
               className="w-full h-full object-cover"
               onError={handleImageError}
               onLoad={handleImageLoad}
-              style={{ display: 'block' }}
+              style={{ display: "block" }}
             />
             {uploading && (
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">

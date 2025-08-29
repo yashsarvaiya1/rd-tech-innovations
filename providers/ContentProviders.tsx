@@ -1,6 +1,6 @@
-'use client'
-import { useEffect, ReactNode } from 'react';
-import { useContentStore } from '@/stores/content';
+"use client";
+import { type ReactNode, useEffect } from "react";
+import { useContentStore } from "@/stores/content";
 
 interface ContentProviderProps {
   children: ReactNode;

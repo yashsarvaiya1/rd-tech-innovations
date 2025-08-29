@@ -1,20 +1,21 @@
-'use client'
-import { useState, useEffect } from "react";
+"use client";
+import {
+  AlertCircle,
+  CheckCircle,
+  Download,
+  Eye,
+  Image as ImageIcon,
+  Loader2,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { StorageService, StorageFile } from "@/services/storageService";
-import { 
-  Trash2, 
-  Download, 
-  Eye, 
-  Loader2, 
-  AlertCircle, 
-  CheckCircle,
-  Image as ImageIcon,
-  RefreshCw
-} from "lucide-react";
+import { type StorageFile, StorageService } from "@/services/storageService";
 
 export default function AssetsManager() {
   const [assets, setAssets] = useState<StorageFile[]>([]);
@@ -23,68 +24,76 @@ export default function AssetsManager() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    loadAssets();
-  }, []);
-
   const loadAssets = async () => {
     try {
       setLoading(true);
       setError("");
-      
+
       const assetsList = await StorageService.listAllAssets();
       setAssets(assetsList);
-    } catch (error: any) {
-      setError(error.message || "Failed to load assets");
+    } catch {
+      setError("Failed to load assets");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadAssets();
+  }, [loadAssets]);
+
   const handleDelete = async (asset: StorageFile) => {
-    if (!confirm(`Are you sure you want to delete "${asset.name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${asset.name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       setDeleting(asset.fullPath);
       setError("");
-      
+
       await StorageService.deleteAssetByPath(asset.fullPath);
-      
+
       // Remove from local state
-      setAssets(prev => prev.filter(a => a.fullPath !== asset.fullPath));
-      
+      setAssets((prev) => prev.filter((a) => a.fullPath !== asset.fullPath));
+
       setSuccess(`"${asset.name}" deleted successfully!`);
       setTimeout(() => setSuccess(""), 3000);
-    } catch (error: any) {
-      setError(error.message || "Failed to delete asset");
+    } catch {
+      setError("Failed to delete asset");
     } finally {
       setDeleting(null);
     }
   };
 
   const handleViewImage = (url: string) => {
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   const isImage = (fileName: string) => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-    return imageExtensions.some(ext => fileName.toLowerCase().includes(ext));
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+    return imageExtensions.some((ext) => fileName.toLowerCase().includes(ext));
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Assets Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Assets Management
+          </h1>
           <p className="text-gray-600">Manage uploaded files and images</p>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <Badge variant="outline">{assets.length} files</Badge>
           <Button variant="outline" onClick={loadAssets} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
@@ -100,7 +109,9 @@ export default function AssetsManager() {
       {success && (
         <Alert className="border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">{success}</AlertDescription>
+          <AlertDescription className="text-green-800">
+            {success}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -120,13 +131,15 @@ export default function AssetsManager() {
                 <Card key={asset.fullPath} className="overflow-hidden">
                   <div className="aspect-video bg-gray-100 relative">
                     {isImage(asset.name) ? (
-                      <img
+                      <Image
                         src={asset.url}
                         alt={asset.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                          (e.target as HTMLImageElement).style.display = "none";
+                          (
+                            e.target as HTMLImageElement
+                          ).nextElementSibling?.classList.remove("hidden");
                         }}
                       />
                     ) : (
@@ -135,15 +148,18 @@ export default function AssetsManager() {
                       </div>
                     )}
                   </div>
-                  
+
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div>
-                        <h3 className="font-medium text-sm truncate" title={asset.name}>
+                        <h3
+                          className="font-medium text-sm truncate"
+                          title={asset.name}
+                        >
                           {asset.name}
                         </h3>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <Button
                           variant="outline"
@@ -154,18 +170,14 @@ export default function AssetsManager() {
                           <Eye className="h-3 w-3 mr-1" />
                           View
                         </Button>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                        >
+
+                        <Button variant="outline" size="sm" asChild>
                           <a href={asset.url} download={asset.name}>
                             <Download className="h-3 w-3 mr-1" />
                             Download
                           </a>
                         </Button>
-                        
+
                         <Button
                           variant="destructive"
                           size="sm"
@@ -179,7 +191,7 @@ export default function AssetsManager() {
                           )}
                         </Button>
                       </div>
-                      
+
                       <div className="text-xs text-gray-500 break-all">
                         {asset.fullPath}
                       </div>
@@ -191,8 +203,12 @@ export default function AssetsManager() {
           ) : (
             <div className="text-center py-12">
               <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Assets Found</h3>
-              <p className="text-gray-600">Upload some images to see them here</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Assets Found
+              </h3>
+              <p className="text-gray-600">
+                Upload some images to see them here
+              </p>
             </div>
           )}
         </CardContent>

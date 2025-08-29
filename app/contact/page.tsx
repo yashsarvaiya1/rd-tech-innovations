@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 export { default } from "@/components/pages/ContactPage";
 
 export const metadata: Metadata = {

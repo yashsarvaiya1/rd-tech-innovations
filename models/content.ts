@@ -1,25 +1,25 @@
 export interface NavbarContent {
   logoUrl?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   routesList?: { name: string; path: string }[]; // Updated to support label and path
   contactButton?: string;
 }
 
 export interface LandingPageContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   imageUrls?: string[];
 }
 
 export interface CompanyMarqueeContent {
   companyLogoUrls?: string[];
-  hidden?: boolean; 
+  hidden?: boolean;
 }
 
 export interface CompanyBriefContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   tags?: { text1: string; text2: string }[];
 }
@@ -27,13 +27,13 @@ export interface CompanyBriefContent {
 export interface ServiceOptionsContent {
   title?: string;
   description?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   cards?: { imageUrl: string; text: string; contactButton: string }[];
 }
 
 export interface ProjectContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   text?: string;
   cards?: {
     title: string;
@@ -47,7 +47,7 @@ export interface ProjectContent {
 
 export interface TestimonialContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   cards?: {
     name: string;
@@ -61,7 +61,7 @@ export interface TestimonialContent {
 
 export interface TechnologiesContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   techCategories?: string[];
   tech?: { imageUrl: string; name: string }[];
@@ -69,7 +69,7 @@ export interface TechnologiesContent {
 
 export interface IndustriesContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   industries?: { iconUrl: string; name: string }[];
 }
@@ -108,9 +108,9 @@ export interface CareerContent {
 
 export interface FooterContent {
   logoUrl?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   address?: string;
-  number?:string;
+  number?: string;
   companyEmail?: string;
   text?: string;
   socialLinks?: { iconUrl: string; link: string }[];
@@ -118,7 +118,7 @@ export interface FooterContent {
 
 export interface WhyUsContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   tags?: { text1: string; text2: string }[];
   title2?: string;
   description?: string;
@@ -127,21 +127,21 @@ export interface WhyUsContent {
 
 export interface VisionContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   cards?: { title: string; description: string }[];
 }
 
 export interface EventsPhotoWallContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   description?: string;
   imageUrls?: string[];
 }
 
 export interface JobOpeningContent {
   title?: string;
-  hidden?: boolean; 
+  hidden?: boolean;
   cards?: {
     title: string;
     experience: string;
