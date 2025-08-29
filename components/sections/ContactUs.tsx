@@ -24,7 +24,7 @@ export default function ContactUs() {
     requirement: ''
   });
 
-  // ✅ GSAP animation effect - Fixed easing
+  // ✅ GSAP animation effect
   useEffect(() => {
     if (!isInView || !containerRef.current || contactLoading) return;
 
@@ -88,10 +88,10 @@ export default function ContactUs() {
   // ✅ CONDITIONAL RENDERING AFTER ALL HOOKS
   if (contactLoading || footerLoading) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 py-20 flex items-center justify-center">
+      <section className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 py-20 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-slate-600 text-lg">Loading contact form...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground text-lg font-sans">Loading contact form...</p>
         </div>
       </section>
     );
@@ -116,7 +116,7 @@ export default function ContactUs() {
   // ✅ Get contact info from footer data
   const contactInfo = {
     email: footer?.companyEmail || 'contact@company.com',
-    phone: footer?.number || '+1 (555) 123-4567', // Default until you add phone to footer model
+    phone: footer?.number || '+1 (555) 123-4567',
     address: footer?.address || '123 Business Street, City, State 12345'
   };
 
@@ -125,30 +125,30 @@ export default function ContactUs() {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden py-20"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden py-28"
     >
       {/* ✅ Enhanced background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-slate-50/40 to-blue-50/50" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.06),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(99,102,241,0.04),transparent_50%)]" />
-        <div className="absolute top-20 left-20 w-96 h-96 bg-blue-200/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-indigo-200/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-primary/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.04),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(255,20,147,0.03),transparent_60%)]" />
+        <div className="absolute top-20 left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         {/* ✅ Enhanced Header */}
         <div className="text-center max-w-4xl mx-auto mb-16">
           {title && (
-            <h2 className="contact-title text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6">
-              <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-slate-900 bg-clip-text text-transparent">
+            <h2 className="contact-title text-3xl md:text-4xl lg:text-5xl font-heading font-black leading-tight mb-6">
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>
           )}
           
           {description && (
-            <p className="contact-description text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            <p className="contact-description text-base md:text-lg text-foreground leading-relaxed max-w-2xl mx-auto font-sans font-medium">
               {description}
             </p>
           )}
@@ -157,27 +157,27 @@ export default function ContactUs() {
         <div className="grid lg:grid-cols-5 gap-12 items-start">
           {/* ✅ Enhanced Contact Form */}
           <motion.div className="contact-form lg:col-span-3">
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10 border border-white/60">
+            <div className="bg-card/90 backdrop-blur-lg rounded-xl shadow-2xl p-6 md:p-8 border border-border/60">
               
               {/* Form Header */}
               <div className="mb-8">
-                <h3 className="text-2xl font-bold text-slate-900 mb-3 flex items-center">
-                  <MessageCircle className="w-6 h-6 text-blue-600 mr-3" />
+                <h3 className="text-xl font-heading font-bold text-foreground mb-3 flex items-center">
+                  <MessageCircle className="w-5 h-5 text-primary mr-3" />
                   {formLabels.title}
                 </h3>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed font-sans">
                   {formLabels.about}
                 </p>
               </div>
               
               {/* Daily Limit Warning */}
               {!canSubmit && (
-                <div className="mb-6 p-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl">
-                  <div className="flex items-center space-x-3 text-amber-800">
+                <div className="mb-6 p-4 bg-gradient-to-r from-accent/10 to-accent/5 border border-accent/30 rounded-xl">
+                  <div className="flex items-center space-x-3 text-accent">
                     <AlertCircle className="w-5 h-5" />
-                    <span className="font-bold">Daily Limit Reached</span>
+                    <span className="font-heading font-bold">Daily Limit Reached</span>
                   </div>
-                  <p className="text-amber-700 text-sm mt-2">
+                  <p className="text-muted-foreground text-sm mt-2 font-sans">
                     You've submitted the maximum number of enquiries for today. Please try again tomorrow.
                   </p>
                 </div>
@@ -185,10 +185,10 @@ export default function ContactUs() {
 
               {/* Remaining Submissions Counter */}
               {canSubmit && remainingSubmissions <= 1 && (
-                <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl">
-                  <div className="flex items-center space-x-3 text-blue-800">
+                <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 rounded-xl">
+                  <div className="flex items-center space-x-3 text-primary">
                     <Clock className="w-5 h-5" />
-                    <span className="font-bold">
+                    <span className="font-heading font-bold">
                       {remainingSubmissions} submission{remainingSubmissions !== 1 ? 's' : ''} remaining today
                     </span>
                   </div>
@@ -199,8 +199,8 @@ export default function ContactUs() {
                 {/* Name & Email Fields */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-bold text-slate-700 mb-3">
-                      <Users className="w-4 h-4 text-blue-600" />
+                    <label className="flex items-center space-x-2 text-sm font-heading font-bold text-foreground mb-3">
+                      <Users className="w-4 h-4 text-primary" />
                       <span>{formLabels.name} *</span>
                     </label>
                     <input
@@ -210,14 +210,14 @@ export default function ContactUs() {
                       onChange={handleInputChange}
                       required
                       disabled={loading || !canSubmit}
-                      className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-slate-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-slate-900"
+                      className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 bg-background focus:bg-card disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-sans"
                       placeholder={`Enter your ${formLabels.name.toLowerCase()}`}
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-bold text-slate-700 mb-3">
-                      <Mail className="w-4 h-4 text-blue-600" />
+                    <label className="flex items-center space-x-2 text-sm font-heading font-bold text-foreground mb-3">
+                      <Mail className="w-4 h-4 text-primary" />
                       <span>{formLabels.email} *</span>
                     </label>
                     <input
@@ -227,7 +227,7 @@ export default function ContactUs() {
                       onChange={handleInputChange}
                       required
                       disabled={loading || !canSubmit}
-                      className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-slate-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-slate-900"
+                      className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 bg-background focus:bg-card disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-sans"
                       placeholder={`Enter your ${formLabels.email.toLowerCase()}`}
                     />
                   </div>
@@ -235,8 +235,8 @@ export default function ContactUs() {
 
                 {/* Phone Number Field */}
                 <div>
-                  <label className="flex items-center space-x-2 text-sm font-bold text-slate-700 mb-3">
-                    <Phone className="w-4 h-4 text-blue-600" />
+                  <label className="flex items-center space-x-2 text-sm font-heading font-bold text-foreground mb-3">
+                    <Phone className="w-4 h-4 text-primary" />
                     <span>{formLabels.number} *</span>
                   </label>
                   <input
@@ -246,15 +246,15 @@ export default function ContactUs() {
                     onChange={handleInputChange}
                     required
                     disabled={loading || !canSubmit}
-                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-slate-50 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-slate-900"
+                    className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 bg-background focus:bg-card disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-sans"
                     placeholder={`Enter your ${formLabels.number.toLowerCase()}`}
                   />
                 </div>
 
                 {/* Message Field */}
                 <div>
-                  <label className="flex items-center space-x-2 text-sm font-bold text-slate-700 mb-3">
-                    <MessageCircle className="w-4 h-4 text-blue-600" />
+                  <label className="flex items-center space-x-2 text-sm font-heading font-bold text-foreground mb-3">
+                    <MessageCircle className="w-4 h-4 text-primary" />
                     <span>{formLabels.requirement} *</span>
                   </label>
                   <textarea
@@ -264,7 +264,7 @@ export default function ContactUs() {
                     required
                     rows={5}
                     disabled={loading || !canSubmit}
-                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-slate-50 focus:bg-white resize-none disabled:opacity-50 disabled:cursor-not-allowed text-slate-900"
+                    className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 bg-background focus:bg-card resize-none disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-sans"
                     placeholder={`Tell us about your ${formLabels.requirement.toLowerCase()}...`}
                   />
                 </div>
@@ -275,15 +275,15 @@ export default function ContactUs() {
                   disabled={loading || !canSubmit}
                   whileHover={{ scale: (loading || !canSubmit) ? 1 : 1.02 }}
                   whileTap={{ scale: (loading || !canSubmit) ? 1 : 0.98 }}
-                  className={`w-full py-4 px-8 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg ${
+                  className={`w-full py-4 px-8 rounded-xl font-heading font-bold text-lg transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg ${
                     (loading || !canSubmit)
-                      ? 'bg-slate-400 cursor-not-allowed shadow-none' 
-                      : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 hover:shadow-xl'
-                  } text-white`}
+                      ? 'bg-muted cursor-not-allowed shadow-none text-muted-foreground' 
+                      : 'bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 hover:shadow-xl text-primary-foreground'
+                  }`}
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-current border-t-transparent"></div>
                       <span>Sending Message...</span>
                     </>
                   ) : (
@@ -299,12 +299,12 @@ export default function ContactUs() {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center space-x-3 text-green-700 bg-green-50 p-5 rounded-xl border-2 border-green-200"
+                    className="flex items-center space-x-3 text-primary bg-primary/10 p-4 rounded-xl border border-primary/30"
                   >
                     <CheckCircle className="w-6 h-6 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold">Message Sent Successfully!</p>
-                      <p className="text-sm text-green-600">{success}</p>
+                      <p className="font-heading font-semibold">Message Sent Successfully!</p>
+                      <p className="text-sm text-muted-foreground font-sans">{success}</p>
                     </div>
                   </motion.div>
                 )}
@@ -313,12 +313,12 @@ export default function ContactUs() {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center space-x-3 text-red-700 bg-red-50 p-5 rounded-xl border-2 border-red-200"
+                    className="flex items-center space-x-3 text-accent bg-accent/10 p-4 rounded-xl border border-accent/30"
                   >
                     <AlertCircle className="w-6 h-6 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold">Message Failed to Send</p>
-                      <p className="text-sm text-red-600">{error}</p>
+                      <p className="font-heading font-semibold">Message Failed to Send</p>
+                      <p className="text-sm text-muted-foreground font-sans">{error}</p>
                     </div>
                   </motion.div>
                 )}
@@ -326,67 +326,67 @@ export default function ContactUs() {
             </div>
           </motion.div>
 
-          {/* ✅ Enhanced Contact Information - Using Footer Data */}
+          {/* ✅ Enhanced Contact Information */}
           <motion.div className="contact-info lg:col-span-2 space-y-6">
             
             {/* Contact Details Card */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl p-8 border border-white/60 shadow-xl">
-              <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                <Building className="w-6 h-6 text-blue-600 mr-3" />
+            <div className="bg-card/90 backdrop-blur-lg rounded-xl p-6 border border-border/60 shadow-xl">
+              <h3 className="text-xl font-heading font-bold text-foreground mb-6 flex items-center">
+                <Building className="w-5 h-5 text-primary mr-3" />
                 Contact Information
               </h3>
               
               <div className="space-y-6">
                 {/* Email */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 mb-1">Email Us</h4>
-                    <p className="text-slate-600">{contactInfo.email}</p>
-                    <p className="text-xs text-slate-500 mt-1">We'll respond within 24 hours</p>
+                    <h4 className="font-heading font-bold text-foreground mb-1">Email Us</h4>
+                    <p className="text-muted-foreground font-sans">{contactInfo.email}</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-sans">We'll respond within 24 hours</p>
                   </div>
                 </div>
 
                 {/* Phone */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/70 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-accent-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 mb-1">Call Us</h4>
-                    <p className="text-slate-600">{contactInfo.phone}</p>
-                    <p className="text-xs text-slate-500 mt-1">Mon-Fri 9AM-6PM</p>
+                    <h4 className="font-heading font-bold text-foreground mb-1">Call Us</h4>
+                    <p className="text-muted-foreground font-sans">{contactInfo.phone}</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-sans">Mon-Fri 9AM-6PM</p>
                   </div>
                 </div>
 
                 {/* Address */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary/80 to-accent/60 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 mb-1">Visit Us</h4>
-                    <p className="text-slate-600 leading-relaxed">{contactInfo.address}</p>
-                    <p className="text-xs text-slate-500 mt-1">Open Monday to Friday</p>
+                    <h4 className="font-heading font-bold text-foreground mb-1">Visit Us</h4>
+                    <p className="text-muted-foreground leading-relaxed font-sans">{contactInfo.address}</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-sans">Open Monday to Friday</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Quick Response Card */}
-            <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-8 text-white shadow-xl">
+            <div className="bg-gradient-to-br from-primary via-primary/80 to-accent/60 rounded-xl p-6 text-primary-foreground shadow-xl">
               <div className="flex items-center mb-4">
-                <Clock className="w-6 h-6 mr-3" />
-                <h4 className="font-bold text-xl">Quick Response</h4>
+                <Clock className="w-5 h-5 mr-3" />
+                <h4 className="font-heading font-bold text-lg">Quick Response</h4>
               </div>
-              <p className="text-blue-100 leading-relaxed mb-4">
+              <p className="text-primary-foreground/90 leading-relaxed mb-4 font-sans">
                 We typically respond to all inquiries within 24 hours. For urgent matters, please call us directly.
               </p>
-              <div className="flex items-center text-blue-200 text-sm">
+              <div className="flex items-center text-primary-foreground/80 text-sm">
                 <Users className="w-4 h-4 mr-2" />
-                <span>Our team is ready to help you</span>
+                <span className="font-sans">Our team is ready to help you</span>
               </div>
             </div>
             

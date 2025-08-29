@@ -165,35 +165,35 @@ export default function ProjectPlayground() {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden flex flex-col items-center justify-center py-6"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden flex flex-col items-center justify-center pt-20"
     >
-      {/* ✅ Header Section - Above Container with Bigger Title */}
+      {/* ✅ Header Section - Above Container with Better Sizing */}
       <div className="text-center max-w-4xl mx-auto mb-6 px-6">
         {title && (
-          <h2 className="playground-title text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight mb-3">
-            <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-slate-900 bg-clip-text text-transparent">
+          <h2 className="playground-title text-2xl md:text-4xl lg:text-5xl font-heading font-black leading-tight mb-3">
+            <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               {title}
             </span>
           </h2>
         )}
         
         {text && (
-          <p className="playground-description text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed font-light">
+          <p className="playground-description text-sm md:text-base lg:text-lg text-foreground leading-relaxed font-sans font-medium">
             {text}
           </p>
         )}
       </div>
 
-      {/* ✅ VSCode-like Container - Lighter Outlines */}
-      <div className="vscode-container w-full max-w-7xl h-[70vh] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-300">
+      {/* ✅ VSCode-like Container - Theme Consistent */}
+      <div className="vscode-container w-full max-w-7xl h-[65vh] bg-card rounded-xl shadow-2xl overflow-hidden border border-border">
         
-        {/* ✅ VSCode Title Bar - Light Theme with Lighter Borders */}
-        <div className="bg-slate-100 h-7 flex items-center justify-between px-4 border-b border-slate-300">
+        {/* ✅ VSCode Title Bar - Theme Colors */}
+        <div className="bg-muted h-7 flex items-center justify-between px-4 border-b border-border">
           <div className="flex items-center space-x-3">
-            <Code className="w-3 h-3 text-blue-600" />
-            <span className="text-slate-800 text-xs font-semibold">Project Playground</span>
+            <Code className="w-3 h-3 text-primary" />
+            <span className="text-foreground text-xs font-heading font-semibold">Project Playground</span>
           </div>
-          <div className="text-slate-600 text-xs">
+          <div className="text-muted-foreground text-xs">
             {filteredProjects.length} projects
           </div>
         </div>
@@ -201,28 +201,28 @@ export default function ProjectPlayground() {
         {/* ✅ VSCode Content Area */}
         <div className="flex h-[calc(100%-1.75rem)]">
           
-          {/* ✅ Left Sidebar - Industries with Lighter Borders */}
-          <div className="w-64 bg-slate-50 border-r border-slate-300 flex flex-col">
+          {/* ✅ Left Sidebar - Industries with Theme Colors */}
+          <div className="w-64 bg-muted/30 border-r border-border flex flex-col">
             {/* Sidebar Header */}
-            <div className="h-8 bg-slate-100 flex items-center px-3 border-b border-slate-300">
-              <Folder className="w-3 h-3 text-green-600 mr-2" />
-              <span className="text-slate-800 text-xs font-semibold">Industries</span>
+            <div className="h-8 bg-muted flex items-center px-3 border-b border-border">
+              <Folder className="w-3 h-3 text-accent mr-2" />
+              <span className="text-foreground text-xs font-heading font-semibold">Industries</span>
             </div>
             
             {/* Industries List */}
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-clean">
               {allIndustries.map((industry, index) => (
                 <motion.div
                   key={index}
-                  className="sidebar-item bg-white hover:bg-green-50 rounded-md px-2 py-1.5 cursor-move transition-colors group border border-slate-200 hover:border-green-300"
+                  className="sidebar-item bg-card hover:bg-card/80 rounded-lg px-2 py-1.5 cursor-move transition-colors group border border-border/50 hover:border-accent/50"
                   draggable
                   onDragStart={() => handleDragStart('industry', industry)}
                   whileHover={{ scale: 1.02, x: 3 }}
                   whileDrag={{ scale: 1.05, rotate: 2 }}
                 >
                   <div className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <span className="text-slate-700 text-xs group-hover:text-green-700 truncate">{industry}</span>
+                    <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                    <span className="text-muted-foreground text-xs group-hover:text-accent transition-colors truncate font-sans">{industry}</span>
                   </div>
                 </motion.div>
               ))}
@@ -232,28 +232,28 @@ export default function ProjectPlayground() {
           {/* ✅ Center Content Area */}
           <div className="flex-1 flex flex-col">
             
-            {/* ✅ Filter Bar with Lighter Borders */}
-            <div className="h-10 bg-slate-100 border-b border-slate-300 px-4 flex items-center justify-between">
+            {/* ✅ Filter Bar with Theme Colors */}
+            <div className="h-10 bg-muted border-b border-border px-4 flex items-center justify-between">
               <div className="flex items-center space-x-3 w-full">
-                <Search className="w-3 h-3 text-slate-600" />
+                <Search className="w-3 h-3 text-muted-foreground" />
                 <div 
-                  className="flex-1 bg-white rounded-md px-3 py-1.5 min-h-[24px] border-2 border-dashed border-slate-300 flex items-center"
+                  className="flex-1 bg-background rounded-lg px-3 py-1.5 min-h-[24px] border-2 border-dashed border-border flex items-center"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                 >
                   {selectedIndustries.length === 0 && selectedTechnologies.length === 0 ? (
-                    <span className="text-slate-500 text-xs">Drop filters here to search projects...</span>
+                    <span className="text-muted-foreground text-xs font-sans">Drop filters here to search projects...</span>
                   ) : (
                     <div className="flex flex-wrap gap-1">
                       {selectedIndustries.map((industry, index) => (
                         <span
                           key={index}
-                          className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs flex items-center border border-green-200"
+                          className="bg-accent/10 text-accent px-2 py-0.5 rounded text-xs flex items-center border border-accent/30"
                         >
-                          <span className="truncate max-w-[80px]">{industry}</span>
+                          <span className="truncate max-w-[80px] font-sans">{industry}</span>
                           <button
                             onClick={() => removeFilter('industry', industry)}
-                            className="ml-1 text-green-600 hover:text-green-800"
+                            className="ml-1 text-accent/70 hover:text-accent"
                           >
                             <X className="w-2 h-2" />
                           </button>
@@ -262,12 +262,12 @@ export default function ProjectPlayground() {
                       {selectedTechnologies.map((tech, index) => (
                         <span
                           key={index}
-                          className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs flex items-center border border-blue-200"
+                          className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs flex items-center border border-primary/30"
                         >
-                          <span className="truncate max-w-[80px]">{tech}</span>
+                          <span className="truncate max-w-[80px] font-sans">{tech}</span>
                           <button
                             onClick={() => removeFilter('technology', tech)}
-                            className="ml-1 text-blue-600 hover:text-blue-800"
+                            className="ml-1 text-primary/70 hover:text-primary"
                           >
                             <X className="w-2 h-2" />
                           </button>
@@ -279,7 +279,7 @@ export default function ProjectPlayground() {
                 {(selectedIndustries.length > 0 || selectedTechnologies.length > 0) && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-red-600 hover:text-red-700 text-xs px-2 py-1 bg-red-50 rounded border border-red-200"
+                    className="text-accent hover:text-accent/80 text-xs px-2 py-1 bg-accent/10 rounded-lg border border-accent/30 font-sans"
                   >
                     Clear
                   </button>
@@ -288,7 +288,7 @@ export default function ProjectPlayground() {
             </div>
 
             {/* ✅ Projects Grid */}
-            <div className="flex-1 bg-white overflow-y-auto p-3">
+            <div className="flex-1 bg-background overflow-y-auto p-3 scrollbar-clean">
               {filteredProjects.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
                   {filteredProjects.map((project: any, index: number) => {
@@ -299,7 +299,7 @@ export default function ProjectPlayground() {
                     return (
                       <motion.div
                         key={index}
-                        className="project-card bg-white rounded-lg overflow-hidden border border-slate-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 group"
+                        className="project-card bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 group"
                         layout
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -308,14 +308,14 @@ export default function ProjectPlayground() {
                       >
                         {/* Project Image */}
                         {imageUrl && (
-                          <div className="relative h-30 overflow-hidden">
+                          <div className="relative h-24 overflow-hidden">
                             <img
                               src={imageUrl}
                               alt={projectTitle}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               loading="lazy"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 via-transparent to-transparent" />
                           </div>
                         )}
 
@@ -324,8 +324,8 @@ export default function ProjectPlayground() {
                           {/* Title */}
                           {projectTitle && (
                             <div className="flex items-center space-x-2">
-                              <FileText className="w-3 h-3 text-blue-600" />
-                              <h3 className="text-slate-800 font-semibold text-xs group-hover:text-blue-600 transition-colors truncate">
+                              <FileText className="w-3 h-3 text-primary" />
+                              <h3 className="text-foreground font-semibold text-xs group-hover:text-primary transition-colors truncate font-heading">
                                 {projectTitle}
                               </h3>
                             </div>
@@ -348,10 +348,10 @@ export default function ProjectPlayground() {
                                     href={linkUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${
+                                    className={`inline-flex items-center space-x-1 px-2 py-1 rounded-lg text-xs font-medium transition-all duration-300 ${
                                       isGithub
-                                        ? 'bg-slate-800 text-white hover:bg-slate-700'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                        ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                                        : 'bg-primary text-primary-foreground hover:bg-primary/80'
                                     }`}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -361,7 +361,7 @@ export default function ProjectPlayground() {
                                     ) : (
                                       <ExternalLink className="w-2 h-2" />
                                     )}
-                                    <span className="truncate max-w-[80px]">{linkName}</span>
+                                    <span className="truncate max-w-[80px] font-sans">{linkName}</span>
                                   </motion.a>
                                 );
                               })}
@@ -375,12 +375,12 @@ export default function ProjectPlayground() {
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <Filter className="w-8 h-8 text-slate-400 mx-auto mb-3" />
-                    <h3 className="text-slate-600 text-sm font-medium mb-2">No Projects Found</h3>
-                    <p className="text-slate-500 text-xs mb-3">Try adjusting your filters</p>
+                    <Filter className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="text-foreground text-sm font-heading font-medium mb-2">No Projects Found</h3>
+                    <p className="text-muted-foreground text-xs mb-3 font-sans">Try adjusting your filters</p>
                     <button
                       onClick={clearAllFilters}
-                      className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-700 transition-colors"
+                      className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/80 transition-colors font-sans"
                     >
                       Clear Filters
                     </button>
@@ -390,28 +390,28 @@ export default function ProjectPlayground() {
             </div>
           </div>
 
-          {/* ✅ Right Sidebar - Technologies with Lighter Borders */}
-          <div className="w-64 bg-slate-50 border-l border-slate-300 flex flex-col">
+          {/* ✅ Right Sidebar - Technologies with Theme Colors */}
+          <div className="w-64 bg-muted/30 border-l border-border flex flex-col">
             {/* Sidebar Header */}
-            <div className="h-8 bg-slate-100 flex items-center px-3 border-b border-slate-300">
-              <Code className="w-3 h-3 text-blue-600 mr-2" />
-              <span className="text-slate-800 text-xs font-semibold">Technologies</span>
+            <div className="h-8 bg-muted flex items-center px-3 border-b border-border">
+              <Code className="w-3 h-3 text-primary mr-2" />
+              <span className="text-foreground text-xs font-heading font-semibold">Technologies</span>
             </div>
             
             {/* Technologies List */}
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-clean">
               {allTechnologies.map((tech, index) => (
                 <motion.div
                   key={index}
-                  className="sidebar-item bg-white hover:bg-blue-50 rounded-md px-2 py-1.5 cursor-move transition-colors group border border-slate-200 hover:border-blue-300"
+                  className="sidebar-item bg-card hover:bg-card/80 rounded-lg px-2 py-1.5 cursor-move transition-colors group border border-border/50 hover:border-primary/50"
                   draggable
                   onDragStart={() => handleDragStart('technology', tech)}
                   whileHover={{ scale: 1.02, x: -3 }}
                   whileDrag={{ scale: 1.05, rotate: -2 }}
                 >
                   <div className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                    <span className="text-slate-700 text-xs group-hover:text-blue-700 truncate">{tech}</span>
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                    <span className="text-muted-foreground text-xs group-hover:text-primary transition-colors truncate font-sans">{tech}</span>
                   </div>
                 </motion.div>
               ))}

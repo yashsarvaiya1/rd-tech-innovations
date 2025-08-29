@@ -1,13 +1,46 @@
-'use client'
-import { useEffect } from 'react';
+'use client';
+
+import { useEffect, Suspense } from 'react';
 import { useContentStore } from '@/stores/content';
 import LandingPage from '../sections/LandingPage';
 import CompanyMarquee from '../sections/CompanyMarquee';
-import ServiceOptions from '../sections/ServiceOptions';
-import ProjectShowcase from '../sections/ProjectShowcase';
-import Testimonials from '../sections/Testimonials';
-import Technologies from '../sections/Technologies';
-import Industries from '../sections/Industries';
+import dynamic from 'next/dynamic';
+
+// Lazy load non-critical sections
+const ServiceOptions = dynamic(() => import('../sections/ServiceOptions'), {
+  ssr: false,
+  loading: () => <SectionLoader label="Loading services..." />,
+});
+
+const ProjectShowcase = dynamic(() => import('../sections/ProjectShowcase'), {
+  ssr: false,
+  loading: () => <SectionLoader label="Loading projects..." />,
+});
+
+const Testimonials = dynamic(() => import('../sections/Testimonials'), {
+  ssr: false,
+  loading: () => <SectionLoader label="Loading testimonials..." />,
+});
+
+const Technologies = dynamic(() => import('../sections/Technologies'), {
+  ssr: false,
+  loading: () => <SectionLoader label="Loading technologies..." />,
+});
+
+const Industries = dynamic(() => import('../sections/Industries'), {
+  ssr: false,
+  loading: () => <SectionLoader label="Loading industries..." />,
+});
+
+// Simple fallback loader for sections
+function SectionLoader({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-center py-16 text-gray-500">
+      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+      {label}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const { subscribeToRealTimeUpdates, fetchAllContent } = useContentStore();
@@ -22,11 +55,26 @@ export default function HomePage() {
     <main className="min-h-screen">
       <LandingPage />
       <CompanyMarquee />
-      <ServiceOptions />
-      <ProjectShowcase />
-      <Testimonials />
-      <Technologies />
-      <Industries />
+
+      <Suspense fallback={<SectionLoader label="Loading services..." />}>
+        <ServiceOptions />
+      </Suspense>
+
+      <Suspense fallback={<SectionLoader label="Loading projects..." />}>
+        <ProjectShowcase />
+      </Suspense>
+      
+      <Suspense fallback={<SectionLoader label="Loading technologies..." />}>
+        <Technologies />
+      </Suspense>
+
+      <Suspense fallback={<SectionLoader label="Loading testimonials..." />}>
+        <Testimonials />
+      </Suspense>
+
+      <Suspense fallback={<SectionLoader label="Loading industries..." />}>
+        <Industries />
+      </Suspense>
     </main>
   );
 }

@@ -34,14 +34,13 @@ export default function CareerForm() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // ✅ ALL useEffect HOOKS - Fixed GSAP easing
+  // ✅ ALL useEffect HOOKS
   useEffect(() => {
     if (!isInView || !containerRef.current || contentLoading || !career) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
       
-      // ✅ Fixed GSAP easing - use string format
       tl.fromTo('.career-title', 
         { y: 60, opacity: 0, scale: 0.95 },
         { y: 0, opacity: 1, scale: 1, duration: 1, ease: "power3.out" }
@@ -149,10 +148,10 @@ export default function CareerForm() {
   // ✅ CONDITIONAL RENDERING AFTER ALL HOOKS
   if (contentLoading || jobLoading) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 py-16 flex items-center justify-center">
+      <section className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 py-16 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-3 border-blue-600 border-t-transparent mx-auto mb-3"></div>
-          <p className="text-slate-600 text-sm">Loading career form...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-3 border-primary border-t-transparent mx-auto mb-3"></div>
+          <p className="text-muted-foreground text-sm font-sans">Loading career form...</p>
         </div>
       </section>
     );
@@ -160,9 +159,9 @@ export default function CareerForm() {
 
   if (contentError || jobError || !career || career.hidden) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 py-16 flex items-center justify-center">
+      <section className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 py-16 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-slate-600 text-sm">Career form is not available</p>
+          <p className="text-muted-foreground text-sm font-sans">Career form is not available</p>
         </div>
       </section>
     );
@@ -173,9 +172,9 @@ export default function CareerForm() {
 
   if (!title && Object.keys(form).length === 0) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 py-16 flex items-center justify-center">
+      <section className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 py-16 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-slate-600 text-sm">No career form configured</p>
+          <p className="text-muted-foreground text-sm font-sans">No career form configured</p>
         </div>
       </section>
     );
@@ -184,7 +183,7 @@ export default function CareerForm() {
   // ✅ Get available job positions from jobOpening data
   const availableJobTitles = jobOpening?.cards?.map((job: any) => job.title).filter(Boolean) || [];
   
-  // ✅ Dynamic form field labels - Fixed about field
+  // ✅ Dynamic form field labels
   const formLabels = {
     name: form.name || 'Name',
     email: form.email || 'Email',
@@ -200,50 +199,50 @@ export default function CareerForm() {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden py-16"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden py-16"
     >
       {/* Enhanced background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-slate-50/40 to-blue-50/50" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(99,102,241,0.03),transparent_50%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-primary/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.04),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(255,20,147,0.03),transparent_60%)]" />
       </div>
 
       <div className="max-w-3xl mx-auto px-4 lg:px-6 relative z-10">
-        {/* ✅ Header - REMOVED STATIC "Apply for" TEXT */}
+        {/* ✅ Header */}
         {title && (
           <div className="text-center mb-8">
-            <h2 className="career-title text-2xl md:text-3xl lg:text-4xl font-black leading-tight mb-4">
-              <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-slate-900 bg-clip-text text-transparent">
+            <h2 className="career-title text-3xl md:text-4xl lg:text-5xl font-heading font-black leading-tight mb-4">
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>
             
-            {form.title && form.title !== title && (
-              <h3 className="text-lg font-bold text-slate-800 mb-3">{form.title}</h3>
-            )}
+            {/* {form.title && form.title !== title && (
+              <h3 className="text-base font-heading font-bold text-foreground mb-3">{form.title}</h3>
+            )} */}
             
             {form.about && (
-              <p className="text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">{form.about}</p>
+              <p className="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed font-sans">{form.about}</p>
             )}
           </div>
         )}
 
         {/* ✅ Compact Form Container */}
         <motion.div
-          className="career-form bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 border border-white/60"
+          className="career-form bg-card/90 backdrop-blur-lg rounded-xl shadow-xl p-6 md:p-8 border border-border/60"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           {/* Daily Limit Warning - Compact */}
           {!canSubmit && (
-            <div className="mb-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl">
-              <div className="flex items-center space-x-2 text-amber-800">
+            <div className="mb-6 p-4 bg-gradient-to-r from-accent/10 to-accent/5 border border-accent/30 rounded-xl">
+              <div className="flex items-center space-x-2 text-accent">
                 <AlertCircle className="w-4 h-4" />
-                <span className="font-bold text-sm">Daily Limit Reached</span>
+                <span className="font-heading font-bold text-sm">Daily Limit Reached</span>
               </div>
-              <p className="text-amber-700 text-xs mt-1">
+              <p className="text-muted-foreground text-xs mt-1 font-sans">
                 You've submitted the maximum applications for today. Try again tomorrow.
               </p>
             </div>
@@ -253,8 +252,8 @@ export default function CareerForm() {
             {/* Name & Email */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                  <User className="w-3.5 h-3.5 text-blue-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                  <User className="w-3.5 h-3.5 text-primary" />
                   <span>{formLabels.name} *</span>
                 </label>
                 <input
@@ -264,14 +263,14 @@ export default function CareerForm() {
                   onChange={handleInputChange}
                   required
                   disabled={loading || !canSubmit || isUploading}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans"
                   placeholder={`Enter your ${formLabels.name.toLowerCase()}`}
                 />
               </div>
 
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                  <Mail className="w-3.5 h-3.5 text-blue-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                  <Mail className="w-3.5 h-3.5 text-primary" />
                   <span>{formLabels.email} *</span>
                 </label>
                 <input
@@ -281,7 +280,7 @@ export default function CareerForm() {
                   onChange={handleInputChange}
                   required
                   disabled={loading || !canSubmit || isUploading}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans"
                   placeholder={`Enter your ${formLabels.email.toLowerCase()}`}
                 />
               </div>
@@ -290,8 +289,8 @@ export default function CareerForm() {
             {/* Phone & Location */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                  <Phone className="w-3.5 h-3.5 text-blue-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                  <Phone className="w-3.5 h-3.5 text-primary" />
                   <span>{formLabels.number} *</span>
                 </label>
                 <input
@@ -301,14 +300,14 @@ export default function CareerForm() {
                   onChange={handleInputChange}
                   required
                   disabled={loading || !canSubmit || isUploading}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans"
                   placeholder={`Enter your ${formLabels.number.toLowerCase()}`}
                 />
               </div>
 
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                  <MapPin className="w-3.5 h-3.5 text-primary" />
                   <span>{formLabels.location} *</span>
                 </label>
                 <input
@@ -318,7 +317,7 @@ export default function CareerForm() {
                   onChange={handleInputChange}
                   required
                   disabled={loading || !canSubmit || isUploading}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans"
                   placeholder={`Enter your ${formLabels.location.toLowerCase()}`}
                 />
               </div>
@@ -327,8 +326,8 @@ export default function CareerForm() {
             {/* Portfolio & CTC */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                  <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                  <Briefcase className="w-3.5 h-3.5 text-primary" />
                   <span>{formLabels.portfolioOrLink}</span>
                 </label>
                 <input
@@ -337,14 +336,14 @@ export default function CareerForm() {
                   value={formData.portfolioOrLink}
                   onChange={handleInputChange}
                   disabled={loading || !canSubmit || isUploading}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans"
                   placeholder="https://portfolio.com or LinkedIn"
                 />
               </div>
 
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                  <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                  <Briefcase className="w-3.5 h-3.5 text-primary" />
                   <span>{formLabels.ctc} *</span>
                 </label>
                 <input
@@ -354,16 +353,16 @@ export default function CareerForm() {
                   onChange={handleInputChange}
                   required
                   disabled={loading || !canSubmit || isUploading}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans"
                   placeholder="e.g., 8-12 LPA"
                 />
               </div>
             </div>
 
-            {/* ✅ Position Dropdown - REMOVED NUMBER COUNT */}
+            {/* ✅ Position Dropdown */}
             <div>
-              <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+              <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                <Briefcase className="w-3.5 h-3.5 text-primary" />
                 <span>Position *</span>
               </label>
               <div className="relative">
@@ -371,20 +370,20 @@ export default function CareerForm() {
                   type="button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   disabled={loading || !canSubmit || isUploading || availableJobTitles.length === 0}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 text-sm text-slate-900 text-left flex items-center justify-between"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 text-sm text-foreground font-sans text-left flex items-center justify-between"
                 >
                   <span>{formData.positions[0] || 'Select position'}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isDropdownOpen && availableJobTitles.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg">
+                  <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg">
                     {availableJobTitles.map((jobTitle: string) => (
                       <button
                         key={jobTitle}
                         type="button"
                         onClick={() => handlePositionSelect(jobTitle)}
-                        className="w-full px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
+                        className="w-full px-3 py-2.5 text-left text-sm text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg font-sans"
                       >
                         {jobTitle}
                       </button>
@@ -393,14 +392,14 @@ export default function CareerForm() {
                 )}
               </div>
               {availableJobTitles.length === 0 && (
-                <p className="text-xs text-red-500 mt-1">No positions available at the moment</p>
+                <p className="text-xs text-accent mt-1 font-sans">No positions available at the moment</p>
               )}
             </div>
 
             {/* Resume Upload - Compact */}
             <div>
-              <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                <Upload className="w-3.5 h-3.5 text-blue-600" />
+              <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                <Upload className="w-3.5 h-3.5 text-primary" />
                 <span>{formLabels.resumeUrl} *</span>
               </label>
               
@@ -409,32 +408,32 @@ export default function CareerForm() {
                 accept=".pdf,.doc,.docx"
                 onChange={handleFileChange}
                 disabled={loading || !canSubmit || isUploading}
-                className="w-full px-3 py-2.5 border border-dashed border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white disabled:opacity-50 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 file:text-xs file:font-medium hover:file:bg-blue-100 text-sm"
+                className="w-full px-3 py-2.5 border border-dashed border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card disabled:opacity-50 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-primary/10 file:text-primary file:text-xs file:font-medium hover:file:bg-primary/20 text-sm font-sans"
               />
               
               {resumeFile && (
-                <div className="mt-2 flex items-center space-x-2 text-xs text-slate-600">
+                <div className="mt-2 flex items-center space-x-2 text-xs text-muted-foreground">
                   <FileText className="w-3 h-3" />
-                  <span className="font-medium">{resumeFile.name}</span>
+                  <span className="font-medium font-sans">{resumeFile.name}</span>
                   <button
                     type="button"
                     onClick={() => setResumeFile(null)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-accent hover:text-accent/80"
                   >
                     <X className="w-3 h-3" />
                   </button>
                 </div>
               )}
               
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1 font-sans">
                 PDF, DOC, or DOCX (max 5MB)
               </p>
             </div>
 
             {/* ✅ About */}
             <div>
-              <label className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 mb-2">
-                <FileText className="w-3.5 h-3.5 text-blue-600" />
+              <label className="flex items-center space-x-1.5 text-xs font-heading font-bold text-foreground mb-2">
+                <FileText className="w-3.5 h-3.5 text-primary" />
                 <span>{formLabels.candidateAbout} *</span>
               </label>
               <textarea
@@ -444,7 +443,7 @@ export default function CareerForm() {
                 required
                 rows={4}
                 disabled={loading || !canSubmit || isUploading}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-slate-50 focus:bg-white resize-none disabled:opacity-50 text-sm text-slate-900"
+                className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-background focus:bg-card resize-none disabled:opacity-50 text-sm text-foreground font-sans"
                 placeholder="Tell us about your experience, skills, and why you'd be perfect for this role..."
               />
             </div>
@@ -455,15 +454,15 @@ export default function CareerForm() {
               disabled={loading || !canSubmit || isUploading || formData.positions.length === 0 || (!resumeFile && !formData.resumeUrl)}
               whileHover={{ scale: loading || !canSubmit || isUploading ? 1 : 1.01 }}
               whileTap={{ scale: loading || !canSubmit || isUploading ? 1 : 0.99 }}
-              className={`w-full py-3 px-6 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-md ${
+              className={`w-full py-3 px-6 rounded-lg font-heading font-bold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-md ${
                 (loading || !canSubmit || isUploading || formData.positions.length === 0 || (!resumeFile && !formData.resumeUrl))
-                  ? 'bg-slate-400 cursor-not-allowed shadow-none' 
-                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 hover:shadow-lg'
-              } text-white`}
+                  ? 'bg-muted cursor-not-allowed shadow-none text-muted-foreground' 
+                  : 'bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 hover:shadow-lg text-primary-foreground'
+              }`}
             >
               {loading || isUploading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>
                   <span>{isUploading ? 'Uploading...' : 'Submitting...'}</span>
                 </>
               ) : (
@@ -479,12 +478,12 @@ export default function CareerForm() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center space-x-2 text-green-700 bg-green-50 p-4 rounded-lg border border-green-200"
+                className="flex items-center space-x-2 text-primary bg-primary/10 p-4 rounded-lg border border-primary/30"
               >
                 <CheckCircle className="w-4 h-4 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-sm">Application Submitted!</p>
-                  <p className="text-xs text-green-600">{success}</p>
+                  <p className="font-heading font-semibold text-sm">Application Submitted!</p>
+                  <p className="text-xs text-muted-foreground font-sans">{success}</p>
                 </div>
               </motion.div>
             )}
@@ -493,12 +492,12 @@ export default function CareerForm() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center space-x-2 text-red-700 bg-red-50 p-4 rounded-lg border border-red-200"
+                className="flex items-center space-x-2 text-accent bg-accent/10 p-4 rounded-lg border border-accent/30"
               >
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-sm">Submission Failed</p>
-                  <p className="text-xs text-red-600">{error}</p>
+                  <p className="font-heading font-semibold text-sm">Submission Failed</p>
+                  <p className="text-xs text-muted-foreground font-sans">{error}</p>
                 </div>
               </motion.div>
             )}

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export const metadata: Metadata = {

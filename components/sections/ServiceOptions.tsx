@@ -13,14 +13,14 @@ export default function ServiceOptions() {
   const cardsRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
-  // ✅ Enhanced background particles
+  // ✅ Theme-consistent background particles
   const backgroundElements = useMemo(() => 
     Array.from({ length: 8 }, (_, i) => ({
       id: i,
       size: Math.random() * 60 + 40,
       top: Math.random() * 100,
       left: Math.random() * 100,
-      hue: 220 + (Math.random() * 60), // Blue to purple spectrum
+      hue: 220 + (Math.random() * 60),
       delay: Math.random() * 2
     })), []
   );
@@ -32,7 +32,6 @@ export default function ServiceOptions() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
       
-      // Staggered entrance with better easing
       tl.fromTo('.service-title', 
         { 
           y: 80, 
@@ -112,7 +111,7 @@ export default function ServiceOptions() {
 
   if (!title && !description && cards.length === 0) return null;
 
-  // ✅ Enhanced dynamic grid system with better responsiveness
+  // ✅ Enhanced dynamic grid system
   const getGridClasses = (count: number) => {
     const gridConfigs = {
       1: 'grid-cols-1 max-w-lg mx-auto',
@@ -129,25 +128,25 @@ export default function ServiceOptions() {
 
   // ✅ Smart card height based on count
   const getCardHeight = (count: number) => {
-    if (count === 1) return 'min-h-[400px]';
-    if (count <= 3) return 'min-h-[350px]';
-    if (count <= 6) return 'min-h-[300px]';
-    return 'min-h-[280px]';
+    if (count === 1) return 'min-h-[350px]';
+    if (count <= 3) return 'min-h-[300px]';
+    if (count <= 6) return 'min-h-[280px]';
+    return 'min-h-[250px]';
   };
 
   return (
     <section 
       ref={containerRef}
-      className="py-16 md:py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden"
+      className="py-16 md:py-24 bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden"
     >
-      {/* ✅ Enhanced dynamic background */}
+      {/* ✅ Enhanced theme background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-blue-50/30 to-indigo-100/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(168,85,247,0.04),transparent_50%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-primary/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.04),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(255,20,147,0.03),transparent_60%)]" />
       </div>
 
-      {/* ✅ Floating background elements */}
+      {/* ✅ Theme floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {backgroundElements.map((element) => (
           <motion.div
@@ -177,15 +176,14 @@ export default function ServiceOptions() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* ✅ Enhanced header section */}
+        {/* ✅ Header section with smaller fonts */}
         <div className="text-center max-w-4xl mx-auto mb-16">
           {title && (
             <h2 
               ref={titleRef}
-              className="service-title text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black mb-6 leading-tight"
-              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.1)' }}
+              className="service-title text-2xl md:text-3xl lg:text-4xl font-heading font-black mb-6 leading-tight"
             >
-              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>
@@ -194,14 +192,14 @@ export default function ServiceOptions() {
           {description && (
             <p 
               ref={descRef}
-              className="service-description text-lg md:text-xl lg:text-2xl text-slate-700 leading-relaxed font-medium max-w-3xl mx-auto"
+              className="service-description text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium max-w-3xl mx-auto"
             >
               {description}
             </p>
           )}
         </div>
 
-        {/* ✅ Enhanced service cards grid */}
+        {/* ✅ Theme-consistent service cards */}
         {cards.length > 0 && (
           <div 
             ref={cardsRef}
@@ -215,7 +213,7 @@ export default function ServiceOptions() {
               return (
                 <motion.div
                   key={index}
-                  className={`service-card group relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/50 ${getCardHeight(cards.length)}`}
+                  className={`service-card group relative bg-card/80 backdrop-blur-sm rounded-xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-border/50 ${getCardHeight(cards.length)}`}
                   whileHover={{ 
                     y: -8, 
                     scale: 1.02,
@@ -228,9 +226,9 @@ export default function ServiceOptions() {
                     damping: 20 
                   }}
                 >
-                  {/* ✅ Enhanced service image with overlay effects */}
+                  {/* ✅ Service image with theme overlay */}
                   {imageUrl && (
-                    <div className="relative h-48 md:h-52 overflow-hidden">
+                    <div className="relative h-40 md:h-44 overflow-hidden rounded-t-xl">
                       <img
                         src={imageUrl}
                         alt={text || `Service ${index + 1}`}
@@ -241,73 +239,67 @@ export default function ServiceOptions() {
                         }}
                       />
                       
-                      {/* Multiple overlay gradients for depth */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
-                      {/* Service number indicator */}
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-                        <span className="text-white text-sm font-bold">{index + 1}</span>
-                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 via-secondary/10 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                       {/* Quality indicator */}
-                      <div className="absolute top-4 left-4 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <div className="absolute top-3 left-3 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Star className="w-3 h-3 text-accent fill-current" />
+                        <Star className="w-3 h-3 text-accent fill-current" />
+                        <Star className="w-3 h-3 text-accent fill-current" />
+                        <Star className="w-3 h-3 text-accent fill-current" />
+                        <Star className="w-3 h-3 text-accent fill-current" />
                       </div>
                     </div>
                   )}
 
-                  {/* ✅ Enhanced card content */}
-                  <div className="p-6 md:p-8 space-y-6 flex flex-col justify-between flex-grow">
-                    {/* Service title with icon */}
+                  {/* ✅ Theme card content */}
+                  <div className="p-5 md:p-6 space-y-4 flex flex-col justify-between flex-grow">
+                    {/* Service title with theme icon */}
                     {text && (
                       <div className="space-y-3">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Zap className="w-5 h-5 text-white" />
+                          <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Zap className="w-4 h-4 text-primary-foreground" />
                           </div>
-                          <h3 className="text-xl md:text-2xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">
+                          <h3 className="text-lg md:text-xl font-heading font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
                             {text}
                           </h3>
                         </div>
                         
-                        {/* Service description placeholder if needed */}
-                        <p className="text-slate-600 text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p className="text-muted-foreground text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-sans">
                           Professional service with premium quality and dedicated support.
                         </p>
                       </div>
                     )}
 
-                    {/* Enhanced contact button */}
+                    {/* Theme contact button */}
                     {contactButton && (
                       <div className="mt-auto">
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full inline-flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group/button"
+                          className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group/button"
                         >
-                          <Phone className="w-5 h-5" />
-                          <span className="text-base">{contactButton}</span>
-                          <ArrowRight className="w-5 h-5 group-hover/button:translate-x-1 transition-transform" />
+                          <Phone className="w-4 h-4" />
+                          <span className="text-sm">{contactButton}</span>
+                          <ArrowRight className="w-4 h-4 group-hover/button:translate-x-1 transition-transform" />
                         </motion.button>
                       </div>
                     )}
                   </div>
 
-                  {/* ✅ Enhanced hover effects */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  {/* ✅ Theme hover effects */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl" />
                   
-                  {/* Subtle border glow */}
-                  <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-indigo-200/50 transition-colors duration-300" />
+                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-primary/30 transition-colors duration-300" />
                 </motion.div>
               );
             })}
           </div>
         )}
 
-        {/* ✅ Call to action section (only if cards exist) */}
+        {/* ✅ Theme CTA section */}
         {cards.length > 0 && (
           <motion.div
             className="mt-16 text-center"
@@ -315,7 +307,7 @@ export default function ServiceOptions() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
-            <p className="text-slate-600 text-lg font-medium">
+            <p className="text-muted-foreground text-base font-sans font-medium">
               Need a custom solution? Let's discuss your requirements.
             </p>
           </motion.div>

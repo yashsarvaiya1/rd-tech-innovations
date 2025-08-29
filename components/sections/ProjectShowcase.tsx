@@ -21,14 +21,14 @@ export default function ProjectShowcase() {
 
   const hasMoreProjects = projects?.cards && projects.cards.length > 3;
 
-  // ✅ Refined background elements
+  // ✅ Enhanced background elements with theme colors
   const backgroundElements = useMemo(() => 
-    Array.from({ length: 5 }, (_, i) => ({
+    Array.from({ length: 6 }, (_, i) => ({
       id: i,
-      size: Math.random() * 100 + 60,
+      size: Math.random() * 120 + 80,
       top: Math.random() * 100,
       left: Math.random() * 100,
-      hue: 210 + (Math.random() * 50),
+      hue: 190 + (Math.random() * 80), // Blue to cyan spectrum matching your theme
       delay: Math.random() * 3
     })), []
   );
@@ -69,38 +69,37 @@ export default function ProjectShowcase() {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden flex items-center py-20"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-primary/15 relative overflow-hidden flex items-center py-20"
     >
-      {/* ✅ Enhanced dark background with depth */}
+      {/* ✅ Beautiful light gradient background with your theme colors */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.12),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(147,51,234,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[conic-gradient(from_180deg_at_50%_50%,rgba(59,130,246,0.02),rgba(147,51,234,0.02),rgba(59,130,246,0.02))]" />
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(59,130,246,0.01)_25%,rgba(59,130,246,0.01)_50%,transparent_50%)] bg-[length:100px_100px]" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/8 via-background/90 to-accent/8 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(39,180,198,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,20,147,0.06),transparent_50%)]" />
       </div>
 
-      {/* ✅ Elegant floating particles */}
+      {/* ✅ Enhanced floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {backgroundElements.map((element) => (
           <motion.div
             key={element.id}
-            className="absolute rounded-full blur-3xl"
+            className="absolute rounded-full blur-2xl opacity-25"
             style={{
               width: element.size,
               height: element.size,
               top: `${element.top}%`,
               left: `${element.left}%`,
-              background: `radial-gradient(circle, hsla(${element.hue}, 60%, 50%, 0.08), transparent 70%)`
+              background: `radial-gradient(circle, hsla(${element.hue}, 70%, 60%, 0.3), hsla(${element.hue + 20}, 80%, 70%, 0.2), transparent 70%)`
             }}
             animate={{
-              y: [-30, 30, -30],
-              x: [-20, 20, -20],
-              scale: [1, 1.3, 1],
-              opacity: [0.2, 0.5, 0.2],
-              rotate: [0, 180, 360]
+              y: [-25, 25, -25],
+              x: [-15, 15, -15],
+              scale: [1, 1.2, 1],
+              opacity: [0.2, 0.4, 0.2],
+              rotate: [0, 120, 240, 360]
             }}
             transition={{
-              duration: 15 + Math.random() * 10,
+              duration: 18 + Math.random() * 12,
               repeat: Infinity,
               delay: element.delay,
               ease: "easeInOut"
@@ -111,29 +110,24 @@ export default function ProjectShowcase() {
 
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         
-        {/* ✅ Stunning hero section */}
+        {/* ✅ Hero section with theme typography */}
         <div className="hero-content text-center max-w-5xl mx-auto mb-20">
           {title && (
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-[0.9] tracking-tight">
-              <span 
-                className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent"
-                style={{
-                  textShadow: '0 8px 32px rgba(59, 130, 246, 0.3)'
-                }}
-              >
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-black mb-8 leading-[0.9] tracking-tight">
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 {title}
               </span>
             </h1>
           )}
           
           {text && (
-            <p className="text-xl md:text-2xl lg:text-3xl text-slate-300 leading-relaxed font-light max-w-4xl mx-auto opacity-90">
+            <p className="text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium max-w-4xl mx-auto">
               {text}
             </p>
           )}
         </div>
 
-        {/* ✅ Premium project grid with perfect spacing */}
+        {/* ✅ Theme-consistent project grid */}
         {displayProjects.length > 0 && (
           <div className={`grid gap-10 mb-16 ${
             displayProjects.length === 1 ? 'max-w-2xl mx-auto' :
@@ -151,11 +145,11 @@ export default function ProjectShowcase() {
               return (
                 <motion.div
                   key={index}
-                  className="project-card group relative bg-slate-800/60 backdrop-blur-2xl rounded-3xl border border-slate-700/60 shadow-2xl hover:shadow-blue-500/20 transition-all duration-700 overflow-hidden"
+                  className="project-card group relative bg-white/90 backdrop-blur-xl rounded-2xl border border-border/60 shadow-xl hover:shadow-2xl transition-all duration-700 overflow-hidden"
                   whileHover={{ 
                     y: -16, 
                     scale: 1.03,
-                    boxShadow: "0 30px 60px rgba(59, 130, 246, 0.2)"
+                    boxShadow: "0 30px 60px rgba(39, 180, 198, 0.15)"
                   }}
                   transition={{ 
                     type: "spring", 
@@ -163,83 +157,83 @@ export default function ProjectShowcase() {
                     damping: 25 
                   }}
                 >
-                  {/* ✅ Stunning project image with enhanced effects */}
-                  <div className="relative h-56 overflow-hidden">
+                  {/* ✅ Project image with theme colors */}
+                  <div className="relative h-48 overflow-hidden rounded-t-2xl">
                     {imageUrl ? (
                       <>
                         <img
                           src={imageUrl}
                           alt={projectTitle}
-                          className="w-full h-full object-cover group-hover:scale-115 transition-transform duration-1000"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                           loading={index === 0 ? "eager" : "lazy"}
                           style={{
-                            filter: 'brightness(0.9) contrast(1.1) saturate(1.1)'
+                            filter: 'brightness(0.95) contrast(1.05) saturate(1.1)'
                           }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-secondary/20 to-transparent" />
                       </>
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-600/30 via-purple-600/20 to-slate-700/30 flex items-center justify-center">
-                        <Layers className="w-20 h-20 text-slate-400 opacity-60" />
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/15 to-muted/20 flex items-center justify-center">
+                        <Layers className="w-16 h-16 text-muted-foreground opacity-60" />
                       </div>
                     )}
                     
-                    {/* Enhanced project index with glow */}
-                    <div className="absolute top-6 right-6 w-12 h-12 bg-slate-900/90 backdrop-blur-lg rounded-2xl flex items-center justify-center border border-slate-600/50 shadow-lg group-hover:bg-blue-600/80 transition-all duration-500">
-                      <span className="text-white font-bold text-lg group-hover:scale-110 transition-transform">{index + 1}</span>
+                    {/* Project index with theme colors */}
+                    <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-lg rounded-lg flex items-center justify-center border border-border/50 shadow-lg group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+                      <span className="font-heading font-bold text-sm group-hover:scale-110 transition-transform">{index + 1}</span>
                     </div>
 
-                    {/* Floating quality indicator */}
-                    <div className="absolute top-6 left-6 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-700 transform group-hover:translate-y-0 translate-y-2">
-                      <div className="px-3 py-1.5 bg-emerald-500/20 backdrop-blur-sm text-emerald-300 text-xs font-semibold rounded-full border border-emerald-500/30">
+                    {/* Quality indicator */}
+                    <div className="absolute top-4 left-4 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-700 transform group-hover:translate-y-0 translate-y-2">
+                      <div className="px-2 py-1 bg-accent/20 backdrop-blur-sm text-accent text-xs font-heading font-semibold rounded-full border border-accent/30">
                         Premium
                       </div>
                     </div>
 
-                    {/* Enhanced gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    {/* Theme gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                   </div>
 
-                  {/* ✅ Enhanced content with better hierarchy */}
-                  <div className="p-8 space-y-6">
-                    {/* Project title with enhanced typography */}
+                  {/* ✅ Enhanced content with theme colors */}
+                  <div className="p-6 space-y-5">
+                    {/* Project title */}
                     {projectTitle && (
                       <div className="space-y-2">
-                        <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-blue-300 transition-colors leading-tight">
+                        <h3 className="text-lg md:text-xl font-heading font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
                           {projectTitle}
                         </h3>
-                        <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-60 group-hover:opacity-100 group-hover:w-20 transition-all duration-500"></div>
+                        <div className="w-8 h-0.5 bg-gradient-to-r from-primary to-primary/70 rounded-full opacity-60 group-hover:opacity-100 group-hover:w-16 transition-all duration-500"></div>
                       </div>
                     )}
 
-                    {/* Enhanced project description */}
+                    {/* Project description */}
                     {about && (
-                      <p className="text-slate-300 leading-relaxed text-base md:text-lg font-light line-clamp-4 group-hover:text-slate-200 transition-colors">
+                      <p className="text-muted-foreground leading-relaxed text-sm md:text-base font-sans line-clamp-3 group-hover:text-foreground transition-colors">
                         {about}
                       </p>
                     )}
 
-                    {/* ✅ Beautiful tag system with animations */}
-                    <div className="space-y-5">
-                      {/* Industry tags with enhanced styling */}
+                    {/* ✅ Tag system with theme colors */}
+                    <div className="space-y-4">
+                      {/* Industry tags */}
                       {industryTags.length > 0 && (
                         <div>
-                          <div className="flex items-center mb-3">
-                            <div className="w-3 h-3 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full mr-3 shadow-lg shadow-emerald-400/20"></div>
-                            <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Industries</span>
+                          <div className="flex items-center mb-2">
+                            <div className="w-2 h-2 bg-accent rounded-full mr-2 shadow-lg shadow-accent/20"></div>
+                            <span className="text-accent text-xs font-heading font-bold uppercase tracking-wider">Industries</span>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {industryTags.slice(0, 3).map((tag: string, tagIndex: number) => (
                               <motion.span
                                 key={tagIndex}
                                 whileHover={{ scale: 1.05, y: -2 }}
-                                className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-300 text-sm rounded-xl font-semibold border border-emerald-500/30 shadow-lg backdrop-blur-sm hover:shadow-emerald-400/20 transition-all duration-300"
+                                className="px-3 py-1 bg-accent/10 text-accent text-xs rounded-lg font-sans font-semibold border border-accent/30 backdrop-blur-sm hover:shadow-accent/20 transition-all duration-300"
                               >
                                 {tag}
                               </motion.span>
                             ))}
                             {industryTags.length > 3 && (
-                              <span className="px-4 py-2 bg-slate-700/50 text-slate-400 text-sm rounded-xl font-medium border border-slate-600/30">
+                              <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-xs rounded-lg font-sans font-medium border border-border/30">
                                 +{industryTags.length - 3}
                               </span>
                             )}
@@ -247,25 +241,25 @@ export default function ProjectShowcase() {
                         </div>
                       )}
 
-                      {/* Tech tags with enhanced styling */}
+                      {/* Tech tags */}
                       {techTags.length > 0 && (
                         <div>
-                          <div className="flex items-center mb-3">
-                            <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full mr-3 shadow-lg shadow-blue-400/20"></div>
-                            <span className="text-blue-400 text-sm font-bold uppercase tracking-wider">Technologies</span>
+                          <div className="flex items-center mb-2">
+                            <div className="w-2 h-2 bg-primary rounded-full mr-2 shadow-lg shadow-primary/20"></div>
+                            <span className="text-primary text-xs font-heading font-bold uppercase tracking-wider">Technologies</span>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {techTags.slice(0, 4).map((tech: string, techIndex: number) => (
                               <motion.span
                                 key={techIndex}
                                 whileHover={{ scale: 1.05, y: -2 }}
-                                className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 text-sm rounded-xl font-semibold border border-blue-500/30 shadow-lg backdrop-blur-sm hover:shadow-blue-400/20 transition-all duration-300"
+                                className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-lg font-sans font-semibold border border-primary/30 backdrop-blur-sm hover:shadow-primary/20 transition-all duration-300"
                               >
                                 {tech}
                               </motion.span>
                             ))}
                             {techTags.length > 4 && (
-                              <span className="px-4 py-2 bg-slate-700/50 text-slate-400 text-sm rounded-xl font-medium border border-slate-600/30">
+                              <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-xs rounded-lg font-sans font-medium border border-border/30">
                                 +{techTags.length - 4}
                               </span>
                             )}
@@ -274,19 +268,18 @@ export default function ProjectShowcase() {
                       )}
                     </div>
 
-                    {/* ✅ FIXED: Clickable links with proper z-index and event handling */}
+                    {/* ✅ Project links with theme colors */}
                     {links.length > 0 && (
-                      <div className="pt-6 border-t border-slate-700/50">
-                        <div className="flex items-center mb-4">
-                          <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 shadow-lg shadow-purple-400/20"></div>
-                          <span className="text-purple-400 text-sm font-bold uppercase tracking-wider">Project Links</span>
+                      <div className="pt-4 border-t border-border/50">
+                        <div className="flex items-center mb-3">
+                          <div className="w-2 h-2 bg-accent rounded-full mr-2 shadow-lg shadow-accent/20"></div>
+                          <span className="text-accent text-xs font-heading font-bold uppercase tracking-wider">Links</span>
                         </div>
-                        <div className="flex flex-wrap gap-3 relative z-50">
-                          {links.slice(0, 4).map((link: any, linkIndex: number) => {
+                        <div className="flex flex-wrap gap-2 relative z-50">
+                          {links.slice(0, 3).map((link: any, linkIndex: number) => {
                             const linkName = link?.name || `Link ${linkIndex + 1}`;
                             const linkUrl = link?.url || '';
                             
-                            // Ensure URL has protocol
                             const finalUrl = linkUrl && !linkUrl.startsWith('http') ? 
                               `https://${linkUrl}` : linkUrl;
                             
@@ -296,7 +289,7 @@ export default function ProjectShowcase() {
                                 href={finalUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="relative z-50 px-4 py-2 bg-slate-700/40 text-slate-300 rounded-xl text-sm font-semibold border border-slate-600/40 shadow-lg backdrop-blur-sm hover:bg-slate-600/50 hover:text-white hover:border-purple-500/30 transition-all duration-300 cursor-pointer group/link inline-block"
+                                className="relative z-50 px-3 py-1 bg-muted/40 text-muted-foreground rounded-lg text-xs font-sans font-semibold border border-border/40 backdrop-blur-sm hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 cursor-pointer group/link inline-block"
                                 style={{ 
                                   pointerEvents: linkUrl ? 'auto' : 'none',
                                   opacity: linkUrl ? 1 : 0.5
@@ -311,15 +304,15 @@ export default function ProjectShowcase() {
                                   }
                                 }}
                               >
-                                <span className="group-hover/link:text-purple-300 transition-colors relative z-50">
+                                <span className="group-hover/link:text-primary transition-colors relative z-50">
                                   {linkName}
                                 </span>
                               </a>
                             );
                           })}
-                          {links.length > 4 && (
-                            <div className="px-4 py-2 bg-slate-800/50 text-slate-500 rounded-xl text-sm font-medium border border-slate-700/30">
-                              +{links.length - 4}
+                          {links.length > 3 && (
+                            <div className="px-3 py-1 bg-muted/50 text-muted-foreground rounded-lg text-xs font-sans font-medium border border-border/30">
+                              +{links.length - 3}
                             </div>
                           )}
                         </div>
@@ -327,47 +320,45 @@ export default function ProjectShowcase() {
                     )}
                   </div>
 
-                  {/* ✅ Enhanced hover effects with glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl" />
+                  {/* ✅ Theme hover effects */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-2xl" />
                   
-                  {/* Multi-layer border glow */}
-                  <div className="absolute inset-0 rounded-3xl border border-transparent group-hover:border-blue-500/30 transition-colors duration-500" />
-                  <div className="absolute -inset-1 rounded-3xl border border-transparent group-hover:border-purple-500/20 transition-colors duration-700 blur-sm" />
+                  <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-primary/30 transition-colors duration-500" />
+                  <div className="absolute -inset-1 rounded-2xl border border-transparent group-hover:border-accent/20 transition-colors duration-700 blur-sm" />
                 </motion.div>
               );
             })}
           </div>
         )}
 
-        {/* ✅ Stunning CTA button with enhanced effects */}
+        {/* ✅ Theme-consistent CTA button */}
         {hasMoreProjects && (
           <div className="cta-button text-center">
             <Link href="/projects">
               <motion.button
                 whileHover={{ 
                   scale: 1.05,
-                  boxShadow: "0 25px 50px rgba(59, 130, 246, 0.4)"
+                  boxShadow: "0 25px 50px rgba(39, 180, 198, 0.3)"
                 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center px-16 py-5 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white rounded-3xl font-bold text-xl shadow-2xl hover:shadow-3xl transition-all duration-500 group border border-blue-500/30 relative overflow-hidden"
+                className="inline-flex items-center px-12 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-xl font-heading font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-500 group border border-primary/30 relative overflow-hidden"
               >
-                {/* Button background animation */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-accent/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <span className="relative z-10">Explore All Projects</span>
                 <motion.div
-                  className="relative z-10 ml-4"
+                  className="relative z-10 ml-3"
                   animate={{ x: [0, 6, 0] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <ExternalLink className="h-6 w-6" />
+                  <ExternalLink className="h-5 w-5" />
                 </motion.div>
               </motion.button>
             </Link>
           </div>
         )}
 
-        {/* ✅ Elegant empty state */}
+        {/* ✅ Theme-consistent empty state */}
         {displayProjects.length === 0 && (title || text) && (
           <motion.div 
             className="text-center py-24"
@@ -375,11 +366,11 @@ export default function ProjectShowcase() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <div className="w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-10 border-2 border-slate-700/50 shadow-2xl">
-              <Layers className="w-16 h-16 text-slate-400" />
+            <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mx-auto mb-10 border-2 border-border/50 shadow-2xl">
+              <Layers className="w-16 h-16 text-muted-foreground" />
             </div>
-            <h3 className="text-3xl font-bold text-white mb-6">Projects Coming Soon</h3>
-            <p className="text-slate-400 text-xl max-w-lg mx-auto leading-relaxed">
+            <h3 className="text-2xl font-heading font-bold text-foreground mb-6">Projects Coming Soon</h3>
+            <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed font-sans">
               Amazing projects will be showcased here once they're added to the portfolio.
             </p>
           </motion.div>
