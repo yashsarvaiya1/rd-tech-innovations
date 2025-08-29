@@ -62,7 +62,7 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 left-8 right-8 z-50 mt-4 mx-auto max-w-7xl rounded-lg overflow-hidden transition-all duration-500 ${
+      className={`fixed top-0 left-8 right-8 z-50 mt-4 mx-auto max-w-7xl rounded-xl overflow-hidden transition-all duration-500 ${
         isScrolled
           ? 'bg-background/90 backdrop-blur-lg shadow-2xl border border-border'
           : 'bg-background/70 backdrop-blur-sm shadow-lg'
@@ -87,7 +87,7 @@ export default function Navbar() {
                 }}
               />
             ) : (
-              <div className="h-10 px-4 bg-gradient-to-r from-primary to-primary/70 rounded-lg flex items-center">
+              <div className="h-10 px-4 bg-gradient-to-r from-primary/90 via-primary/70 to-accent/50 rounded-lg flex items-center">
                 <span className="text-primary-foreground font-heading font-bold text-sm">Logo</span>
               </div>
             )}
@@ -142,7 +142,7 @@ export default function Navbar() {
           >
             <Link
               href="/contact"
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 focus:ring-2 focus:ring-ring/50"
             >
               <Phone className="h-4 w-4" />
               <span>{contactButton}</span>
@@ -167,7 +167,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden border-t border-border bg-background rounded-b-lg overflow-hidden scrollbar-clean"
+            className="lg:hidden border-t border-border bg-background rounded-b-xl overflow-hidden scrollbar-clean"
           >
             <div className="px-8 py-4 space-y-4">
               {routes.length > 0 ? (
@@ -190,7 +190,7 @@ export default function Navbar() {
               <Link
                 href="/contact"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg hover:shadow-lg transition-all duration-300"
               >
                 <Phone className="h-4 w-4" />
                 <span className="font-heading">{contactButton}</span>

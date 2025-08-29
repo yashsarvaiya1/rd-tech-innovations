@@ -95,7 +95,7 @@ export default function CompanyMarquee() {
   return (
     <section 
       ref={containerRef}
-      className="py-12 md:py-16 bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 overflow-hidden"
+      className="py-12 md:py-16 bg-gradient-to-br from-background via-muted/20 to-primary/8 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto relative">
         <div className="relative overflow-hidden">
@@ -110,7 +110,7 @@ export default function CompanyMarquee() {
             {duplicatedLogos.map((logoUrl: string, index: number) => (
               <motion.div
                 key={`logo-${index}`}
-                className="flex-shrink-0 w-20 h-12 md:w-24 md:h-14 lg:w-28 lg:h-16 flex items-center justify-center p-2 md:p-3 bg-white/60 backdrop-blur-sm rounded-lg shadow-sm border border-white/40 group hover:bg-white/80 transition-all duration-300"
+                className="flex-shrink-0 w-20 h-12 md:w-24 md:h-14 lg:w-28 lg:h-16 flex items-center justify-center p-2 md:p-3 bg-card/80 backdrop-blur-sm rounded-lg shadow-sm border border-border/40 group hover:bg-card/90 transition-all duration-300"
                 whileHover={{ scale: 1.05, y: -2 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
@@ -125,9 +125,9 @@ export default function CompanyMarquee() {
             ))}
           </div>
 
-          {/* Gradient masks */}
-          <div className="absolute top-0 left-0 w-16 md:w-24 h-full bg-gradient-to-r from-slate-50 via-slate-50/60 to-transparent pointer-events-none z-10" />
-          <div className="absolute top-0 right-0 w-16 md:w-24 h-full bg-gradient-to-l from-slate-50 via-slate-50/60 to-transparent pointer-events-none z-10" />
+          {/* ✅ Theme gradient masks */}
+          <div className="absolute top-0 left-0 w-16 md:w-24 h-full bg-gradient-to-r from-background via-background/60 to-transparent pointer-events-none z-10" />
+          <div className="absolute top-0 right-0 w-16 md:w-24 h-full bg-gradient-to-l from-background via-background/60 to-transparent pointer-events-none z-10" />
         </div>
       </div>
     </section>

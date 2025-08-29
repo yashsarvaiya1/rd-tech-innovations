@@ -37,7 +37,7 @@ export default function AboutPage() {
   }, [subscribeToRealTimeUpdates, fetchAllContent]);
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen">
       <CompanyBrief />
       <Vision />
 

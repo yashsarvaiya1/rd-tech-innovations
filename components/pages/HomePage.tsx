@@ -63,13 +63,13 @@ export default function HomePage() {
       <Suspense fallback={<SectionLoader label="Loading projects..." />}>
         <ProjectShowcase />
       </Suspense>
+      
+      <Suspense fallback={<SectionLoader label="Loading technologies..." />}>
+        <Technologies />
+      </Suspense>
 
       <Suspense fallback={<SectionLoader label="Loading testimonials..." />}>
         <Testimonials />
-      </Suspense>
-
-      <Suspense fallback={<SectionLoader label="Loading technologies..." />}>
-        <Technologies />
       </Suspense>
 
       <Suspense fallback={<SectionLoader label="Loading industries..." />}>

@@ -72,9 +72,9 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="space-y-4">
-                <div className="h-4 bg-muted rounded w-3/4" />
-                <div className="h-3 bg-muted rounded" />
-                <div className="h-3 bg-muted rounded w-5/6" />
+                <div className="h-4 bg-muted rounded-lg w-3/4" />
+                <div className="h-3 bg-muted rounded-lg" />
+                <div className="h-3 bg-muted rounded-lg w-5/6" />
               </div>
             ))}
           </div>
@@ -101,12 +101,12 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="bg-gradient-to-br from-background to-primary/30 text-foreground relative overflow-hidden pt-20 py-8 rounded-lg">
+      <footer className="bg-gradient-to-br from-background via-muted/20 to-primary/10 text-foreground relative overflow-hidden pt-20 py-8 rounded-xl border border-border/50">
         {/* Background accents */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.08),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(39,180,198,0.06),transparent_50%)]" />
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent/50" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.05),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(255,20,147,0.03),transparent_60%)]" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent/40 to-primary/30 rounded-t-xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
@@ -125,7 +125,7 @@ export default function Footer() {
                 </Link>
               ) : (
                 <Link href="/" className="inline-block">
-                  <div className="h-12 px-4 bg-gradient-to-r from-primary to-secondary/50 rounded-lg flex items-center">
+                  <div className="h-12 px-4 bg-gradient-to-r from-primary/90 to-primary/70 rounded-lg flex items-center shadow-lg hover:from-primary hover:to-primary/80 transition-all duration-300">
                     <span className="text-primary-foreground font-heading font-bold text-lg">
                       RD Tech Innovations
                     </span>
@@ -154,7 +154,7 @@ export default function Footer() {
                         href={social.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 bg-muted/50 backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-gradient-to-r hover:from-primary hover:to-accent/60 hover:text-primary-foreground transition-all duration-300 group border border-border hover:border-primary"
+                        className="w-10 h-10 bg-muted/50 backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-gradient-to-r hover:from-primary/90 hover:to-primary/70 hover:text-primary-foreground transition-all duration-300 group border border-border hover:border-primary hover:shadow-lg"
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                         title={social.name}
@@ -278,7 +278,7 @@ export default function Footer() {
           {showScrollTop && (
             <motion.button
               onClick={scrollToTop}
-              className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-primary to-accent/60 text-primary-foreground rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
+              className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center focus:ring-2 focus:ring-ring/50 hover:from-primary/90 hover:to-accent/50"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}

@@ -86,11 +86,11 @@ export default function LandingPage() {
 
   if (!title && !description && imageUrls.length === 0) return null;
 
-  // ✅ Balanced font sizing
+  // ✅ Balanced font sizing - smaller and more professional
   const getTitleFontSize = (text: string) => {
-    if (text.length > 100) return 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl';
-    if (text.length > 50) return 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl';
-    return 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl';
+    if (text.length > 100) return 'text-xl sm:text-2xl md:text-3xl lg:text-4xl';
+    if (text.length > 50) return 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl';
+    return 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl';
   };
 
   const getDescriptionFontSize = (text: string) => {
@@ -127,15 +127,15 @@ export default function LandingPage() {
       ref={containerRef}
       className="
         relative snap-start min-h-screen w-full 
-        bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100
-        overflow-hidden flex items-center justify-center
+        bg-gradient-to-br from-background via-muted/30 to-primary/15
+        overflow-hidden flex items-center justify-center pt-[4.5rem]
       "
     >
       {/* ✅ Background layers */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-200/60 via-blue-100/40 to-purple-200/60 backdrop-blur-sm" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(168,85,247,0.06),transparent_50%)]" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/8 via-background/90 to-accent/8 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(39,180,198,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,20,147,0.06),transparent_50%)]" />
       </div>
 
       {/* ✅ Floating particles */}
@@ -168,16 +168,16 @@ export default function LandingPage() {
         ))}
 
         {/* ✅ Floating static icons */}
-        <motion.div className="absolute top-20 left-12 text-indigo-300" animate={{ y: [0, 20, 0] }} transition={{ repeat: Infinity, duration: 7 }}>
+        <motion.div className="absolute top-20 left-12 text-primary/60" animate={{ y: [0, 20, 0] }} transition={{ repeat: Infinity, duration: 7 }}>
           <Rocket size={42} />
         </motion.div>
-        <motion.div className="absolute bottom-28 right-16 text-purple-300" animate={{ y: [0, -20, 0] }} transition={{ repeat: Infinity, duration: 9 }}>
+        <motion.div className="absolute bottom-28 right-16 text-accent/60" animate={{ y: [0, -20, 0] }} transition={{ repeat: Infinity, duration: 9 }}>
           <Sparkles size={38} />
         </motion.div>
-        <motion.div className="absolute top-1/3 right-1/4 text-blue-300" animate={{ y: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 6 }}>
+        <motion.div className="absolute top-1/3 right-1/4 text-primary/50" animate={{ y: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 6 }}>
           <Code2 size={40} />
         </motion.div>
-        <motion.div className="absolute bottom-16 left-1/3 text-pink-300" animate={{ y: [0, 25, 0] }} transition={{ repeat: Infinity, duration: 10 }}>
+        <motion.div className="absolute bottom-16 left-1/3 text-accent/50" animate={{ y: [0, 25, 0] }} transition={{ repeat: Infinity, duration: 10 }}>
           <Star size={36} />
         </motion.div>
       </div>
@@ -187,9 +187,9 @@ export default function LandingPage() {
         {title && (
           <motion.h1
             ref={titleRef}
-            className={`hero-title ${getTitleFontSize(title)} font-extrabold leading-tight tracking-tight max-w-6xl`}
+            className={`hero-title ${getTitleFontSize(title)} font-heading font-extrabold leading-tight tracking-tight max-w-6xl`}
           >
-            <span className="bg-gradient-to-r from-indigo-700 via-purple-600 to-blue-700 bg-clip-text text-transparent drop-shadow-md">
+            <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               {title}
             </span>
           </motion.h1>
@@ -200,7 +200,7 @@ export default function LandingPage() {
             <p
               className={`${getDescriptionFontSize(
                 description
-              )} text-slate-700 leading-relaxed font-medium`}
+              )} text-foreground leading-relaxed font-sans font-medium`}
             >
               {description}
             </p>
@@ -213,7 +213,7 @@ export default function LandingPage() {
               {imageUrls.map((imageUrl: string, index: number) => (
                 <motion.div
                   key={index}
-                  className="image-item group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-400"
+                  className="image-item group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-400 border border-border/50"
                   whileHover={{ scale: 1.03, z: 10 }}
                   whileTap={{ scale: 0.99 }}
                 >
@@ -225,7 +225,7 @@ export default function LandingPage() {
                     )} transition-all duration-500 group-hover:scale-105`}
                     loading={index < 3 ? 'eager' : 'lazy'}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-background/5 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
                 </motion.div>
               ))}
             </div>
@@ -236,9 +236,9 @@ export default function LandingPage() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <div className="w-5 h-8 border-2 border-indigo-300/70 rounded-full flex justify-center backdrop-blur-sm bg-white/10">
+          <div className="w-5 h-8 border-2 border-primary/70 rounded-full flex justify-center backdrop-blur-sm bg-background/20">
             <motion.div
-              className="w-0.5 h-2 bg-indigo-400 rounded-full mt-1.5"
+              className="w-0.5 h-2 bg-primary rounded-full mt-1.5"
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -248,9 +248,3 @@ export default function LandingPage() {
     </section>
   );
 }
-
-
-
-
-
-

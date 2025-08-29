@@ -34,7 +34,7 @@ export default function CareerPage() {
   }, [subscribeToRealTimeUpdates, fetchAllContent]);
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen">
       <Suspense fallback={<SectionLoader label="Loading job openings..." />}>
         <JobOpening />
       </Suspense>

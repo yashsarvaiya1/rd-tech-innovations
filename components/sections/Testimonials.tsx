@@ -10,14 +10,14 @@ export default function Testimonials() {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
-  // ✅ Enhanced background particles
+  // ✅ Theme-consistent background particles
   const backgroundElements = useMemo(() => 
     Array.from({ length: 6 }, (_, i) => ({
       id: i,
       size: Math.random() * 120 + 80,
       top: Math.random() * 100,
       left: Math.random() * 100,
-      hue: 280 + (Math.random() * 80), // Purple to pink spectrum
+      hue: 280 + (Math.random() * 80),
       delay: Math.random() * 3
     })), []
   );
@@ -50,23 +50,23 @@ export default function Testimonials() {
 
   // ✅ Helper function to get dynamic text size based on message length
   const getMessageTextSize = (message: string) => {
-    if (!message) return 'text-lg';
+    if (!message) return 'text-base';
     
-    if (message.length <= 100) return 'text-xl md:text-2xl';
-    if (message.length <= 200) return 'text-lg md:text-xl';
-    if (message.length <= 300) return 'text-base md:text-lg';
+    if (message.length <= 100) return 'text-lg md:text-xl';
+    if (message.length <= 200) return 'text-base md:text-lg';
+    if (message.length <= 300) return 'text-sm md:text-base';
     if (message.length <= 400) return 'text-sm md:text-base';
     return 'text-xs md:text-sm';
   };
 
   // ✅ Helper function to get dynamic card height based on content
   const getCardHeight = (message: string) => {
-    if (!message) return 'h-80';
+    if (!message) return 'h-72';
     
-    if (message.length <= 150) return 'h-80';
-    if (message.length <= 300) return 'h-96';
-    if (message.length <= 500) return 'h-[28rem]';
-    return 'h-[32rem]';
+    if (message.length <= 150) return 'h-72';
+    if (message.length <= 300) return 'h-80';
+    if (message.length <= 500) return 'h-96';
+    return 'h-[26rem]';
   };
 
   // ✅ Early return after hooks
@@ -90,17 +90,17 @@ export default function Testimonials() {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 relative overflow-hidden flex items-center py-20"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/8 relative overflow-hidden flex items-center py-20"
     >
-      {/* ✅ Enhanced background with floating particles */}
+      {/* ✅ Enhanced theme background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-purple-50/30 to-pink-50/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(147,51,234,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.06),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_30%,rgba(147,51,234,0.02)_70%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-accent/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,20,147,0.06),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(39,180,198,0.04),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_30%,rgba(255,20,147,0.02)_70%)]" />
       </div>
 
-      {/* ✅ Floating background particles */}
+      {/* ✅ Theme floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {backgroundElements.map((element) => (
           <motion.div
@@ -132,24 +132,24 @@ export default function Testimonials() {
 
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         
-        {/* ✅ Enhanced header section */}
+        {/* ✅ Header section with smaller fonts */}
         <div className="text-center max-w-4xl mx-auto mb-20">
           {title && (
-            <h2 className="testimonial-title text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight">
-              <span className="bg-gradient-to-r from-purple-800 via-pink-700 to-purple-800 bg-clip-text text-transparent">
+            <h2 className="testimonial-title text-2xl md:text-3xl lg:text-4xl font-heading font-black mb-8 leading-tight">
+              <span className="bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>
           )}
           
           {description && (
-            <p className="testimonial-description text-xl md:text-2xl text-slate-700 leading-relaxed font-light max-w-3xl mx-auto">
+            <p className="testimonial-description text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium max-w-3xl mx-auto">
               {description}
             </p>
           )}
         </div>
 
-        {/* ✅ Dynamic testimonial cards grid with adaptive heights */}
+        {/* ✅ Theme-consistent testimonial cards */}
         {cards.length > 0 && (
           <div className={`grid gap-8 ${getGridClasses(cards.length)}`}>
             {cards.map((testimonial: any, index: number) => {
@@ -171,51 +171,51 @@ export default function Testimonials() {
                   <div className="relative w-full h-full transition-transform duration-700 transform-style-preserve-3d group-hover:rotate-y-180">
                     
                     {/* ✅ FRONT CARD - Profile Information */}
-                    <div className="absolute inset-0 w-full h-full backface-hidden bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/60 p-8 flex flex-col items-center justify-center text-center">
+                    <div className="absolute inset-0 w-full h-full backface-hidden bg-card/90 backdrop-blur-xl rounded-xl shadow-xl border border-border/60 p-6 flex flex-col items-center justify-center text-center">
                       
                       {/* Profile Image */}
-                      <div className="relative mb-6">
+                      <div className="relative mb-5">
                         {imageUrl ? (
                           <div className="relative">
                             <img
                               src={imageUrl}
                               alt={name}
-                              className="w-24 h-24 object-cover rounded-full border-4 border-purple-200 shadow-lg"
+                              className="w-20 h-20 object-cover rounded-full border-4 border-accent/30 shadow-lg"
                               loading="lazy"
                             />
-                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                              <Quote className="w-4 h-4 text-white" />
+                            <div className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-r from-accent to-accent/70 rounded-full flex items-center justify-center shadow-lg">
+                              <Quote className="w-3 h-3 text-accent-foreground" />
                             </div>
                           </div>
                         ) : (
-                          <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-                            <User className="w-12 h-12 text-white" />
+                          <div className="w-20 h-20 bg-gradient-to-br from-accent to-accent/70 rounded-full flex items-center justify-center shadow-lg border-4 border-card">
+                            <User className="w-10 h-10 text-accent-foreground" />
                           </div>
                         )}
                       </div>
 
                       {/* Name and Title */}
-                      <div className="space-y-2 mb-6">
+                      <div className="space-y-2 mb-5">
                         {name && (
-                          <h3 className="text-2xl font-bold text-slate-900 break-words">
+                          <h3 className="text-lg md:text-xl font-heading font-bold text-foreground break-words">
                             {name}
                           </h3>
                         )}
                         {designation && (
-                          <p className="text-purple-600 font-semibold text-lg break-words">
+                          <p className="text-accent font-sans font-semibold text-sm md:text-base break-words">
                             {designation}
                           </p>
                         )}
                         {companyName && (
-                          <div className="flex items-center justify-center space-x-2 text-slate-600">
-                            <Building className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm font-medium break-words">{companyName}</span>
+                          <div className="flex items-center justify-center space-x-2 text-muted-foreground">
+                            <Building className="w-3 h-3 flex-shrink-0" />
+                            <span className="text-xs md:text-sm font-sans font-medium break-words">{companyName}</span>
                           </div>
                         )}
                       </div>
 
                       {/* Star Rating */}
-                      <div className="flex space-x-1 mb-6">
+                      <div className="flex space-x-1 mb-5">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <motion.div
                             key={i}
@@ -223,40 +223,40 @@ export default function Testimonials() {
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ delay: i * 0.1, type: "spring", stiffness: 500 }}
                           >
-                            <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                            <Star className="w-4 h-4 text-accent fill-current" />
                           </motion.div>
                         ))}
                       </div>
 
                       {/* Hover indicator */}
-                      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                         <motion.div
                           animate={{ y: [0, -4, 0] }}
                           transition={{ duration: 2, repeat: Infinity }}
-                          className="px-4 py-2 bg-purple-100 text-purple-600 rounded-full text-sm font-medium"
+                          className="px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-sans font-medium"
                         >
                           Hover to read review
                         </motion.div>
                       </div>
 
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl pointer-events-none" />
+                      {/* Theme gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-primary/5 rounded-xl pointer-events-none" />
                     </div>
 
-                    {/* ✅ BACK CARD - Message and Links with Dynamic Text Sizing */}
-                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl shadow-2xl p-6 md:p-8 flex flex-col justify-between text-white overflow-hidden">
+                    {/* ✅ BACK CARD - Message and Links */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-accent to-primary rounded-xl shadow-2xl p-5 md:p-6 flex flex-col justify-between text-accent-foreground overflow-hidden">
                       
                       {/* Quote icon */}
-                      <div className="absolute top-4 left-4 md:top-6 md:left-6">
-                        <Quote className="w-8 h-8 md:w-12 md:h-12 text-white/30" />
+                      <div className="absolute top-3 left-3 md:top-4 md:left-4">
+                        <Quote className="w-6 h-6 md:w-8 md:h-8 text-accent-foreground/30" />
                       </div>
 
-                      {/* Message with dynamic sizing and scrollable container */}
-                      <div className="flex-1 flex items-center justify-center pt-8">
+                      {/* Message with dynamic sizing */}
+                      <div className="flex-1 flex items-center justify-center pt-6">
                         {message ? (
                           <div className="w-full h-full flex items-center justify-center overflow-hidden">
                             <blockquote 
-                              className={`${getMessageTextSize(message)} leading-relaxed text-center font-light italic max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent px-2`}
+                              className={`${getMessageTextSize(message)} leading-relaxed text-center font-sans font-light italic max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent px-2`}
                               style={{
                                 wordBreak: 'break-word',
                                 overflowWrap: 'break-word',
@@ -267,25 +267,24 @@ export default function Testimonials() {
                             </blockquote>
                           </div>
                         ) : (
-                          <div className="text-center text-white/80">
-                            <Quote className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                            <p className="text-lg">No message available</p>
+                          <div className="text-center text-accent-foreground/80">
+                            <Quote className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p className="text-base font-sans">No message available</p>
                           </div>
                         )}
                       </div>
 
                       {/* Author attribution */}
-                      <div className="text-center border-t border-white/20 pt-4 md:pt-6 flex-shrink-0">
-                        <div className="text-white font-semibold mb-4 text-sm md:text-base break-words">
+                      <div className="text-center border-t border-accent-foreground/20 pt-3 md:pt-4 flex-shrink-0">
+                        <div className="text-accent-foreground font-sans font-semibold mb-3 text-sm break-words">
                           — {name}
                           {designation && `, ${designation}`}
                         </div>
 
                         {/* Social Links */}
                         {socialLinks.length > 0 && (
-                          <div className="flex justify-center space-x-3 md:space-x-4">
+                          <div className="flex justify-center space-x-2 md:space-x-3">
                             {socialLinks.slice(0, 4).map((social: any, socialIndex: number) => {
-                              // Handle both string URLs and object structure
                               const socialUrl = typeof social === 'string' ? social : social.link || social.url || '';
                               const socialName = typeof social === 'string' ? `Link ${socialIndex + 1}` : social.name || `Link ${socialIndex + 1}`;
                               
@@ -295,7 +294,7 @@ export default function Testimonials() {
                                   href={socialUrl.startsWith('http') ? socialUrl : `https://${socialUrl}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors border border-white/20 flex-shrink-0"
+                                  className="w-7 h-7 md:w-8 md:h-8 bg-accent-foreground/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-accent-foreground/30 transition-colors border border-accent-foreground/20 flex-shrink-0"
                                   whileHover={{ scale: 1.1, rotate: 5 }}
                                   whileTap={{ scale: 0.95 }}
                                 >
@@ -303,10 +302,10 @@ export default function Testimonials() {
                                     <img
                                       src={social.iconUrl}
                                       alt={socialName}
-                                      className="w-4 h-4 md:w-5 md:h-5 object-contain"
+                                      className="w-3 h-3 md:w-4 md:h-4 object-contain"
                                     />
                                   ) : (
-                                    <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                                    <ExternalLink className="w-3 h-3 md:w-4 md:h-4 text-accent-foreground" />
                                   )}
                                 </motion.a>
                               );
@@ -317,21 +316,21 @@ export default function Testimonials() {
 
                       {/* Animated background pattern */}
                       <div className="absolute inset-0 opacity-10 pointer-events-none">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16" />
-                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-accent-foreground rounded-full -translate-y-12 translate-x-12" />
+                        <div className="absolute bottom-0 left-0 w-20 h-20 bg-accent-foreground rounded-full translate-y-10 -translate-x-10" />
                       </div>
                     </div>
                   </div>
 
-                  {/* ✅ Enhanced shadow and glow effects */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10" />
+                  {/* ✅ Theme shadow effects */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-accent/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10" />
                 </motion.div>
               );
             })}
           </div>
         )}
 
-        {/* ✅ Enhanced empty state */}
+        {/* ✅ Theme empty state */}
         {cards.length === 0 && (title || description) && (
           <motion.div 
             className="text-center py-20"
@@ -339,18 +338,18 @@ export default function Testimonials() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <div className="w-32 h-32 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
-              <Quote className="w-16 h-16 text-purple-500" />
+            <div className="w-32 h-32 bg-gradient-to-br from-accent/20 to-primary/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+              <Quote className="w-16 h-16 text-accent" />
             </div>
-            <h3 className="text-3xl font-bold text-slate-900 mb-4">No Testimonials Yet</h3>
-            <p className="text-slate-600 text-lg max-w-md mx-auto leading-relaxed">
+            <h3 className="text-2xl font-heading font-bold text-foreground mb-4">No Testimonials Yet</h3>
+            <p className="text-muted-foreground text-base max-w-md mx-auto leading-relaxed font-sans">
               Customer testimonials will appear here when they're added to showcase your amazing work.
             </p>
           </motion.div>
         )}
       </div>
 
-      {/* ✅ Enhanced CSS for 3D flip effect with scrollbar styling */}
+      {/* ✅ Enhanced CSS for 3D flip effect */}
       <style jsx>{`
         .perspective-1000 {
           perspective: 1000px;
@@ -372,7 +371,7 @@ export default function Testimonials() {
           scrollbar-width: thin;
         }
 
-        .scrollbar-thumb-white\/20::-webkit-scrollbar-thumb {
+        .scrollbar-thumb-white\\/20::-webkit-scrollbar-thumb {
           background-color: rgba(255, 255, 255, 0.2);
           border-radius: 9999px;
         }

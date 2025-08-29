@@ -30,7 +30,7 @@ export default function ContactPage() {
   }, [subscribeToRealTimeUpdates, fetchAllContent]);
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen">
       <Suspense fallback={<SectionLoader label="Loading contact section..." />}>
         <ContactUs />
       </Suspense>

@@ -30,7 +30,7 @@ export default function ProjectsPage() {
   }, [subscribeToRealTimeUpdates, fetchAllContent]);
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen">
       <Suspense fallback={<SectionLoader label="Loading projects..." />}>
         <ProjectPlayground />
       </Suspense>

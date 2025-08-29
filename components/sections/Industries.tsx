@@ -9,7 +9,7 @@ export default function Industries() {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
-  // ✅ Enhanced background particles
+  // ✅ Theme-consistent background particles
   const backgroundElements = useMemo(() => 
     Array.from({ length: 8 }, (_, i) => ({
       id: i,
@@ -116,17 +116,17 @@ export default function Industries() {
   return (
     <section 
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden flex items-center py-20"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden flex items-center py-20"
     >
-      {/* ✅ Enhanced background with floating particles */}
+      {/* ✅ Theme background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-slate-50/30 to-blue-50/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(147,51,234,0.06),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[conic-gradient(from_45deg_at_50%_50%,rgba(59,130,246,0.02),rgba(147,51,234,0.02),rgba(59,130,246,0.02))]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-primary/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(39,180,198,0.06),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,20,147,0.04),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[conic-gradient(from_45deg_at_50%_50%,rgba(39,180,198,0.02),rgba(255,20,147,0.02),rgba(39,180,198,0.02))]" />
       </div>
 
-      {/* ✅ Floating background particles */}
+      {/* ✅ Theme floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {backgroundElements.map((element) => (
           <motion.div
@@ -161,24 +161,24 @@ export default function Industries() {
         {/* ✅ Split Layout: Left Content + Right Industries */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
-          {/* ✅ Left Side: Title and Description ONLY */}
+          {/* ✅ Left Side: Title and Description with theme colors */}
           <div className="industry-content-left space-y-8">
             {title && (
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
-                <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-purple-700 bg-clip-text text-transparent">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-heading font-black leading-tight">
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   {title}
                 </span>
               </h2>
             )}
             
             {description && (
-              <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-light">
+              <p className="text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium">
                 {description}
               </p>
             )}
           </div>
 
-          {/* ✅ Right Side: Scattered Industries Layout with Wider Containers */}
+          {/* ✅ Right Side: Scattered Industries Layout with theme styling */}
           <div className="industry-content-right">
             {industriesList.length > 0 && (
               <div className="relative w-full h-80">
@@ -193,7 +193,7 @@ export default function Industries() {
                     return (
                       <motion.div
                         key={index}
-                        className="industry-item group flex items-center space-x-2 px-3 py-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-white/60"
+                        className="industry-item group flex items-center space-x-2 px-3 py-2 bg-card/80 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-border/60"
                         style={{
                           gridColumn: `${position.col} / span ${position.span}`,
                           gridRow: position.row,
@@ -206,7 +206,7 @@ export default function Industries() {
                         whileTap={{ scale: 0.98 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                       >
-                        {/* ✅ Small Logo/Icon */}
+                        {/* ✅ Small Logo/Icon with theme colors */}
                         <div className="flex-shrink-0">
                           {iconUrl ? (
                             <img
@@ -216,23 +216,23 @@ export default function Industries() {
                               loading="lazy"
                             />
                           ) : (
-                            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                              <span className="text-white font-bold text-xs">
+                            <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/70 rounded-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                              <span className="text-primary-foreground font-heading font-bold text-xs">
                                 {name.charAt(0).toUpperCase()}
                               </span>
                             </div>
                           )}
                         </div>
 
-                        {/* ✅ Industry Name with Better Text Handling */}
+                        {/* ✅ Industry Name with theme colors */}
                         {name && (
-                          <span className="text-xs font-semibold text-slate-800 group-hover:text-blue-600 transition-colors leading-tight whitespace-nowrap overflow-hidden">
+                          <span className="text-xs font-heading font-semibold text-foreground group-hover:text-primary transition-colors leading-tight whitespace-nowrap overflow-hidden">
                             {name}
                           </span>
                         )}
 
-                        {/* ✅ Subtle hover effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none" />
+                        {/* ✅ Theme hover effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none" />
                       </motion.div>
                     );
                   })}

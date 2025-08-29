@@ -44,21 +44,21 @@ export default function JobOpening() {
     <>
       <section 
         ref={containerRef}
-        className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden py-20"
+        className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden pt-26 pb-20"
       >
         {/* ✅ Enhanced background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-slate-50/30 to-blue-50/40" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.08),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(99,102,241,0.06),transparent_50%)]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-primary/5" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.06),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(255,20,147,0.04),transparent_60%)]" />
         </div>
 
         <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
           {/* ✅ Header */}
           <div className="text-center mb-16">
             {title && (
-              <h2 className="job-title text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-8">
-                <span className="bg-gradient-to-r from-slate-900 via-blue-700 to-slate-900 bg-clip-text text-transparent">
+              <h2 className="job-title text-3xl md:text-4xl lg:text-5xl font-heading font-black leading-tight mb-8">
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   {title}
                 </span>
               </h2>
@@ -71,24 +71,24 @@ export default function JobOpening() {
               {cards.map((job: any, index: number) => (
                 <motion.div
                   key={index}
-                  className="job-card group bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/60 cursor-pointer"
+                  className="job-card group bg-card/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-border/60 cursor-pointer"
                   whileHover={{ y: -8, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedJob(job)}
                 >
-                  <div className="p-8 space-y-6">
+                  <div className="p-6 space-y-5">
                     
                     {/* Job Icon */}
                     <div className="flex items-center justify-between">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Briefcase className="w-6 h-6 text-white" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Briefcase className="w-5 h-5 text-primary-foreground" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                     </div>
 
                     {/* Job Title */}
                     {job.title && (
-                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-lg md:text-xl font-heading font-bold text-foreground group-hover:text-primary transition-colors">
                         {job.title}
                       </h3>
                     )}
@@ -96,13 +96,13 @@ export default function JobOpening() {
                     {/* Position - Label + Value */}
                     {(job.position || job.positionValue) && (
                       <div className="flex items-center space-x-3">
-                        <MapPin className="w-4 h-4 text-slate-500" />
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
                         <div>
                           {job.position && (
-                            <span className="text-sm text-slate-500 font-medium">{job.position}: </span>
+                            <span className="text-sm text-muted-foreground font-sans font-medium">{job.position}: </span>
                           )}
                           {job.positionValue && (
-                            <span className="text-slate-800 font-semibold">{job.positionValue}</span>
+                            <span className="text-foreground font-sans font-semibold">{job.positionValue}</span>
                           )}
                         </div>
                       </div>
@@ -111,33 +111,33 @@ export default function JobOpening() {
                     {/* Experience - Label + Value */}
                     {(job.experience || job.experienceValue) && (
                       <div className="flex items-center space-x-3">
-                        <Clock className="w-4 h-4 text-slate-500" />
+                        <Clock className="w-4 h-4 text-muted-foreground" />
                         <div>
                           {job.experience && (
-                            <span className="text-sm text-slate-500 font-medium">{job.experience}: </span>
+                            <span className="text-sm text-muted-foreground font-sans font-medium">{job.experience}: </span>
                           )}
                           {job.experienceValue && (
-                            <span className="text-slate-800 font-semibold">{job.experienceValue}</span>
+                            <span className="text-foreground font-sans font-semibold">{job.experienceValue}</span>
                           )}
                         </div>
                       </div>
                     )}
 
                     {/* View Details Button */}
-                    <div className="pt-4 border-t border-slate-200">
+                    <div className="pt-4 border-t border-border">
                       <div className="flex items-center justify-between">
-                        <span className="text-blue-600 hover:text-blue-700 font-semibold group-hover:translate-x-2 transition-all duration-300">
-                          {job.viewDetailsButton}
+                        <span className="text-primary hover:text-primary/80 font-heading font-semibold group-hover:translate-x-2 transition-all duration-300">
+                          {job.viewDetailsButton || 'View Details'}
                         </span>
-                        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <ChevronRight className="w-4 h-4 text-blue-600" />
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ChevronRight className="w-4 h-4 text-primary" />
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Hover Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none" />
                 </motion.div>
               ))}
             </div>
@@ -151,11 +151,11 @@ export default function JobOpening() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2 }}
             >
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-100/50 to-purple-100/50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg backdrop-blur-sm border border-white/60">
-                <Briefcase className="w-16 h-16 text-blue-600" />
+              <div className="w-32 h-32 bg-gradient-to-br from-muted/50 to-primary/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg backdrop-blur-sm border border-border/30">
+                <Briefcase className="w-16 h-16 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-slate-900 mb-6">No Open Positions</h3>
-              <p className="text-slate-600 text-xl max-w-lg mx-auto leading-relaxed">
+              <h3 className="text-2xl font-heading font-bold text-foreground mb-6">No Open Positions</h3>
+              <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed font-sans">
                 We're always looking for talented individuals. Check back soon for new opportunities!
               </p>
             </motion.div>
@@ -163,121 +163,154 @@ export default function JobOpening() {
         </div>
       </section>
 
-      {/* ✅ Job Details Modal */}
+      {/* ✅ Modal with same theme background (not transparent) */}
       <AnimatePresence>
         {selectedJob && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-gradient-to-br from-background via-muted/20 to-primary/8 z-50 flex items-center justify-center p-4"
             onClick={() => setSelectedJob(null)}
           >
+            {/* ✅ Same background pattern as main section */}
+            <div className="absolute inset-0">
+              <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-muted/10 to-primary/5" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.06),transparent_60%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(255,20,147,0.04),transparent_60%)]" />
+            </div>
+
             <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              initial={{ scale: 0.9, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              exit={{ scale: 0.9, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative max-w-4xl max-h-[90vh] w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="relative max-w-4xl max-h-[90vh] w-full bg-card bg-primary-foreground rounded-xl shadow-2xl overflow-hidden border border-border z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedJob(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors z-10"
-              >
-                <X className="w-5 h-5 text-slate-600" />
-              </button>
+              {/* ✅ Theme-consistent header */}
+              <div className="sticky top-0 z-20 bg-gradient-to-r from-primary to-primary/80 px-6 py-4 border-b border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
+                      <Briefcase className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-heading font-bold text-primary-foreground">
+                        {selectedJob.title || 'Job Details'}
+                      </h2>
+                      <p className="text-primary-foreground/80 text-xs font-sans">
+                        Full job description and requirements
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => setSelectedJob(null)}
+                    className="w-8 h-8 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-lg flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              </div>
 
-              {/* Modal Content */}
-              <div className="max-h-[90vh] overflow-y-auto p-8 space-y-8">
+              {/* ✅ Modal content */}
+              <div className="max-h-[calc(90vh-80px)] overflow-y-auto bg-card p-6 space-y-6 scrollbar-clean">
                 
-                {/* Job Header */}
-                <div className="space-y-6">
-                  {/* Job Title */}
-                  {selectedJob.title && (
-                    <h2 className="text-3xl font-bold text-slate-900">{selectedJob.title}</h2>
+                {/* Position & Experience Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  
+                  {/* Position Card */}
+                  {(selectedJob.position || selectedJob.positionValue) && (
+                    <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+                          <MapPin className="w-3 h-3 text-primary-foreground" />
+                        </div>
+                        {selectedJob.position && (
+                          <div className="text-primary font-heading font-semibold text-sm">
+                            {selectedJob.position}
+                          </div>
+                        )}
+                      </div>
+                      {selectedJob.positionValue && (
+                        <div className="text-foreground font-heading font-bold text-base ml-8">
+                          {selectedJob.positionValue}
+                        </div>
+                      )}
+                    </div>
                   )}
                   
-                  {/* Position & Experience in Modal - Label + Value */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    {/* Position Card */}
-                    {(selectedJob.position || selectedJob.positionValue) && (
-                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <MapPin className="w-5 h-5 text-blue-600" />
-                          {selectedJob.position && (
-                            <div className="text-blue-600 font-medium text-sm">{selectedJob.position}</div>
-                          )}
+                  {/* Experience Card */}
+                  {(selectedJob.experience || selectedJob.experienceValue) && (
+                    <div className="p-4 bg-accent/10 rounded-lg border border-accent/30">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-6 h-6 bg-accent rounded-md flex items-center justify-center">
+                          <Clock className="w-3 h-3 text-accent-foreground" />
                         </div>
-                        {selectedJob.positionValue && (
-                          <div className="text-slate-800 font-semibold text-lg">{selectedJob.positionValue}</div>
+                        {selectedJob.experience && (
+                          <div className="text-accent font-heading font-semibold text-sm">
+                            {selectedJob.experience}
+                          </div>
                         )}
                       </div>
-                    )}
-                    
-                    {/* Experience Card */}
-                    {(selectedJob.experience || selectedJob.experienceValue) && (
-                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <Clock className="w-5 h-5 text-green-600" />
-                          {selectedJob.experience && (
-                            <div className="text-green-600 font-medium text-sm">{selectedJob.experience}</div>
-                          )}
+                      {selectedJob.experienceValue && (
+                        <div className="text-foreground font-heading font-bold text-base ml-8">
+                          {selectedJob.experienceValue}
                         </div>
-                        {selectedJob.experienceValue && (
-                          <div className="text-slate-800 font-semibold text-lg">{selectedJob.experienceValue}</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                {/* Required Skills */}
+                {/* Required Skills Section */}
                 {selectedJob.requiredSkills && selectedJob.requiredSkills.length > 0 && (
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center">
-                      <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
+                  <div className="bg-muted/50 rounded-lg p-4 border border-border">
+                    <h3 className="text-base font-heading font-bold text-foreground mb-3 flex items-center">
+                      <div className="w-5 h-5 bg-accent rounded-md flex items-center justify-center mr-2">
+                        <CheckCircle className="w-3 h-3 text-accent-foreground" />
+                      </div>
                       {selectedJob.requiredSkillsTitle || 'Required Skills'}
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {selectedJob.requiredSkills.map((skill: string, index: number) => (
                         <motion.div
                           key={index}
-                          className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200"
+                          className="flex items-center space-x-2 p-2 bg-card rounded-md border border-border shadow-sm"
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
                         >
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-slate-700 font-medium">{skill}</span>
+                          <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                          <span className="text-muted-foreground font-sans font-medium text-sm">{skill}</span>
                         </motion.div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Responsibilities */}
+                {/* Responsibilities Section */}
                 {selectedJob.responsibilities && selectedJob.responsibilities.length > 0 && (
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center">
-                      <Users className="w-6 h-6 text-blue-600 mr-3" />
-                      {selectedJob.responsibilityTitle || 'Responsibilities'}
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                    <h3 className="text-base font-heading font-bold text-foreground mb-3 flex items-center">
+                      <div className="w-5 h-5 bg-primary rounded-md flex items-center justify-center mr-2">
+                        <Users className="w-3 h-3 text-primary-foreground" />
+                      </div>
+                      {selectedJob.responsibilityTitle || 'Key Responsibilities'}
                     </h3>
                     <div className="space-y-3">
                       {selectedJob.responsibilities.map((responsibility: string, index: number) => (
                         <motion.div
                           key={index}
-                          className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200"
+                          className="flex items-start space-x-3 p-3 bg-card rounded-md border border-border shadow-sm"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
                         >
-                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5 flex-shrink-0">
+                          <div className="w-5 h-5 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground rounded-full flex items-center justify-center text-xs font-heading font-bold mt-0.5 flex-shrink-0">
                             {index + 1}
                           </div>
-                          <span className="text-slate-700 leading-relaxed">{responsibility}</span>
+                          <span className="text-muted-foreground font-sans text-sm leading-relaxed">{responsibility}</span>
                         </motion.div>
                       ))}
                     </div>
