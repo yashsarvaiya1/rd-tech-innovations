@@ -4,11 +4,9 @@ import { gsap } from "gsap";
 import { ArrowRight, Phone, Star, Zap } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useSectionContent } from "@/stores/content";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function ServiceOptions() {
-  
   const {
     data: serviceOptions,
     loading,
@@ -19,6 +17,7 @@ export default function ServiceOptions() {
   const descRef = useRef<HTMLParagraphElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
+  const router = useRouter();
 
   // ✅ Theme-consistent background particles
   const backgroundElements = useMemo(
@@ -118,6 +117,31 @@ export default function ServiceOptions() {
     return () => ctx.revert();
   }, [isInView, loading]);
 
+  // ✅ FIXED: Multiple fallback methods for navigation
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("Contact button clicked, attempting navigation...");
+    
+    // Method 1: Try Next.js router first
+    try {
+      router.push('/contact');
+      console.log("Next.js router navigation attempted");
+    } catch (routerError) {
+      console.log("Router failed, trying window.location");
+      
+      // Method 2: Fallback to window.location
+      try {
+        window.location.href = "/contact";
+      } catch (locationError) {
+        // Method 3: Last resort - reload with contact
+        console.log("Window.location failed, trying replace");
+        window.location.replace("/contact");
+      }
+    }
+  };
+
   // ✅ Early return after hooks
   if (loading || error || !serviceOptions || serviceOptions.hidden) return null;
 
@@ -147,12 +171,11 @@ export default function ServiceOptions() {
 
   // ✅ Smart card height based on count
   const getCardHeight = (count: number) => {
-    if (count === 1) return "min-h-[350px]";
-    if (count <= 3) return "min-h-[300px]";
-    if (count <= 6) return "min-h-[280px]";
-    return "min-h-[250px]";
+    if (count === 1) return "min-h-[400px]";
+    if (count <= 3) return "min-h-[350px]";
+    if (count <= 6) return "min-h-[320px]";
+    return "min-h-[300px]";
   };
-  
 
   return (
     <section
@@ -221,7 +244,7 @@ export default function ServiceOptions() {
           )}
         </div>
 
-        {/* ✅ Theme-consistent service cards */}
+        {/* ✅ Theme-consistent service cards with descriptions */}
         {cards.length > 0 && (
           <div
             ref={cardsRef}
@@ -230,6 +253,7 @@ export default function ServiceOptions() {
             {cards.map((card: any, index: number) => {
               const imageUrl = card.imageUrl || "";
               const text = card.text || "";
+              const description = card.description || "";
               const contactButton = card.contactButton || "";
 
               return (
@@ -277,7 +301,7 @@ export default function ServiceOptions() {
                     </div>
                   )}
 
-                  {/* ✅ Theme card content */}
+                  {/* ✅ Theme card content with description */}
                   <div className="p-5 md:p-6 space-y-4 flex flex-col justify-between flex-grow">
                     {/* Service title with theme icon */}
                     {text && (
@@ -291,26 +315,36 @@ export default function ServiceOptions() {
                           </h3>
                         </div>
 
-                        <p className="text-muted-foreground text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-sans">
-                          Professional service with premium quality and
-                          dedicated support.
-                        </p>
+                        {/* ✅ Service description */}
+                        {description && (
+                          <p className="text-muted-foreground text-sm leading-relaxed font-sans">
+                            {description}
+                          </p>
+                        )}
                       </div>
                     )}
 
-                    {/* Theme contact button */}
+                    {/* ✅ FIXED: Multiple navigation methods with better error handling */}
                     {contactButton && (
-                      <div className="mt-auto">
-                        <motion.button
+                      <div className="mt-auto pt-4">
+                        <button
                           type="button"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group/button"
+                          onClick={handleContactClick}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleContactClick(e as any);
+                            }
+                          }}
+                          className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`Contact us about ${text || 'this service'}`}
                         >
-                          <Phone className="w-4 h-4" />
-                          <span className="text-sm">{contactButton}</span>
-                          <ArrowRight className="w-4 h-4 group-hover/button:translate-x-1 transition-transform" />
-                        </motion.button>
+                          <Phone className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm font-medium">{contactButton}</span>
+                          <ArrowRight className="w-4 h-4 flex-shrink-0" />
+                        </button>
                       </div>
                     )}
                   </div>
@@ -318,7 +352,7 @@ export default function ServiceOptions() {
                   {/* ✅ Theme hover effects */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl" />
 
-                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-primary/30 transition-colors duration-300" />
+                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-primary/30 transition-colors duration-300 pointer-events-none" />
                 </motion.div>
               );
             })}

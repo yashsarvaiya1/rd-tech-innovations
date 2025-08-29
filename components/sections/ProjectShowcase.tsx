@@ -1,7 +1,7 @@
 "use client";
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
-import { ExternalLink, Layers } from "lucide-react";
+import { ExternalLink, Heart, Layers, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { useSectionContent } from "@/stores/content";
@@ -195,17 +195,10 @@ export default function ProjectShowcase() {
                       </div>
                     )}
 
-                    {/* Project index with theme colors */}
-                    <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-lg rounded-lg flex items-center justify-center border border-border/50 shadow-lg group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
-                      <span className="font-heading font-bold text-sm group-hover:scale-110 transition-transform">
-                        {index + 1}
-                      </span>
-                    </div>
-
                     {/* Quality indicator */}
-                    <div className="absolute top-4 left-4 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-700 transform group-hover:translate-y-0 translate-y-2">
+                    <div className="absolute top-4 right-4 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-700 transform group-hover:translate-y-0 translate-y-2">
                       <div className="px-2 py-1 bg-accent/20 backdrop-blur-sm text-accent text-xs font-heading font-semibold rounded-full border border-accent/30">
-                        Premium
+                        <Heart className="w-3 h-3 inline-block my-0.5" />
                       </div>
                     </div>
 

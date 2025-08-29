@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type StorageFile, StorageService } from "@/services/storageService";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ImageSelectorModalProps {
   isOpen: boolean;
@@ -42,24 +43,26 @@ export default function ImageSelectorModal({
   const [success, setSuccess] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState<string>("");
-  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(
-    new Set(),
-  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-
   useEffect(() => {
-    // Filter assets based on search term
     if (searchTerm.trim()) {
       const filtered = assets.filter((asset) =>
-        asset.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        asset.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredAssets(filtered);
     } else {
       setFilteredAssets(assets);
     }
   }, [assets, searchTerm]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const loadAssets = async () => {
     try {
@@ -70,7 +73,8 @@ export default function ImageSelectorModal({
       setAssets(assetsList);
       setFilteredAssets(assetsList);
     } catch (error: any) {
-      setError(error.message || "Failed to load images");
+      const errorMsg = error.message || "Failed to load images";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -80,14 +84,12 @@ export default function ImageSelectorModal({
     if (isOpen) {
       loadAssets();
     } else {
-      // Reset state when modal closes
       setError("");
       setSuccess("");
       setSearchTerm("");
       setSelectedImage("");
-      setImageLoadErrors(new Set());
     }
-  }, [isOpen, loadAssets]);
+  }, [isOpen]);
 
   const handleImageSelect = (url: string) => {
     onSelect(url);
@@ -99,7 +101,7 @@ export default function ImageSelectorModal({
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -109,13 +111,9 @@ export default function ImageSelectorModal({
     setSuccess("");
 
     try {
-      // Validate and upload
       const result = await StorageService.uploadImageWithPreview(file);
-
-      // Refresh the gallery
       await loadAssets();
-
-      setSuccess("Image uploaded successfully!");
+      setSuccess("✅ Image uploaded successfully!");
       setTimeout(() => {
         onSelect(result.url);
         onClose();
@@ -134,20 +132,6 @@ export default function ImageSelectorModal({
     window.open(url, "_blank");
   };
 
-  const handleImageError = (url: string) => {
-    console.log("Image failed to load:", url);
-    setImageLoadErrors((prev) => new Set(prev).add(url));
-  };
-
-  const handleImageLoad = (url: string) => {
-    // Remove from error set if image loads successfully
-    setImageLoadErrors((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(url);
-      return newSet;
-    });
-  };
-
   const isImage = (fileName: string) => {
     const imageExtensions = [
       ".jpg",
@@ -161,268 +145,331 @@ export default function ImageSelectorModal({
     return imageExtensions.some((ext) => fileName.toLowerCase().includes(ext));
   };
 
+  const ImageThumbnail = ({
+    asset,
+    isSelected,
+  }: {
+    asset: StorageFile;
+    isSelected: boolean;
+  }) => {
+    const [imageState, setImageState] = useState<
+      "loading" | "loaded" | "error"
+    >("loading");
+
+    return (
+      <div
+        className={`relative group cursor-pointer rounded-lg overflow-hidden transition-all duration-200 border-2 bg-white shadow-sm hover:shadow-md ${
+          isSelected
+            ? "border-primary ring-2 ring-primary/20 shadow-lg"
+            : "border-gray-200 hover:border-primary/50"
+        }`}
+        onClick={() => setSelectedImage(asset.url)}
+      >
+        {/* Fixed aspect ratio container */}
+        <div className="relative w-full pb-[100%]">
+          {imageState === "loading" && (
+            <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          )}
+
+          {isImage(asset.name) ? (
+            <img
+              src={asset.url}
+              alt={asset.name}
+              className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
+              onLoad={() => setImageState("loaded")}
+              onError={() => setImageState("error")}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center">
+              <FileImage className="h-8 w-8 text-muted-foreground mb-2" />
+              <span className="text-xs text-muted-foreground text-center px-2 font-sans">
+                {asset.name}
+              </span>
+            </div>
+          )}
+
+          {imageState === "error" && (
+            <div className="absolute inset-0 bg-red-50 flex flex-col items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-destructive mb-1" />
+              <span className="text-xs text-destructive font-sans">
+                Failed to load
+              </span>
+            </div>
+          )}
+
+          {/* Hover overlay with buttons */}
+          {/* <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors duration-200 flex items-center justify-center">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-white hover:bg-gray-100 text-gray-900 font-heading"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePreviewImage(asset.url);
+                }}
+              >
+                <Eye className="h-3 w-3" />
+              </Button>
+              <Button
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-heading"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleImageSelect(asset.url);
+                }}
+              >
+                <CheckCircle className="h-3 w-3" />
+              </Button>
+            </div>
+          </div> */}
+
+          {/* File info overlay */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm text-gray-900 text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity border-t border-gray-200">
+            <div className="truncate font-heading font-medium">{asset.name}</div>
+            {asset.size && (
+              <div className="text-xs text-gray-600 font-sans">
+                {(asset.size / 1024).toFixed(1)} KB
+              </div>
+            )}
+          </div>
+
+          {/* Selection indicator */}
+          {isSelected && (
+            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1 shadow-lg">
+              <CheckCircle className="h-3 w-3" />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-        {/* ✅ Single Header with only one close mechanism */}
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <ImageIcon className="h-5 w-5 text-blue-600" />
+      <DialogContent className="max-w-6xl h-[90vh] overflow-auto bg-white border-gray-200 shadow-2xl">
+        <DialogHeader className="border-b border-gray-200 pb-4 bg-white">
+          <DialogTitle className="flex items-center space-x-3 text-gray-900 font-heading">
+            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <ImageIcon className="h-4 w-4 text-primary" />
+            </div>
             <span>Select or Upload Image</span>
+            <Badge
+              variant="outline"
+              className="font-heading bg-gray-50 text-gray-700 border-gray-200"
+            >
+              {filteredAssets.length} available
+            </Badge>
           </DialogTitle>
         </DialogHeader>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {success && (
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              {success}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <Tabs defaultValue="gallery" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger
-              value="gallery"
-              className="flex items-center space-x-2"
+        <div className="flex flex-col h-full bg-white">
+          {/* Alerts */}
+          {error && (
+            <Alert
+              variant="destructive"
+              className="bg-red-50 border-red-200 mb-4"
             >
-              <ImageIcon className="h-4 w-4" />
-              <span>Select From Gallery</span>
-              <Badge variant="outline" className="ml-1">
-                {filteredAssets.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="upload" className="flex items-center space-x-2">
-              <Upload className="h-4 w-4" />
-              <span>Upload New</span>
-            </TabsTrigger>
-          </TabsList>
+              <AlertCircle className="h-5 w-5" />
+              <AlertDescription className="font-sans font-medium">
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
 
-          <TabsContent value="gallery" className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search images..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          {success && (
+            <Alert className="border-emerald-200 bg-emerald-50 mb-4">
+              <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <AlertDescription className="text-emerald-800 font-sans font-medium">
+                {success}
+              </AlertDescription>
+            </Alert>
+          )}
 
-            {/* ✅ Enhanced Image Gallery */}
-            <div className="max-h-96 overflow-y-auto">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                  <span>Loading images...</span>
-                </div>
-              ) : filteredAssets.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {filteredAssets.map((asset) => {
-                    const hasError = imageLoadErrors.has(asset.url);
-                    const isImageFile = isImage(asset.name);
+          <Tabs
+            defaultValue="gallery"
+            className="flex-1 flex flex-col bg-white"
+          >
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 mb-4">
+              <TabsTrigger
+                value="gallery"
+                className="flex items-center space-x-2 font-heading"
+              >
+                <ImageIcon className="h-4 w-4" />
+                <span>Gallery</span>
+                <Badge variant="outline" className="ml-1 font-heading bg-white">
+                  {filteredAssets.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger
+                value="upload"
+                className="flex items-center space-x-2 font-heading"
+              >
+                <Upload className="h-4 w-4" />
+                <span>Upload New</span>
+              </TabsTrigger>
+            </TabsList>
 
-                    return (
-                      <div
-                        key={asset.fullPath}
-                        className={`relative group cursor-pointer border-2 rounded-lg overflow-hidden transition-all duration-200 ${
-                          selectedImage === asset.url
-                            ? "border-blue-500 ring-2 ring-blue-200 shadow-lg"
-                            : "border-gray-200 hover:border-blue-300 hover:shadow-md"
-                        }`}
-                        onClick={() => setSelectedImage(asset.url)}
+            <TabsContent
+              value="gallery"
+              className="flex-1 flex flex-col bg-white min-h-0"
+            >
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search images by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white border-gray-300 font-sans"
+                />
+              </div>
+
+              {/* Gallery content with proper scroll */}
+              <div className="flex-1 min-h-0">
+                {loading ? (
+                  <div className="flex items-center justify-center py-16 bg-white h-full">
+                    <div className="text-center">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+                      <span className="text-lg font-heading font-semibold text-gray-900">
+                        Loading images...
+                      </span>
+                      <p className="text-gray-600 font-sans mt-2">
+                        Please wait while we fetch your gallery
+                      </p>
+                    </div>
+                  </div>
+                ) : filteredAssets.length > 0 ? (
+                  <ScrollArea className="h-full rounded-md border border-gray-200">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 p-4">
+                      {filteredAssets.map((asset) => (
+                        <ImageThumbnail
+                          key={asset.fullPath}
+                          asset={asset}
+                          isSelected={selectedImage === asset.url}
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="text-center py-16 bg-white h-full flex flex-col justify-center">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <ImageIcon className="h-10 w-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-xl font-heading font-bold text-gray-900 mb-2">
+                      {searchTerm ? "No images found" : "No images available"}
+                    </h3>
+                    <p className="text-gray-600 font-sans max-w-md mx-auto">
+                      {searchTerm
+                        ? `No images match "${searchTerm}". Try adjusting your search terms.`
+                        : "Upload some images to get started with your gallery."}
+                    </p>
+                    {searchTerm && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setSearchTerm("")}
+                        className="mt-4 font-heading"
                       >
-                        {/* ✅ Improved image container with better sizing and fallback */}
-                        <div className="aspect-square relative bg-gradient-to-br from-gray-100 to-gray-200">
-                          {isImageFile && !hasError ? (
-                            <img
-                              src={asset.url}
-                              alt={asset.name}
-                              className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                              loading="lazy"
-                              onError={() => handleImageError(asset.url)}
-                              onLoad={() => handleImageLoad(asset.url)}
-                              style={{
-                                objectFit: "cover",
-                                objectPosition: "center",
-                              }}
-                            />
-                          ) : (
-                            <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-blue-50 to-indigo-100">
-                              <FileImage className="h-8 w-8 text-blue-400 mb-2" />
-                              <span className="text-xs text-blue-600 font-medium">
-                                {hasError ? "Failed to load" : "Image file"}
-                              </span>
-                            </div>
-                          )}
+                        Clear Search
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
 
-                          {/* Loading overlay for images */}
-                          <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center opacity-0">
-                            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                          </div>
-                        </div>
-
-                        {/* ✅ Enhanced overlay with better actions */}
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
-                          <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 space-x-2">
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="bg-white hover:bg-gray-100 text-gray-900"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePreviewImage(asset.url);
-                              }}
-                            >
-                              <Eye className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="bg-blue-600 hover:bg-blue-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleImageSelect(asset.url);
-                              }}
-                            >
-                              <CheckCircle className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* ✅ Improved file name display */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="truncate font-medium">
-                            {asset.name}
-                          </div>
-                          {asset.size && (
-                            <div className="text-xs opacity-75">
-                              {(asset.size / 1024).toFixed(1)} KB
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Selection indicator */}
-                        {selectedImage === asset.url && (
-                          <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
-                            <CheckCircle className="h-4 w-4" />
-                          </div>
-                        )}
+              {/* Selection UI */}
+              {selectedImage && (
+                <div className="border-t border-gray-200 bg-gray-50 p-4 mt-4 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-24 h-24 bg-white border border-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={selectedImage}
+                          alt="Selected"
+                          className="w-full h-full object-contain"
+                        />
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {searchTerm ? "No images found" : "No images available"}
-                  </h3>
-                  <p className="text-gray-600">
-                    {searchTerm
-                      ? `No images match "${searchTerm}"`
-                      : "Upload some images to get started"}
-                  </p>
+                      <div>
+                        <p className="text-sm font-heading font-semibold text-gray-900">
+                          Image selected
+                        </p>
+                        <p className="text-xs text-gray-600 font-mono">
+                          {selectedImage.slice(-40)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setSelectedImage("")}
+                        className="font-heading bg-white"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => handleImageSelect(selectedImage)}
+                        className="bg-primary hover:bg-primary/90 font-heading"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Use This Image
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
-            </div>
+            </TabsContent>
 
-            {/* ✅ Enhanced selection actions */}
-            {selectedImage && (
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden border border-blue-200">
-                    <img
-                      src={selectedImage}
-                      alt="Selected"
-                      className="w-full h-full object-cover"
-                    />
+            <TabsContent value="upload" className="flex-1 bg-white">
+              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                  <Upload className="h-8 w-8 text-primary" />
+                </div>
+
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-heading font-bold text-gray-900 mb-2">
+                    Upload New Image
+                  </h3>
+                  <p className="text-gray-600 font-sans mb-4 max-w-md">
+                    Choose an image file from your device to add to your gallery
+                  </p>
+                  <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 font-sans">
+                    <span>JPEG, PNG, WebP, GIF, SVG</span>
+                    <span>•</span>
+                    <span>Max 5MB</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-blue-900">
-                      Image selected
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      Ready to use this image
-                    </p>
-                  </div>
                 </div>
-                <div className="space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelectedImage("")}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={() => handleImageSelect(selectedImage)}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Use This Image
-                  </Button>
-                </div>
+
+                <Button
+                  onClick={handleUploadClick}
+                  disabled={uploading}
+                  className="min-w-[160px] font-heading"
+                  size="lg"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choose File
+                    </>
+                  )}
+                </Button>
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="upload" className="space-y-4">
-            <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                <Upload className="h-8 w-8 text-blue-600" />
-              </div>
-
-              <div className="text-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Upload New Image
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Choose an image file from your device
-                </p>
-                <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
-                  <span>JPEG, PNG, WebP, GIF</span>
-                  <span>•</span>
-                  <span>Max 5MB</span>
-                </div>
-              </div>
-
-              <Button
-                onClick={handleUploadClick}
-                disabled={uploading}
-                className="min-w-[140px]"
-                size="lg"
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose File
-                  </>
-                )}
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

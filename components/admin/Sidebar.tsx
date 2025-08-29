@@ -22,12 +22,15 @@ import {
   Settings,
   UserPlus,
   Users,
+  Bell,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/stores/admin";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SectionItem {
   id: string;
@@ -35,12 +38,14 @@ interface SectionItem {
   icon: React.ReactNode;
   count?: number;
   description?: string;
+  priority?: boolean;
 }
 
 interface SectionGroup {
   title: string;
   items: SectionItem[];
   defaultOpen?: boolean;
+  icon?: React.ReactNode;
 }
 
 export default function Sidebar() {
@@ -49,6 +54,7 @@ export default function Sidebar() {
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
     "priority",
     "content",
+    "forms",
   ]);
 
   const toggleGroup = (groupTitle: string) => {
@@ -59,12 +65,9 @@ export default function Sidebar() {
     );
   };
 
-  // COMPLETELY FIXED: Check if section is hidden
+  // Check if section is hidden
   const isSectionHidden = (sectionId: string) => {
     if (!content) return false;
-
-    // The content structure is: content[sectionId][sectionId].hidden
-    // For example: content.footer.footer.hidden
     const sectionData = content[sectionId as keyof typeof content] as any;
     return sectionData?.hidden === true;
   };
@@ -73,12 +76,14 @@ export default function Sidebar() {
     {
       title: "Priority",
       defaultOpen: true,
+      icon: <Shield className="h-4 w-4 text-amber-600" />,
       items: [
         {
           id: "dashboard",
           label: "Dashboard",
           icon: <LayoutDashboard className="h-4 w-4" />,
           description: "Overview & Stats",
+          priority: true,
         },
         {
           id: "contactSubmissions",
@@ -86,12 +91,14 @@ export default function Sidebar() {
           icon: <MessageSquare className="h-4 w-4" />,
           count: submissionStats?.pending || 0,
           description: "Customer enquiries",
+          priority: true,
         },
         {
           id: "careerSubmissions",
           label: "Job Applications",
           icon: <Briefcase className="h-4 w-4" />,
           description: "Career applications",
+          priority: true,
         },
         {
           id: "addMember",
@@ -110,184 +117,289 @@ export default function Sidebar() {
     {
       title: "Website Content",
       defaultOpen: true,
+      icon: <Globe className="h-4 w-4 text-blue-600" />,
       items: [
         {
           id: "navbar",
           label: "Navigation Bar",
           icon: <Navigation className="h-4 w-4" />,
+          description: "Site navigation",
         },
         {
           id: "landingPage",
           label: "Landing Page",
           icon: <Home className="h-4 w-4" />,
+          description: "Hero section",
         },
         {
           id: "companyMarquee",
           label: "Company Logos",
           icon: <Building className="h-4 w-4" />,
+          description: "Partner logos",
         },
         {
           id: "companyBrief",
           label: "Company Brief",
           icon: <Info className="h-4 w-4" />,
+          description: "About section",
         },
         {
           id: "serviceOptions",
           label: "Services",
           icon: <Settings className="h-4 w-4" />,
+          description: "Service offerings",
         },
         {
           id: "projects",
           label: "Projects",
           icon: <FolderOpen className="h-4 w-4" />,
+          description: "Portfolio items",
         },
         {
           id: "testimonials",
           label: "Testimonials",
           icon: <MessageCircle className="h-4 w-4" />,
+          description: "Client reviews",
         },
         {
           id: "technologies",
           label: "Technologies",
           icon: <Monitor className="h-4 w-4" />,
+          description: "Tech stack",
         },
         {
           id: "industries",
           label: "Industries",
           icon: <Globe className="h-4 w-4" />,
+          description: "Industry focus",
         },
         {
           id: "whyUs",
           label: "Why Choose Us",
           icon: <HelpCircle className="h-4 w-4" />,
+          description: "Value propositions",
         },
-        { id: "vision", label: "Vision", icon: <Eye className="h-4 w-4" /> },
+        {
+          id: "vision",
+          label: "Vision",
+          icon: <Eye className="h-4 w-4" />,
+          description: "Company vision",
+        },
         {
           id: "eventsPhotoWall",
           label: "Events Gallery",
           icon: <Calendar className="h-4 w-4" />,
+          description: "Event photos",
         },
       ],
     },
     {
       title: "Forms & Contact",
+      icon: <Phone className="h-4 w-4 text-emerald-600" />,
       items: [
         {
           id: "contactUs",
           label: "Contact Form",
           icon: <Phone className="h-4 w-4" />,
+          description: "Contact page form",
         },
         {
           id: "career",
           label: "Career Form",
           icon: <Users className="h-4 w-4" />,
+          description: "Job application form",
         },
         {
           id: "jobOpening",
           label: "Job Openings",
           icon: <Briefcase className="h-4 w-4" />,
+          description: "Available positions",
         },
-        { id: "footer", label: "Footer", icon: <Info className="h-4 w-4" /> },
+        {
+          id: "footer",
+          label: "Footer",
+          icon: <Info className="h-4 w-4" />,
+          description: "Site footer",
+        },
       ],
     },
   ];
 
+  const totalPendingItems = submissionStats?.pending || 0;
+
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 fixed top-16 bottom-0 overflow-y-auto">
-      <div className="p-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-6">
-          Admin Panel
-        </h2>
+    <aside className="w-64 bg-card border-r border-border fixed top-16 bottom-0 shadow-lg">
+      <div className="h-full flex flex-col">
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-border bg-gradient-to-r from-card to-muted/20">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="text-lg font-heading font-bold text-foreground">
+                Admin Panel
+              </h2>
+              {totalPendingItems > 0 && (
+                <div className="flex items-center space-x-2 mt-1">
+                  <Bell className="h-3 w-3 text-amber-600" />
+                  <span className="text-xs text-amber-600 font-sans font-medium">
+                    {totalPendingItems} pending
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-        <nav className="space-y-6">
-          {sectionGroups.map((group) => {
-            const isExpanded = expandedGroups.includes(
-              group.title.toLowerCase().replace(" ", ""),
-            );
+        {/* Navigation Content */}
+        <ScrollArea className="flex-1 p-4 bg-card overflow-auto">
+          <nav className="space-y-6">
+            {sectionGroups.map((group) => {
+              const groupId = group.title.toLowerCase().replace(/\s+/g, "");
+              const isExpanded = expandedGroups.includes(groupId);
 
-            return (
-              <div key={group.title}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    toggleGroup(group.title.toLowerCase().replace(" ", ""))
-                  }
-                  className="flex items-center justify-between w-full text-left px-2 py-1 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                >
-                  <span>{group.title}</span>
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </button>
-
-                {isExpanded && (
-                  <div className="mt-2 space-y-1">
-                    {group.items.map((item) => {
-                      const isHidden = isSectionHidden(item.id);
-
-                      return (
-                        <Button
-                          key={item.id}
-                          variant={
-                            selectedSection === item.id ? "default" : "ghost"
-                          }
-                          size="sm"
-                          className={cn(
-                            "w-full justify-start h-auto py-2 px-3",
-                            selectedSection === item.id
-                              ? "bg-blue-100 text-blue-900 hover:bg-blue-200"
-                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-100",
-                          )}
-                          onClick={() => setSelectedSection(item.id)}
+              return (
+                <div key={group.title}>
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(groupId)}
+                    className="flex items-center justify-between w-full text-left px-3 py-2 text-sm font-heading font-semibold text-foreground hover:bg-muted/50 rounded-lg transition-colors group"
+                  >
+                    <div className="flex items-center space-x-2">
+                      {group.icon && (
+                        <div className="flex-shrink-0">
+                          {group.icon}
+                        </div>
+                      )}
+                      <span>{group.title}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {/* Show total pending items for priority group */}
+                      {group.title === "Priority" && totalPendingItems > 0 && (
+                        <Badge 
+                          variant="secondary" 
+                          className="bg-amber-100 text-amber-800 border-amber-200 text-xs font-heading"
                         >
-                          <div className="flex items-start justify-between w-full">
-                            <div className="flex items-start space-x-2 flex-1 min-w-0">
-                              <div className="mt-0.5">{item.icon}</div>
-                              <div className="text-left flex-1 min-w-0">
-                                <div className="text-sm font-medium truncate">
-                                  {item.label}
+                          {totalPendingItems}
+                        </Badge>
+                      )}
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4 group-hover:text-primary transition-colors" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 group-hover:text-primary transition-colors" />
+                      )}
+                    </div>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="mt-2 space-y-1 pl-2">
+                      {group.items.map((item) => {
+                        const isHidden = isSectionHidden(item.id);
+                        const isSelected = selectedSection === item.id;
+
+                        return (
+                          <Button
+                            key={item.id}
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "w-full justify-start h-auto py-3 px-3 rounded-lg transition-all duration-200",
+                              isSelected
+                                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                              item.priority && !isSelected && "hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 border border-transparent"
+                            )}
+                            onClick={() => setSelectedSection(item.id)}
+                          >
+                            <div className="flex items-start justify-between w-full">
+                              <div className="flex items-start space-x-3 flex-1 min-w-0">
+                                <div className={cn(
+                                  "mt-0.5 flex-shrink-0",
+                                  isSelected ? "text-primary-foreground" : ""
+                                )}>
+                                  {item.icon}
                                 </div>
-                                {item.description && (
-                                  <div className="text-xs text-gray-500 truncate">
-                                    {item.description}
+                                <div className="text-left flex-1 min-w-0">
+                                  <div className={cn(
+                                    "text-sm font-heading font-semibold truncate",
+                                    isSelected ? "text-primary-foreground" : ""
+                                  )}>
+                                    {item.label}
                                   </div>
+                                  {item.description && (
+                                    <div className={cn(
+                                      "text-xs truncate font-sans",
+                                      isSelected 
+                                        ? "text-primary-foreground/80" 
+                                        : "text-muted-foreground"
+                                    )}>
+                                      {item.description}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Badges container */}
+                              <div className="flex flex-col items-end space-y-1 ml-3 flex-shrink-0">
+                                {/* Priority indicator */}
+                                {item.priority && (
+                                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                )}
+                                
+                                {/* Count badge */}
+                                {item.count !== undefined && item.count > 0 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className={cn(
+                                      "text-xs px-2 py-0 h-5 leading-none font-heading",
+                                      isSelected 
+                                        ? "bg-primary-foreground/20 text-primary-foreground" 
+                                        : "bg-amber-100 text-amber-800 border-amber-200"
+                                    )}
+                                  >
+                                    {item.count}
+                                  </Badge>
+                                )}
+                                
+                                {/* Hidden badge */}
+                                {isHidden && (
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      "text-xs px-1.5 py-0 h-5 leading-none font-heading",
+                                      isSelected
+                                        ? "border-primary-foreground/30 text-primary-foreground/80"
+                                        : "border-orange-300 text-orange-700 bg-orange-50"
+                                    )}
+                                  >
+                                    <EyeOff className="h-2.5 w-2.5" />
+                                  </Badge>
                                 )}
                               </div>
                             </div>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+        </ScrollArea>
 
-                            {/* Fixed badges container */}
-                            <div className="flex flex-col items-end space-y-1 ml-2 flex-shrink-0">
-                              {/* Count badge on top */}
-                              {item.count !== undefined && item.count > 0 && (
-                                <Badge
-                                  variant="secondary"
-                                  className="text-xs px-1.5 py-0 h-4 leading-none"
-                                >
-                                  {item.count}
-                                </Badge>
-                              )}
-                              {/* Hidden badge below */}
-                              {isHidden && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs px-1 py-0 h-4 leading-none border-orange-300 text-orange-700"
-                                >
-                                  <EyeOff className="h-2.5 w-2.5" />
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </nav>
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-border bg-muted/20">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground font-sans">
+              Admin Dashboard v2.0
+            </p>
+            <p className="text-xs text-muted-foreground font-sans mt-1">
+              {sectionGroups.reduce((total, group) => total + group.items.length, 0)} sections available
+            </p>
+          </div>
+        </div>
       </div>
     </aside>
   );
