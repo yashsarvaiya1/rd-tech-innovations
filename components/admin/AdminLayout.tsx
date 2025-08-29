@@ -1,7 +1,7 @@
 "use client";
 import { AlertCircle, Bell, Loader2, LogOut, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,8 @@ export default function AdminLayout() {
     }>
   >([]);
 
-  const isContentSection = (section: string) => {
+  // 🎯 FIXED: Memoize the helper function
+  const isContentSection = useCallback((section: string) => {
     return [
       "navbar",
       "landingPage",
@@ -70,10 +71,10 @@ export default function AdminLayout() {
       "career",
       "jobOpening",
     ].includes(section);
-  };
+  }, []); // No dependencies needed - static array
 
-  // Add notification function
-  const addNotification = (
+  // 🎯 FIXED: Memoize the notification function
+  const addNotification = useCallback((
     message: string,
     type: "success" | "error" | "info" = "info",
   ) => {
@@ -89,9 +90,9 @@ export default function AdminLayout() {
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
     }, 5000);
-  };
+  }, []); // No dependencies needed - uses functional state updates
 
-  // Fetch initial data on mount
+  // 🎯 FIXED: Initial data loading with proper dependencies
   useEffect(() => {
     let isMounted = true;
 
@@ -112,7 +113,9 @@ export default function AdminLayout() {
         }
       } catch (error) {
         console.error("Error loading initial admin data:", error);
-        addNotification("Failed to load dashboard data", "error");
+        if (isMounted) {
+          addNotification("Failed to load dashboard data", "error");
+        }
       } finally {
         if (isMounted) {
           setInitialLoad(false);
@@ -125,24 +128,17 @@ export default function AdminLayout() {
     return () => {
       isMounted = false;
     };
-  }, [
-    fetchAdmins,
-    fetchContent,
-    fetchSubmissions,
-    fetchSubmissionStats,
-    selectedSection,
-    addNotification,
-    isContentSection,
-  ]);
+  }, []); // 🎯 FIXED: Empty dependency array - only run once on mount
 
-  // Load content when section changes
+  // 🎯 FIXED: Content loading when section changes
   useEffect(() => {
     if (selectedSection && isContentSection(selectedSection) && !initialLoad) {
       fetchContent(selectedSection);
     }
-  }, [selectedSection, fetchContent, initialLoad, isContentSection]);
+  }, [selectedSection, isContentSection, fetchContent, initialLoad]); // 🎯 FIXED: Proper dependencies
 
-  const handleLogout = async () => {
+  // 🎯 FIXED: Memoize logout handler
+  const handleLogout = useCallback(async () => {
     if (isLoggingOut) return;
 
     setIsLoggingOut(true);
@@ -175,19 +171,20 @@ export default function AdminLayout() {
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, [isLoggingOut, clearError, clearAdminData, setUser, setMessage, addNotification, router]);
 
-  const openLogoutDialog = () => {
+  const openLogoutDialog = useCallback(() => {
     setLogoutDialog(true);
-  };
+  }, []);
 
-  const closeLogoutDialog = () => {
+  const closeLogoutDialog = useCallback(() => {
     if (!isLoggingOut) {
       setLogoutDialog(false);
     }
-  };
+  }, [isLoggingOut]);
 
-  const renderMainContent = () => {
+  // 🎯 FIXED: Memoize render function
+  const renderMainContent = useMemo(() => {
     if (initialLoad) {
       return (
         <div className="flex items-center justify-center h-64">
@@ -234,7 +231,7 @@ export default function AdminLayout() {
           </div>
         );
     }
-  };
+  }, [initialLoad, selectedSection, isContentSection]);
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-background to-muted/20">
@@ -369,7 +366,7 @@ export default function AdminLayout() {
         <Sidebar />
 
         <main className="flex-1 overflow-auto ml-64 bg-gradient-to-br from-background to-muted/10">
-          <div className="p-6 min-h-full">{renderMainContent()}</div>
+          <div className="p-6 min-h-full">{renderMainContent}</div>
         </main>
       </div>
 

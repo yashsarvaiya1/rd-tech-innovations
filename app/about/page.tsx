@@ -2,7 +2,18 @@ import type { Metadata } from "next";
 
 export { default } from "@/components/pages/AboutPage";
 
+// Helper function to get base URL
+const getBaseUrl = (): string => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_SITE_URL || "https://www.rdtechinnovations.com";
+  }
+  return 'http://localhost:3000';
+};
+
+const baseURL = getBaseUrl();
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseURL), // 🎯 This fixes the warning!
   title: "About Us - RD Tech Innovations",
   description:
     "Learn more about RD Tech Innovations — our mission, vision, and the passionate team transforming ideas into digital reality with cutting-edge technology solutions.",
@@ -20,11 +31,11 @@ export const metadata: Metadata = {
     title: "About Us - RD Tech Innovations",
     description:
       "Discover the story, mission, and vision behind RD Tech Innovations. Meet the team driving digital innovation forward.",
-    url: "https://www.rdtechinnovations.com/about",
+    url: "/about", // Relative to metadataBase - resolves to baseURL + /about
     siteName: "RD Tech Innovations",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.jpg", // Relative path - resolves to baseURL + /og-image.jpg
         width: 1200,
         height: 630,
         alt: "About RD Tech Innovations",
@@ -38,7 +49,7 @@ export const metadata: Metadata = {
     title: "About RD Tech Innovations",
     description:
       "We transform ideas into digital reality with expertise in web, mobile, and cloud solutions.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.jpg"], // Relative path
   },
   robots: {
     index: true,
