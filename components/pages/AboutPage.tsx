@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect, Suspense } from 'react';
-import { useContentStore } from '@/stores/content';
-import CompanyBrief from '../sections/CompanyBrief'; // Critical section
-import Vision from '../sections/Vision'; // Keep above the fold
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { Suspense, useEffect } from "react";
+import { useContentStore } from "@/stores/content";
+import CompanyBrief from "../sections/CompanyBrief"; // Critical section
+import Vision from "../sections/Vision"; // Keep above the fold
 
 // Lazy load heavier sections
-const WhyUs = dynamic(() => import('../sections/WhyUs'), {
+const WhyUs = dynamic(() => import("../sections/WhyUs"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading why us..." />,
 });
 
-const EventsPhotoWall = dynamic(() => import('../sections/EventsPhotoWall'), {
+const EventsPhotoWall = dynamic(() => import("../sections/EventsPhotoWall"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading events..." />,
 });

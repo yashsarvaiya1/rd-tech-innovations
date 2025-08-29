@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
+
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import ContentProvider from "@/providers/ContentProviders";
-import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
+import Navbar from "@/components/layout/Navbar";
+import ContentProvider from "@/providers/ContentProviders";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-poppins" });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
   title: "RD Tech Innovations - Transforming Ideas into Digital Reality",
@@ -58,9 +64,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${poppins.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${poppins.variable} antialiased`}>
         <ContentProvider>
           <Navbar />
           {children}

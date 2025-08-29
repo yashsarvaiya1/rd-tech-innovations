@@ -1,28 +1,34 @@
-'use client'
-import { useEffect, useRef, useMemo, useState } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { gsap } from 'gsap';
-import { useSectionContent } from '@/stores/content';
+"use client";
+import { AnimatePresence, motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSectionContent } from "@/stores/content";
 
 export default function Technologies() {
   // ✅ ALL HOOKS MUST BE CALLED FIRST - NO EARLY RETURNS BEFORE HOOKS
-  const { data: technologies, loading, error } = useSectionContent('technologies');
+  const {
+    data: technologies,
+    loading,
+    error,
+  } = useSectionContent("technologies");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
-  
+
   // ✅ State for active category - ALWAYS called
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   // ✅ Theme-consistent background particles
-  const backgroundElements = useMemo(() => 
-    Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      size: Math.random() * 100 + 60,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      hue: 180 + (Math.random() * 120),
-      delay: Math.random() * 3
-    })), []
+  const backgroundElements = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, i) => ({
+        id: i,
+        size: Math.random() * 100 + 60,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        hue: 180 + Math.random() * 120,
+        delay: Math.random() * 3,
+      })),
+    [],
   );
 
   // ✅ ALWAYS call useMemo - even if data is not available
@@ -30,17 +36,20 @@ export default function Technologies() {
     if (!technologies || loading || error || technologies.hidden) {
       return {};
     }
-    
+
     const techCategories = technologies.techCategories || [];
     const tech = technologies.tech || [];
-    
+
     if (techCategories.length === 0) return {};
-    
+
     return techCategories.reduce((acc: any, category: string) => {
-      acc[category] = tech.filter((item: any) => 
-        item.category === category || 
-        item.techCategory === category ||
-        (techCategories.indexOf(category) === 0 && !item.category && !item.techCategory)
+      acc[category] = tech.filter(
+        (item: any) =>
+          item.category === category ||
+          item.techCategory === category ||
+          (techCategories.indexOf(category) === 0 &&
+            !item.category &&
+            !item.techCategory),
       );
       return acc;
     }, {});
@@ -49,7 +58,7 @@ export default function Technologies() {
   // ✅ Set first category as active when data loads
   useEffect(() => {
     if (!technologies || loading || error || technologies.hidden) return;
-    
+
     const techCategories = technologies.techCategories || [];
     if (techCategories.length > 0 && !activeCategory) {
       setActiveCategory(techCategories[0]);
@@ -58,25 +67,42 @@ export default function Technologies() {
 
   // ✅ Enhanced GSAP animations
   useEffect(() => {
-    if (!isInView || !containerRef.current || loading || !technologies || technologies.hidden) return;
+    if (
+      !isInView ||
+      !containerRef.current ||
+      loading ||
+      !technologies ||
+      technologies.hidden
+    )
+      return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
-      
-      tl.fromTo('.tech-title', 
+
+      tl.fromTo(
+        ".tech-title",
         { y: 80, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" }
+        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" },
       )
-      .fromTo('.tech-description', 
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: "power2.out" }, 
-        "-=0.8"
-      )
-      .fromTo('.tech-category-button', 
-        { y: 60, opacity: 0, scale: 0.8 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "back.out(1.4)" }, 
-        "-=0.6"
-      );
+        .fromTo(
+          ".tech-description",
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, ease: "power2.out" },
+          "-=0.8",
+        )
+        .fromTo(
+          ".tech-category-button",
+          { y: 60, opacity: 0, scale: 0.8 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "back.out(1.4)",
+          },
+          "-=0.6",
+        );
     }, containerRef);
 
     return () => ctx.revert();
@@ -87,12 +113,17 @@ export default function Technologies() {
     return null;
   }
 
-  const title = technologies.title || '';
-  const description = technologies.description || '';
+  const title = technologies.title || "";
+  const description = technologies.description || "";
   const techCategories = technologies.techCategories || [];
   const tech = technologies.tech || [];
 
-  if (!title && !description && techCategories.length === 0 && tech.length === 0) {
+  if (
+    !title &&
+    !description &&
+    techCategories.length === 0 &&
+    tech.length === 0
+  ) {
     return null;
   }
 
@@ -101,15 +132,16 @@ export default function Technologies() {
 
   // ✅ Dynamic grid classes based on tech count
   const getGridClasses = (count: number) => {
-    if (count === 0) return 'grid-cols-1';
-    if (count <= 4) return 'grid-cols-2 md:grid-cols-4 max-w-2xl mx-auto';
-    if (count <= 6) return 'grid-cols-3 md:grid-cols-6 max-w-4xl mx-auto';
-    if (count <= 8) return 'grid-cols-4 md:grid-cols-6 lg:grid-cols-8 max-w-6xl mx-auto';
-    return 'grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 max-w-7xl mx-auto';
+    if (count === 0) return "grid-cols-1";
+    if (count <= 4) return "grid-cols-2 md:grid-cols-4 max-w-2xl mx-auto";
+    if (count <= 6) return "grid-cols-3 md:grid-cols-6 max-w-4xl mx-auto";
+    if (count <= 8)
+      return "grid-cols-4 md:grid-cols-6 lg:grid-cols-8 max-w-6xl mx-auto";
+    return "grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 max-w-7xl mx-auto";
   };
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden flex items-center py-20"
     >
@@ -132,27 +164,26 @@ export default function Technologies() {
               height: element.size,
               top: `${element.top}%`,
               left: `${element.left}%`,
-              background: `radial-gradient(circle, hsla(${element.hue}, 60%, 50%, 0.4), transparent 70%)`
+              background: `radial-gradient(circle, hsla(${element.hue}, 60%, 50%, 0.4), transparent 70%)`,
             }}
             animate={{
               y: [-30, 30, -30],
               x: [-20, 20, -20],
               scale: [1, 1.3, 1],
               opacity: [0.1, 0.3, 0.1],
-              rotate: [0, 180, 360]
+              rotate: [0, 180, 360],
             }}
             transition={{
               duration: 20 + Math.random() * 10,
               repeat: Infinity,
               delay: element.delay,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-        
         {/* ✅ Header section with smaller fonts */}
         <div className="text-center max-w-4xl mx-auto mb-16">
           {title && (
@@ -162,7 +193,7 @@ export default function Technologies() {
               </span>
             </h2>
           )}
-          
+
           {description && (
             <p className="tech-description text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium max-w-3xl mx-auto">
               {description}
@@ -176,26 +207,30 @@ export default function Technologies() {
             <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
               {techCategories.map((category: string) => {
                 const isActive = activeCategory === category;
-                
+
                 return (
                   <motion.button
                     key={category}
-                    onClick={() => setActiveCategory(isActive ? null : category)}
+                    onClick={() =>
+                      setActiveCategory(isActive ? null : category)
+                    }
                     className={`tech-category-button group relative px-5 py-3 rounded-xl font-heading font-semibold text-sm md:text-base transition-all duration-300 border-2 ${
                       isActive
-                        ? 'bg-gradient-to-r from-primary to-primary/70 border-primary text-primary-foreground shadow-lg shadow-primary/25'
-                        : 'bg-card/50 border-border text-muted-foreground hover:bg-card hover:border-primary/50 hover:text-foreground'
+                        ? "bg-gradient-to-r from-primary to-primary/70 border-primary text-primary-foreground shadow-lg shadow-primary/25"
+                        : "bg-card/50 border-border text-muted-foreground hover:bg-card hover:border-primary/50 hover:text-foreground"
                     }`}
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
                     <span>{category}</span>
-                    
+
                     {/* Hover glow effect */}
-                    <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                      isActive ? 'bg-primary-foreground/10' : 'bg-primary/10'
-                    }`} />
+                    <div
+                      className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                        isActive ? "bg-primary-foreground/10" : "bg-primary/10"
+                      }`}
+                    />
                   </motion.button>
                 );
               })}
@@ -211,42 +246,42 @@ export default function Technologies() {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -30, scale: 0.95 }}
-              transition={{ 
-                duration: 0.5, 
+              transition={{
+                duration: 0.5,
                 ease: "easeOut",
                 staggerChildren: 0.05,
-                delayChildren: 0.1
+                delayChildren: 0.1,
               }}
             >
               {/* Technology Grid */}
-              <motion.div 
+              <motion.div
                 className={`grid gap-6 ${getGridClasses(activeTech.length)}`}
                 variants={{
                   hidden: { opacity: 0 },
                   show: {
                     opacity: 1,
-                    transition: { staggerChildren: 0.1 }
-                  }
+                    transition: { staggerChildren: 0.1 },
+                  },
                 }}
                 initial="hidden"
                 animate="show"
               >
                 {activeTech.map((item: any, index: number) => {
-                  const name = item.name || '';
-                  const imageUrl = item.imageUrl || '';
+                  const name = item.name || "";
+                  const imageUrl = item.imageUrl || "";
 
                   return (
                     <motion.div
                       key={`${activeCategory}-${index}`}
                       variants={{
                         hidden: { opacity: 0, y: 20, scale: 0.8 },
-                        show: { opacity: 1, y: 0, scale: 1 }
+                        show: { opacity: 1, y: 0, scale: 1 },
                       }}
                       className="group relative p-5 bg-card/80 backdrop-blur-lg rounded-xl border border-border/60 hover:border-primary/40 transition-all duration-300 text-center shadow-lg hover:shadow-xl"
-                      whileHover={{ 
-                        scale: 1.05, 
+                      whileHover={{
+                        scale: 1.05,
                         y: -8,
-                        boxShadow: "0 25px 50px rgba(39, 180, 198, 0.15)"
+                        boxShadow: "0 25px 50px rgba(39, 180, 198, 0.15)",
                       }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -282,7 +317,7 @@ export default function Technologies() {
 
                       {/* Hover glow effect */}
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none" />
-                      
+
                       {/* Border glow */}
                       <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-primary/20 transition-colors duration-300" />
                     </motion.div>
@@ -295,24 +330,24 @@ export default function Technologies() {
 
         {/* ✅ Fallback: Show all tech if no categories */}
         {techCategories.length === 0 && tech.length > 0 && (
-          <motion.div 
+          <motion.div
             className={`grid gap-6 ${getGridClasses(tech.length)}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, staggerChildren: 0.1 }}
           >
             {tech.map((item: any, index: number) => {
-              const name = item.name || '';
-              const imageUrl = item.imageUrl || '';
+              const name = item.name || "";
+              const imageUrl = item.imageUrl || "";
 
               return (
                 <motion.div
                   key={index}
                   className="group p-5 bg-card/80 backdrop-blur-sm rounded-xl border border-border/60 hover:border-primary/30 transition-all duration-300 text-center shadow-lg hover:shadow-xl"
-                  whileHover={{ 
-                    scale: 1.05, 
+                  whileHover={{
+                    scale: 1.05,
                     y: -5,
-                    boxShadow: "0 20px 40px rgba(39, 180, 198, 0.1)"
+                    boxShadow: "0 20px 40px rgba(39, 180, 198, 0.1)",
                   }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, y: 20 }}

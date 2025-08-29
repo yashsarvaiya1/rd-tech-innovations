@@ -1,33 +1,33 @@
-'use client';
+"use client";
 
-import { useEffect, Suspense } from 'react';
-import { useContentStore } from '@/stores/content';
-import LandingPage from '../sections/LandingPage';
-import CompanyMarquee from '../sections/CompanyMarquee';
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { Suspense, useEffect } from "react";
+import { useContentStore } from "@/stores/content";
+import CompanyMarquee from "../sections/CompanyMarquee";
+import LandingPage from "../sections/LandingPage";
 
 // Lazy load non-critical sections
-const ServiceOptions = dynamic(() => import('../sections/ServiceOptions'), {
+const ServiceOptions = dynamic(() => import("../sections/ServiceOptions"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading services..." />,
 });
 
-const ProjectShowcase = dynamic(() => import('../sections/ProjectShowcase'), {
+const ProjectShowcase = dynamic(() => import("../sections/ProjectShowcase"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading projects..." />,
 });
 
-const Testimonials = dynamic(() => import('../sections/Testimonials'), {
+const Testimonials = dynamic(() => import("../sections/Testimonials"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading testimonials..." />,
 });
 
-const Technologies = dynamic(() => import('../sections/Technologies'), {
+const Technologies = dynamic(() => import("../sections/Technologies"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading technologies..." />,
 });
 
-const Industries = dynamic(() => import('../sections/Industries'), {
+const Industries = dynamic(() => import("../sections/Industries"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading industries..." />,
 });
@@ -63,7 +63,7 @@ export default function HomePage() {
       <Suspense fallback={<SectionLoader label="Loading projects..." />}>
         <ProjectShowcase />
       </Suspense>
-      
+
       <Suspense fallback={<SectionLoader label="Loading technologies..." />}>
         <Technologies />
       </Suspense>

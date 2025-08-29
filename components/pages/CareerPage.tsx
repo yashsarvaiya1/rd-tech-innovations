@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, Suspense } from 'react';
-import { useContentStore } from '@/stores/content';
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { Suspense, useEffect } from "react";
+import { useContentStore } from "@/stores/content";
 
 // Lazy load both sections
-const JobOpening = dynamic(() => import('../sections/JobOpening'), {
+const JobOpening = dynamic(() => import("../sections/JobOpening"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading job openings..." />,
 });
-const CareerForm = dynamic(() => import('../sections/CareerForm'), {
+const CareerForm = dynamic(() => import("../sections/CareerForm"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading career form..." />,
 });

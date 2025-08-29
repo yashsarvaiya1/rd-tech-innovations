@@ -1,10 +1,11 @@
-export interface BaseService {
-  // Common error handling and utilities
-}
+export type BaseService = {};
 
 export class FirebaseError extends Error {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string,
+  ) {
     super(message);
-    this.name = 'FirebaseError';
+    this.name = "FirebaseError";
   }
 }

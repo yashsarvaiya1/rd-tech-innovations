@@ -1,24 +1,26 @@
-'use client'
-import { useEffect, useRef, useMemo } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { gsap } from 'gsap';
-import { useSectionContent } from '@/stores/content';
+"use client";
+import { motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useMemo, useRef } from "react";
+import { useSectionContent } from "@/stores/content";
 
 export default function Industries() {
-  const { data: industries, loading, error } = useSectionContent('industries');
+  const { data: industries, loading, error } = useSectionContent("industries");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
   // ✅ Theme-consistent background particles
-  const backgroundElements = useMemo(() => 
-    Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      size: Math.random() * 120 + 80,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      hue: 200 + (Math.random() * 60),
-      delay: Math.random() * 3
-    })), []
+  const backgroundElements = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, i) => ({
+        id: i,
+        size: Math.random() * 120 + 80,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        hue: 200 + Math.random() * 60,
+        delay: Math.random() * 3,
+      })),
+    [],
   );
 
   // ✅ Enhanced GSAP animations
@@ -27,21 +29,31 @@ export default function Industries() {
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
-      
-      tl.fromTo('.industry-content-left', 
+
+      tl.fromTo(
+        ".industry-content-left",
         { x: -100, opacity: 0 },
-        { x: 0, opacity: 1, duration: 1.2, ease: "power3.out" }
+        { x: 0, opacity: 1, duration: 1.2, ease: "power3.out" },
       )
-      .fromTo('.industry-content-right', 
-        { x: 100, opacity: 0 },
-        { x: 0, opacity: 1, duration: 1, ease: "power2.out" }, 
-        "-=0.8"
-      )
-      .fromTo('.industry-item', 
-        { y: 60, opacity: 0, scale: 0.8 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: "back.out(1.4)" }, 
-        "-=0.6"
-      );
+        .fromTo(
+          ".industry-content-right",
+          { x: 100, opacity: 0 },
+          { x: 0, opacity: 1, duration: 1, ease: "power2.out" },
+          "-=0.8",
+        )
+        .fromTo(
+          ".industry-item",
+          { y: 60, opacity: 0, scale: 0.8 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "back.out(1.4)",
+          },
+          "-=0.6",
+        );
     }, containerRef);
 
     return () => ctx.revert();
@@ -50,8 +62,8 @@ export default function Industries() {
   // ✅ Early return after hooks
   if (loading || error || !industries || industries.hidden) return null;
 
-  const title = industries.title || '';
-  const description = industries.description || '';
+  const title = industries.title || "";
+  const description = industries.description || "";
   const industriesList = industries.industries || [];
 
   if (!title && !description && industriesList.length === 0) return null;
@@ -59,62 +71,195 @@ export default function Industries() {
   // ✅ Dynamic scattered positioning for 1-15 industries with wider spans
   const getScatteredLayout = (count: number) => {
     if (count === 0) return [];
-    
+
     // Predefined scattered positions for up to 15 industries with column spans
     const positions = [
       // 1 industry
       [{ row: 2, col: 2, span: 2 }],
-      
+
       // 2 industries
-      [{ row: 1, col: 1, span: 2 }, { row: 3, col: 4, span: 2 }],
-      
+      [
+        { row: 1, col: 1, span: 2 },
+        { row: 3, col: 4, span: 2 },
+      ],
+
       // 3 industries
-      [{ row: 1, col: 1, span: 2 }, { row: 2, col: 4, span: 2 }, { row: 4, col: 2, span: 2 }],
-      
+      [
+        { row: 1, col: 1, span: 2 },
+        { row: 2, col: 4, span: 2 },
+        { row: 4, col: 2, span: 2 },
+      ],
+
       // 4 industries
-      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 4, span: 2 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 4, span: 2 }],
-      
+      [
+        { row: 1, col: 1, span: 2 },
+        { row: 1, col: 4, span: 2 },
+        { row: 3, col: 1, span: 2 },
+        { row: 3, col: 4, span: 2 },
+      ],
+
       // 5 industries
-      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 4, span: 2 }, { row: 2, col: 2, span: 2 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 4, span: 2 }],
-      
+      [
+        { row: 1, col: 1, span: 2 },
+        { row: 1, col: 4, span: 2 },
+        { row: 2, col: 2, span: 2 },
+        { row: 3, col: 1, span: 2 },
+        { row: 3, col: 4, span: 2 },
+      ],
+
       // 6 industries
-      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 3, span: 2 }, { row: 1, col: 5, span: 1 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 3, span: 2 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 2 },
+        { row: 1, col: 3, span: 2 },
+        { row: 1, col: 5, span: 1 },
+        { row: 3, col: 1, span: 2 },
+        { row: 3, col: 3, span: 2 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 7 industries
-      [{ row: 1, col: 1, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 2, span: 2 }, { row: 3, col: 1, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 2 },
+        { row: 1, col: 3, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 2, span: 2 },
+        { row: 3, col: 1, span: 2 },
+        { row: 3, col: 3, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 8 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 4, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 9 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 2, span: 2 }, { row: 2, col: 4, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 5, span: 1 }, { row: 4, col: 2, span: 2 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 3, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 2, span: 2 },
+        { row: 2, col: 4, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 3, span: 1 },
+        { row: 3, col: 5, span: 1 },
+        { row: 4, col: 2, span: 2 },
+      ],
+
       // 10 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 2, span: 1 }, { row: 2, col: 4, span: 2 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 4, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 2, span: 1 },
+        { row: 2, col: 4, span: 2 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 11 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 3, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 4, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 1, span: 2 },
+        { row: 2, col: 3, span: 1 },
+        { row: 2, col: 5, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 12 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 2, span: 1 }, { row: 2, col: 4, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 3, span: 1 },
+        { row: 1, col: 4, span: 1 },
+        { row: 2, col: 1, span: 2 },
+        { row: 2, col: 2, span: 1 },
+        { row: 2, col: 4, span: 1 },
+        { row: 2, col: 5, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 13 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 3, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 3, span: 1 },
+        { row: 1, col: 4, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 1, span: 2 },
+        { row: 2, col: 3, span: 1 },
+        { row: 2, col: 5, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 3, span: 1 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 14 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 2 }, { row: 2, col: 2, span: 1 }, { row: 2, col: 4, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }],
-      
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 3, span: 1 },
+        { row: 1, col: 4, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 1, span: 2 },
+        { row: 2, col: 2, span: 1 },
+        { row: 2, col: 4, span: 1 },
+        { row: 2, col: 5, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 3, span: 1 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
+
       // 15 industries
-      [{ row: 1, col: 1, span: 1 }, { row: 1, col: 2, span: 2 }, { row: 1, col: 3, span: 1 }, { row: 1, col: 4, span: 1 }, { row: 1, col: 5, span: 1 }, { row: 2, col: 1, span: 1 }, { row: 2, col: 2, span: 2 }, { row: 2, col: 3, span: 1 }, { row: 2, col: 4, span: 1 }, { row: 2, col: 5, span: 1 }, { row: 3, col: 1, span: 1 }, { row: 3, col: 2, span: 2 }, { row: 3, col: 3, span: 1 }, { row: 3, col: 4, span: 1 }, { row: 3, col: 5, span: 1 }]
+      [
+        { row: 1, col: 1, span: 1 },
+        { row: 1, col: 2, span: 2 },
+        { row: 1, col: 3, span: 1 },
+        { row: 1, col: 4, span: 1 },
+        { row: 1, col: 5, span: 1 },
+        { row: 2, col: 1, span: 1 },
+        { row: 2, col: 2, span: 2 },
+        { row: 2, col: 3, span: 1 },
+        { row: 2, col: 4, span: 1 },
+        { row: 2, col: 5, span: 1 },
+        { row: 3, col: 1, span: 1 },
+        { row: 3, col: 2, span: 2 },
+        { row: 3, col: 3, span: 1 },
+        { row: 3, col: 4, span: 1 },
+        { row: 3, col: 5, span: 1 },
+      ],
     ];
-    
+
     return positions[Math.min(count - 1, 14)] || positions[14];
   };
 
   const scatteredPositions = getScatteredLayout(industriesList.length);
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden flex items-center py-20"
     >
@@ -137,30 +282,28 @@ export default function Industries() {
               height: element.size,
               top: `${element.top}%`,
               left: `${element.left}%`,
-              background: `radial-gradient(circle, hsla(${element.hue}, 50%, 65%, 0.4), transparent 70%)`
+              background: `radial-gradient(circle, hsla(${element.hue}, 50%, 65%, 0.4), transparent 70%)`,
             }}
             animate={{
               y: [-20, 20, -20],
               x: [-15, 15, -15],
               scale: [1, 1.2, 1],
               opacity: [0.1, 0.25, 0.1],
-              rotate: [0, 180, 360]
+              rotate: [0, 180, 360],
             }}
             transition={{
               duration: 16 + Math.random() * 8,
               repeat: Infinity,
               delay: element.delay,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-        
         {/* ✅ Split Layout: Left Content + Right Industries */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          
           {/* ✅ Left Side: Title and Description with theme colors */}
           <div className="industry-content-left space-y-8">
             {title && (
@@ -170,7 +313,7 @@ export default function Industries() {
                 </span>
               </h2>
             )}
-            
+
             {description && (
               <p className="text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium">
                 {description}
@@ -184,10 +327,10 @@ export default function Industries() {
               <div className="relative w-full h-80">
                 <div className="grid grid-cols-6 grid-rows-4 gap-2 h-full w-full">
                   {industriesList.map((industry: any, index: number) => {
-                    const name = industry.name || '';
-                    const iconUrl = industry.iconUrl || '';
+                    const name = industry.name || "";
+                    const iconUrl = industry.iconUrl || "";
                     const position = scatteredPositions[index];
-                    
+
                     if (!position) return null;
 
                     return (
@@ -197,14 +340,18 @@ export default function Industries() {
                         style={{
                           gridColumn: `${position.col} / span ${position.span}`,
                           gridRow: position.row,
-                          height: '40px'
+                          height: "40px",
                         }}
-                        whileHover={{ 
+                        whileHover={{
                           scale: 1.05,
-                          y: -2
+                          y: -2,
                         }}
                         whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                        }}
                       >
                         {/* ✅ Small Logo/Icon with theme colors */}
                         <div className="flex-shrink-0">

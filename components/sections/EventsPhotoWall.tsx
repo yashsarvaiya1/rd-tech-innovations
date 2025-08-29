@@ -1,11 +1,15 @@
-'use client'
-import { useEffect, useRef, useMemo } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { gsap } from 'gsap';
-import { useSectionContent } from '@/stores/content';
+"use client";
+import { motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
+import { useSectionContent } from "@/stores/content";
 
 export default function EventsPhotoWall() {
-  const { data: eventsPhotoWall, loading, error } = useSectionContent('eventsPhotoWall');
+  const {
+    data: eventsPhotoWall,
+    loading,
+    error,
+  } = useSectionContent("eventsPhotoWall");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
@@ -15,15 +19,16 @@ export default function EventsPhotoWall() {
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
-      
-      tl.fromTo('.events-title', 
+
+      tl.fromTo(
+        ".events-title",
         { y: 60, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 1, ease: "power3.out" }
-      )
-      .fromTo('.events-description', 
+        { y: 0, opacity: 1, scale: 1, duration: 1, ease: "power3.out" },
+      ).fromTo(
+        ".events-description",
         { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }, 
-        "-=0.7"
+        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
+        "-=0.7",
       );
     }, containerRef);
 
@@ -31,10 +36,11 @@ export default function EventsPhotoWall() {
   }, [isInView, loading]);
 
   // ✅ Early return after hooks
-  if (loading || error || !eventsPhotoWall || eventsPhotoWall.hidden) return null;
+  if (loading || error || !eventsPhotoWall || eventsPhotoWall.hidden)
+    return null;
 
-  const title = eventsPhotoWall.title || '';
-  const description = eventsPhotoWall.description || '';
+  const title = eventsPhotoWall.title || "";
+  const description = eventsPhotoWall.description || "";
   const imageUrls = eventsPhotoWall.imageUrls || [];
 
   if (!title && !description && imageUrls.length === 0) return null;
@@ -48,16 +54,20 @@ export default function EventsPhotoWall() {
 
   const createOptimizedMarquee = (images: string[], columns: number = 6) => {
     if (images.length === 0) return [];
-    
+
     // Create enough images for smooth infinite scroll
     const extendedImages: string[] = [];
-    while (extendedImages.length < 60) { // Optimized count
+    while (extendedImages.length < 60) {
+      // Optimized count
       extendedImages.push(...images);
     }
 
     // Organize into columns with varied heights
-    const columnArrays: MarqueeImage[][] = Array.from({ length: columns }, () => []);
-    
+    const columnArrays: MarqueeImage[][] = Array.from(
+      { length: columns },
+      () => [],
+    );
+
     extendedImages.forEach((img, index) => {
       const columnIndex = index % columns;
       columnArrays[columnIndex].push({
@@ -73,7 +83,7 @@ export default function EventsPhotoWall() {
   const marqueeColumns = createOptimizedMarquee(imageUrls, 6);
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden"
     >
@@ -93,7 +103,7 @@ export default function EventsPhotoWall() {
             </span>
           </h2>
         )}
-        
+
         {description && (
           <p className="events-description text-base md:text-lg text-muted-foreground max-w-3xl mx-auto font-sans leading-relaxed">
             {description}
@@ -109,47 +119,56 @@ export default function EventsPhotoWall() {
               <motion.div
                 key={columnIndex}
                 className="flex flex-col gap-4 min-h-full"
-                style={{ width: '240px' }}
+                style={{ width: "240px" }}
                 animate={{
-                  y: columnIndex % 2 === 0 ? [-2000, 0] : [0, -2000]
+                  y: columnIndex % 2 === 0 ? [-2000, 0] : [0, -2000],
                 }}
                 transition={{
                   duration: 40 + columnIndex * 5, // Varied speeds
                   repeat: Infinity,
-                  ease: "linear"
+                  ease: "linear",
                 }}
               >
                 {/* Duplicate for seamless loop */}
                 {Array.from({ length: 2 }).map((_, setIndex) => (
                   <div key={setIndex} className="flex flex-col gap-4">
-                    {column.slice(0, 10).map((image, imageIndex) => ( // Limit per column
-                      <motion.div
-                        key={`${setIndex}-${image.id}-${imageIndex}`}
-                        className="relative group cursor-pointer overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/20 bg-card flex-shrink-0"
-                        style={{
-                          height: `${image.height}px`,
-                          width: '240px'
-                        }}
-                        whileHover={{ 
-                          scale: 1.03,
-                          zIndex: 10
-                        }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                      >
-                        <img
-                          src={image.url}
-                          alt={`Event moment ${imageIndex + 1}`}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        
-                        {/* Clean overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-secondary/30 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity duration-300" />
-                        
-                        {/* Subtle hover glow */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-                      </motion.div>
-                    ))}
+                    {column.slice(0, 10).map(
+                      (
+                        image,
+                        imageIndex, // Limit per column
+                      ) => (
+                        <motion.div
+                          key={`${setIndex}-${image.id}-${imageIndex}`}
+                          className="relative group cursor-pointer overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/20 bg-card flex-shrink-0"
+                          style={{
+                            height: `${image.height}px`,
+                            width: "240px",
+                          }}
+                          whileHover={{
+                            scale: 1.03,
+                            zIndex: 10,
+                          }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 25,
+                          }}
+                        >
+                          <img
+                            src={image.url}
+                            alt={`Event moment ${imageIndex + 1}`}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
+                          />
+
+                          {/* Clean overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-secondary/30 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity duration-300" />
+
+                          {/* Subtle hover glow */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                        </motion.div>
+                      ),
+                    )}
                   </div>
                 ))}
               </motion.div>
@@ -167,7 +186,7 @@ export default function EventsPhotoWall() {
       {/* ✅ Clean empty state */}
       {imageUrls.length === 0 && (title || description) && (
         <div className="flex-1 flex items-center justify-center py-32">
-          <motion.div 
+          <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
@@ -176,9 +195,12 @@ export default function EventsPhotoWall() {
             <div className="w-32 h-32 bg-gradient-to-br from-muted/50 to-primary/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg backdrop-blur-sm border border-border/30">
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent/80 rounded-full shadow-lg" />
             </div>
-            <h3 className="text-xl font-heading font-bold text-foreground mb-4">Photo Wall Coming Soon</h3>
+            <h3 className="text-xl font-heading font-bold text-foreground mb-4">
+              Photo Wall Coming Soon
+            </h3>
             <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed font-sans">
-              Amazing event photos will flow here once they're added to the gallery.
+              Amazing event photos will flow here once they're added to the
+              gallery.
             </p>
           </motion.div>
         </div>

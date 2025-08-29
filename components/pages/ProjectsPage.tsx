@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, Suspense } from 'react';
-import { useContentStore } from '@/stores/content';
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { Suspense, useEffect } from "react";
+import { useContentStore } from "@/stores/content";
 
 // Lazy load ProjectPlayground
-const ProjectPlayground = dynamic(() => import('../sections/ProjectPlayground'), {
-  ssr: false,
-  loading: () => <SectionLoader label="Loading projects..." />,
-});
+const ProjectPlayground = dynamic(
+  () => import("../sections/ProjectPlayground"),
+  {
+    ssr: false,
+    loading: () => <SectionLoader label="Loading projects..." />,
+  },
+);
 
 // Shared loader component (can be moved to common/ later)
 function SectionLoader({ label }: { label: string }) {

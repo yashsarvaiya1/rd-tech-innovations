@@ -1,118 +1,152 @@
-'use client'
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAdminStore } from "@/stores/admin";
-import { Submission, CareerSubmission, EnquirySubmission } from "@/models/submission";
-import { 
-  Eye, 
-  Download, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Loader2,
+"use client";
+import {
   AlertCircle,
+  AlertTriangle,
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Download,
+  Eye,
+  FileText,
   Filter,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
   RefreshCw,
   User,
-  Mail,
-  Phone,
-  MapPin,
-  Briefcase,
-  FileText,
-  Calendar
+  XCircle,
 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type {
+  CareerSubmission,
+  EnquirySubmission,
+  Submission,
+} from "@/models/submission";
+import { useAdminStore } from "@/stores/admin";
 
 interface SubmissionsTableProps {
   type: "enquiry" | "career";
 }
 
 export default function SubmissionsTable({ type }: SubmissionsTableProps) {
-  const { 
-    submissions, 
-    fetchSubmissionsByType, 
-    updateSubmissionStatus, 
-    loading, 
-    error, 
-    clearError 
+  const {
+    submissions,
+    fetchSubmissionsByType,
+    updateSubmissionStatus,
+    loading,
+    error,
+    clearError,
   } = useAdminStore();
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    submission: Submission | null;
+    newStatus: string;
+    index: number;
+  }>({ open: false, submission: null, newStatus: "", index: -1 });
+  const [notification, setNotification] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchSubmissionsByType(type);
   }, [type, fetchSubmissionsByType]);
 
+  // Auto-clear notifications
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  const showNotification = useCallback(
+    (type: "success" | "error" | "info", message: string) => {
+      setNotification({ type, message });
+    },
+    [],
+  );
+
   const filteredSubmissions = submissions
     .filter((s) => s.type === type)
     .filter((s) => statusFilter === "all" || s.status === statusFilter)
     .sort((a, b) => {
-      // Sort by createdAt in descending order (newest first)
       const aTime = (a as any).createdAt || 0;
       const bTime = (b as any).createdAt || 0;
-      if (typeof aTime === 'string' && typeof bTime === 'string') {
+      if (typeof aTime === "string" && typeof bTime === "string") {
         return new Date(bTime).getTime() - new Date(aTime).getTime();
       }
       return 0;
     });
 
-  // ✅ Enhanced date formatting function
   const formatDate = (timestamp: any): string => {
-    console.log('formatDate called with:', timestamp, typeof timestamp);
-    
-    if (!timestamp) {
-      console.log('No timestamp provided');
-      return 'N/A';
-    }
+    if (!timestamp) return "N/A";
 
     try {
       let date: Date;
 
-      // Handle Firestore Timestamp objects
-      if (typeof timestamp === 'object' && timestamp?.toDate && typeof timestamp.toDate === 'function') {
+      if (
+        typeof timestamp === "object" &&
+        timestamp?.toDate &&
+        typeof timestamp.toDate === "function"
+      ) {
         date = timestamp.toDate();
-        console.log('Parsed as Firestore timestamp:', date);
-      } 
-      // Handle ISO strings like "2025-08-27T17:55:59.875Z"
-      else if (typeof timestamp === 'string') {
+      } else if (typeof timestamp === "string") {
         date = new Date(timestamp);
-        console.log('Parsed as ISO string:', date);
-      }
-      // Handle numbers (milliseconds)
-      else if (typeof timestamp === 'number') {
+      } else if (typeof timestamp === "number") {
         date = new Date(timestamp);
-        console.log('Parsed as number:', date);
-      }
-      // Handle Date objects
-      else if (timestamp instanceof Date) {
+      } else if (timestamp instanceof Date) {
         date = timestamp;
-        console.log('Already a Date object:', date);
-      }
-      else {
-        console.log('Unknown timestamp type:', typeof timestamp, timestamp);
-        return 'Invalid Date';
+      } else {
+        return "Invalid Date";
       }
 
-      // Validate date
-      if (!date || isNaN(date.getTime())) {
-        console.log('Invalid date created from:', timestamp);
-        return 'Invalid Date';
+      if (!date || Number.isNaN(date.getTime())) {
+        return "Invalid Date";
       }
 
-      // Format date nicely with relative time
       const now = new Date();
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      const diffInMinutes = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60),
+      );
       const diffInHours = Math.floor(diffInMinutes / 60);
       const diffInDays = Math.floor(diffInHours / 24);
 
-      let relativeTime = '';
+      let relativeTime = "";
       if (diffInMinutes < 1) {
-        relativeTime = 'Just now';
+        relativeTime = "Just now";
       } else if (diffInMinutes < 60) {
         relativeTime = `${diffInMinutes}m ago`;
       } else if (diffInHours < 24) {
@@ -120,96 +154,119 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
       } else if (diffInDays < 7) {
         relativeTime = `${diffInDays}d ago`;
       } else {
-        relativeTime = date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
+        relativeTime = date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
         });
       }
 
-      const fullDate = date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-
-      console.log('Formatted date:', fullDate, 'Relative:', relativeTime);
-      return fullDate;
-
+      return `${date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })} (${relativeTime})`;
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
     }
   };
 
-  // ✅ Status change handler with proper document ID
-  const handleStatusChange = async (submission: Submission, index: number, newStatus: string) => {
-    // ✅ Use the actual Firestore document ID from submission
+  const handleStatusChange = async (
+    submission: Submission,
+    index: number,
+    newStatus: string,
+  ) => {
     const documentId = (submission as any).id;
-    
-    console.log('Status change attempt:', {
-      submission,
-      documentId,
-      newStatus,
-      hasId: !!(submission as any).id,
-      submissionObject: submission
-    });
-    
+
     if (!documentId) {
-      console.error('No document ID found for submission. Full submission object:', submission);
-      alert('Cannot update: No document ID found. Please refresh the page and try again.');
+      showNotification(
+        "error",
+        "Cannot update: No document ID found. Please refresh the page.",
+      );
       return;
     }
 
     const tempId = `${submission.email}-${index}`;
-    setUpdatingIds(prev => new Set(prev).add(tempId));
+    setUpdatingIds((prev) => new Set(prev).add(tempId));
     clearError();
 
     try {
-      console.log(`Updating document ${documentId} status to: ${newStatus}`);
       await updateSubmissionStatus(documentId, newStatus);
-      console.log('Status update successful');
-      
-      // Refresh data after update to show changes
+      showNotification(
+        "success",
+        `Status updated to ${newStatus} successfully!`,
+      );
       await fetchSubmissionsByType(type);
-      
     } catch (error) {
       console.error("Error updating submission status:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Update failed';
-      alert(`Update failed: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : "Update failed";
+      showNotification("error", `Update failed: ${errorMessage}`);
     } finally {
-      setUpdatingIds(prev => {
+      setUpdatingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(tempId);
         return newSet;
       });
+      setConfirmDialog({
+        open: false,
+        submission: null,
+        newStatus: "",
+        index: -1,
+      });
     }
   };
 
-  // Status styling functions
+  const openConfirmDialog = (
+    submission: Submission,
+    index: number,
+    newStatus: string,
+  ) => {
+    setConfirmDialog({ open: true, submission, newStatus, index });
+  };
+
+  const closeConfirmDialog = () => {
+    setConfirmDialog({
+      open: false,
+      submission: null,
+      newStatus: "",
+      index: -1,
+    });
+  };
+
+  const confirmStatusChange = () => {
+    if (confirmDialog.submission) {
+      handleStatusChange(
+        confirmDialog.submission,
+        confirmDialog.index,
+        confirmDialog.newStatus,
+      );
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
-      case 'lost':
-        return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200';
+      case "pending":
+        return "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200";
+      case "completed":
+        return "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200";
+      case "lost":
+        return "bg-red-100 text-red-800 border-red-200 hover:bg-red-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200';
+        return "bg-muted text-muted-foreground border-border hover:bg-muted/80";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending':
+      case "pending":
         return <Clock className="h-4 w-4" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="h-4 w-4" />;
-      case 'lost':
+      case "lost":
         return <XCircle className="h-4 w-4" />;
       default:
         return <Clock className="h-4 w-4" />;
@@ -217,8 +274,8 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
   };
 
   const handleRefresh = () => {
-    console.log(`Refreshing ${type} submissions...`);
     fetchSubmissionsByType(type);
+    showNotification("info", "Data refreshed successfully");
   };
 
   const getTypeTitle = () => {
@@ -226,307 +283,465 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
   };
 
   const getTypeDescription = () => {
-    return type === "enquiry" 
+    return type === "enquiry"
       ? "Manage and respond to customer enquiries and contact form submissions"
       : "Review job applications and manage candidate responses";
   };
 
+  const statusStats = {
+    total: filteredSubmissions.length,
+    pending: filteredSubmissions.filter((s) => s.status === "pending").length,
+    completed: filteredSubmissions.filter((s) => s.status === "completed")
+      .length,
+    lost: filteredSubmissions.filter((s) => s.status === "lost").length,
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            {type === "enquiry" ? <Mail className="h-8 w-8 text-blue-600" /> : <Briefcase className="h-8 w-8 text-purple-600" />}
-            {getTypeTitle()}
-          </h1>
-          <p className="text-gray-600 mt-1">
-            {getTypeDescription()}
-          </p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-            <span className="flex items-center gap-1">
-              <Eye className="h-4 w-4" />
-              {filteredSubmissions.length} items shown
-            </span>
-            {submissions.filter(s => s.type === type).length !== filteredSubmissions.length && (
-              <span>of {submissions.filter(s => s.type === type).length} total</span>
-            )}
+      <div className="bg-gradient-to-r from-background to-muted/20 p-6 rounded-xl border border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                type === "enquiry" ? "bg-blue-100" : "bg-purple-100"
+              }`}
+            >
+              {type === "enquiry" ? (
+                <Mail className="h-6 w-6 text-blue-600" />
+              ) : (
+                <Briefcase className="h-6 w-6 text-purple-600" />
+              )}
+            </div>
+            <div>
+              <h1 className="text-2xl font-heading font-bold text-foreground">
+                {getTypeTitle()}
+              </h1>
+              <p className="text-muted-foreground font-sans mt-1">
+                {getTypeDescription()}
+              </p>
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground font-sans">
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  {statusStats.total} total
+                </span>
+                <span className="text-amber-600">
+                  {statusStats.pending} pending
+                </span>
+                <span className="text-emerald-600">
+                  {statusStats.completed} completed
+                </span>
+                <span className="text-red-600">{statusStats.lost} lost</span>
+              </div>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="lost">Lost</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+
+          <div className="flex items-center space-x-3">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40 bg-background border-border font-heading">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-border shadow-xl">
+                <SelectItem value="all" className="font-heading">
+                  All Status
+                </SelectItem>
+                <SelectItem value="pending" className="font-heading">
+                  Pending
+                </SelectItem>
+                <SelectItem value="completed" className="font-heading">
+                  Completed
+                </SelectItem>
+                <SelectItem value="lost" className="font-heading">
+                  Lost
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={loading}
+              className="font-heading"
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
+      {/* Notifications */}
+      {notification && (
+        <Alert
+          className={`
+            ${
+              notification.type === "success"
+                ? "border-emerald-200 bg-emerald-50"
+                : ""
+            }
+            ${notification.type === "error" ? "border-red-200 bg-red-50" : ""}
+            ${notification.type === "info" ? "border-blue-200 bg-blue-50" : ""}
+          `}
+        >
+          {notification.type === "success" && (
+            <CheckCircle className="h-5 w-5 text-emerald-600" />
+          )}
+          {notification.type === "error" && (
+            <AlertCircle className="h-5 w-5 text-red-600" />
+          )}
+          {notification.type === "info" && (
+            <Eye className="h-5 w-5 text-blue-600" />
+          )}
+          <AlertDescription
+            className={`font-sans font-medium ${
+              notification.type === "success" ? "text-emerald-800" : ""
+            }${notification.type === "error" ? "text-red-800" : ""}${
+              notification.type === "info" ? "text-blue-800" : ""
+            }`}
+          >
+            {notification.message}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Error Alert */}
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex justify-between items-center">
+        <Alert
+          variant="destructive"
+          className="bg-destructive/10 border-destructive/20"
+        >
+          <AlertCircle className="h-5 w-5" />
+          <AlertDescription className="flex justify-between items-center font-sans">
             <span>{error}</span>
-            <Button variant="ghost" size="sm" onClick={clearError} className="text-red-700 hover:text-red-900">
-              ×
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearError}
+              className="text-destructive hover:text-destructive/80"
+            >
+              ✕
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Main Content */}
-      <Card className="shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+      {/* FIXED: Main Table with Proper Horizontal Scrolling */}
+      <Card className="bg-card border-border shadow-lg w-full">
+        <CardHeader className="bg-muted/30 border-b border-border">
+          <CardTitle className="flex items-center justify-between text-foreground font-heading">
+            <div className="flex items-center gap-3">
+              <Calendar className="h-5 w-5 text-primary" />
               {getTypeTitle()}
-            </span>
-            <Badge variant="secondary" className="text-sm px-3 py-1">
+            </div>
+            <Badge variant="secondary" className="font-heading">
               {filteredSubmissions.length} items
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Loading submissions...</h3>
-                <p className="text-gray-600">Please wait while we fetch the data</p>
+                <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+                <h3 className="text-lg font-heading font-semibold text-foreground mb-2">
+                  Loading submissions...
+                </h3>
+                <p className="text-muted-foreground font-sans">
+                  Please wait while we fetch the data
+                </p>
               </div>
             </div>
           ) : filteredSubmissions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-gray-50">
+            /* FIXED: Removed ScrollArea wrapper and added proper scrolling container */
+            <div className="h-[600px] overflow-auto bg-white">
+              <Table className="w-full">
+                <TableHeader className="bg-muted/20 sticky top-0 z-20">
                   <TableRow>
-                    <TableHead className="font-semibold">
+                    <TableHead className="font-heading font-bold min-w-[150px] whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
                         Name
                       </div>
                     </TableHead>
-                    <TableHead className="font-semibold">
+                    <TableHead className="font-heading font-bold min-w-[200px] whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4" />
                         Email
                       </div>
                     </TableHead>
-                    <TableHead className="font-semibold">
+                    <TableHead className="font-heading font-bold min-w-[120px] whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4" />
                         Phone
                       </div>
                     </TableHead>
-                    <TableHead className="font-semibold">
+                    <TableHead className="font-heading font-bold min-w-[180px] whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        Submitted At
+                        Submitted
                       </div>
                     </TableHead>
                     {type === "career" ? (
                       <>
-                        <TableHead className="font-semibold">Position(s)</TableHead>
-                        <TableHead className="font-semibold">
+                        <TableHead className="font-heading font-bold min-w-[200px] whitespace-nowrap">
+                          Position(s)
+                        </TableHead>
+                        <TableHead className="font-heading font-bold min-w-[120px] whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
                             Location
                           </div>
                         </TableHead>
-                        <TableHead className="font-semibold">CTC</TableHead>
-                        <TableHead className="font-semibold">Resume</TableHead>
+                        <TableHead className="font-heading font-bold min-w-[100px] whitespace-nowrap">
+                          CTC
+                        </TableHead>
+                        <TableHead className="font-heading font-bold min-w-[120px] whitespace-nowrap">
+                          Resume
+                        </TableHead>
                       </>
                     ) : (
-                      <TableHead className="font-semibold">
+                      <TableHead className="font-heading font-bold min-w-[250px] whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4" />
                           Requirement
                         </div>
                       </TableHead>
                     )}
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold">Actions</TableHead>
+                    <TableHead className="font-heading font-bold min-w-[120px] whitespace-nowrap">
+                      Status
+                    </TableHead>
+                    <TableHead className="font-heading font-bold min-w-[150px] whitespace-nowrap">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredSubmissions.map((submission: Submission, index) => {
                     const tempId = `${submission.email}-${index}`;
                     const isUpdating = updatingIds.has(tempId);
-                    
+
                     return (
-                      <TableRow 
-                        key={(submission as any).id || tempId} 
-                        className="hover:bg-gray-50 transition-colors"
+                      <TableRow
+                        key={(submission as any).id || tempId}
+                        className="hover:bg-muted/30 transition-colors border-b border-border"
                       >
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <User className="h-4 w-4 text-blue-600" />
+                        <TableCell className="font-sans font-medium min-w-[150px]">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <User className="h-4 w-4 text-primary" />
                             </div>
-                            {submission.name}
+                            <span className="truncate">{submission.name}</span>
                           </div>
                         </TableCell>
-                        
-                        <TableCell>
-                          <div className="flex items-center gap-2 text-blue-600 hover:underline">
-                            <Mail className="h-3 w-3" />
-                            <a href={`mailto:${submission.email}`}>
-                              {submission.email}
-                            </a>
-                          </div>
+
+                        <TableCell className="min-w-[200px]">
+                          <a
+                            href={`mailto:${submission.email}`}
+                            className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline font-sans truncate"
+                            title={submission.email}
+                          >
+                            <Mail className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{submission.email}</span>
+                          </a>
                         </TableCell>
-                        
-                        <TableCell>
-                          <div className="flex items-center gap-2 text-green-600">
-                            <Phone className="h-3 w-3" />
-                            <a href={`tel:${submission.number}`}>
+
+                        <TableCell className="min-w-[120px]">
+                          <a
+                            href={`tel:${submission.number}`}
+                            className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-sans"
+                          >
+                            <Phone className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">
                               {submission.number}
-                            </a>
-                          </div>
+                            </span>
+                          </a>
                         </TableCell>
-                        
-                        <TableCell className="text-sm text-gray-600">
+
+                        <TableCell className="text-sm text-muted-foreground font-sans min-w-[180px]">
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate((submission as any).createdAt)}
+                            <Calendar className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">
+                              {formatDate((submission as any).createdAt)}
+                            </span>
                           </div>
                         </TableCell>
-                        
+
                         {type === "career" && submission.type === "career" ? (
                           <>
-                            <TableCell>
+                            <TableCell className="min-w-[200px]">
                               <div className="space-y-1">
-                                {(submission as CareerSubmission).positions?.length > 0 ? (
-                                  (submission as CareerSubmission).positions.map((position, idx) => (
-                                    <Badge key={idx} variant="outline" className="mr-1 mb-1 text-xs">
-                                      {position}
-                                    </Badge>
-                                  ))
+                                {(submission as CareerSubmission).positions
+                                  ?.length > 0 ? (
+                                  <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                    {(
+                                      submission as CareerSubmission
+                                    ).positions.map((position, idx) => (
+                                      <Badge
+                                        key={idx}
+                                        variant="outline"
+                                        className="text-xs font-heading bg-primary/10 text-primary border-primary/30 truncate"
+                                        title={position}
+                                      >
+                                        {position.length > 10
+                                          ? `${position.slice(0, 10)}...`
+                                          : position}
+                                      </Badge>
+                                    ))}
+                                  </div>
                                 ) : (
-                                  <span className="text-gray-500 text-sm">No positions</span>
+                                  <span className="text-muted-foreground text-sm font-sans">
+                                    No positions
+                                  </span>
                                 )}
                               </div>
                             </TableCell>
-                            
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-3 w-3 text-gray-400" />
-                                {(submission as CareerSubmission).location || 'N/A'}
+
+                            <TableCell className="min-w-[120px]">
+                              <div className="flex items-center gap-2 font-sans">
+                                <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                <span
+                                  className="truncate"
+                                  title={
+                                    (submission as CareerSubmission).location
+                                  }
+                                >
+                                  {(submission as CareerSubmission).location ||
+                                    "N/A"}
+                                </span>
                               </div>
                             </TableCell>
-                            
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Briefcase className="h-3 w-3 text-gray-400" />
-                                {(submission as CareerSubmission).ctc || 'N/A'}
+
+                            <TableCell className="min-w-[100px]">
+                              <div className="flex items-center gap-2 font-sans">
+                                <Briefcase className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                <span
+                                  className="truncate"
+                                  title={(submission as CareerSubmission).ctc}
+                                >
+                                  {(submission as CareerSubmission).ctc ||
+                                    "N/A"}
+                                </span>
                               </div>
                             </TableCell>
-                            
-                            <TableCell>
+
+                            <TableCell className="min-w-[120px]">
                               {(submission as CareerSubmission).resumeUrl ? (
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   asChild
-                                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                  className="text-primary hover:text-primary/80 hover:bg-primary/10 font-heading"
                                 >
-                                  <a 
-                                    href={(submission as CareerSubmission).resumeUrl} 
-                                    target="_blank" 
+                                  <a
+                                    href={
+                                      (submission as CareerSubmission).resumeUrl
+                                    }
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2"
                                   >
                                     <Download className="h-4 w-4" />
-                                    View Resume
+                                    <span className="hidden sm:inline">
+                                      View
+                                    </span>
                                   </a>
                                 </Button>
                               ) : (
-                                <span className="text-gray-500 text-sm flex items-center gap-2">
+                                <span className="text-muted-foreground text-sm flex items-center gap-2 font-sans">
                                   <FileText className="h-3 w-3" />
-                                  No Resume
+                                  <span className="hidden sm:inline">None</span>
                                 </span>
                               )}
                             </TableCell>
                           </>
                         ) : (
-                          <TableCell className="max-w-xs">
-                            <div 
-                              className="truncate cursor-help" 
-                              title={submission.type === "enquiry" ? (submission as EnquirySubmission).requirement : ""}
-                            >
-                              {submission.type === "enquiry" && (submission as EnquirySubmission).requirement ? 
-                                (submission as EnquirySubmission).requirement : 
-                                <span className="text-gray-500">No requirement</span>
+                          <TableCell className="min-w-[250px]">
+                            <div
+                              className="truncate cursor-help font-sans"
+                              title={
+                                submission.type === "enquiry"
+                                  ? (submission as EnquirySubmission)
+                                      .requirement
+                                  : ""
                               }
+                            >
+                              {submission.type === "enquiry" &&
+                              (submission as EnquirySubmission).requirement ? (
+                                (submission as EnquirySubmission).requirement
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  No requirement
+                                </span>
+                              )}
                             </div>
                           </TableCell>
                         )}
-                        
-                        <TableCell>
-                          <Badge className={`${getStatusColor(submission.status)} transition-colors`}>
+
+                        <TableCell className="min-w-[120px]">
+                          <Badge
+                            className={`${getStatusColor(
+                              submission.status,
+                            )} transition-colors font-heading`}
+                          >
                             <div className="flex items-center space-x-1">
                               {getStatusIcon(submission.status)}
-                              <span className="capitalize font-medium">{submission.status}</span>
+                              <span className="capitalize font-medium">
+                                {submission.status}
+                              </span>
                             </div>
                           </Badge>
                         </TableCell>
-                        
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Select
-                              value={submission.status}
-                              onValueChange={(newStatus) => 
-                                handleStatusChange(submission, index, newStatus)
-                              }
-                              disabled={isUpdating}
-                            >
-                              <SelectTrigger className="w-36">
-                                {isUpdating ? (
-                                  <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    <span className="ml-2">Updating...</span>
-                                  </>
-                                ) : (
-                                  <SelectValue />
-                                )}
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending">
-                                  <div className="flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-yellow-600" />
-                                    Pending
-                                  </div>
-                                </SelectItem>
-                                <SelectItem value="completed">
-                                  <div className="flex items-center gap-2">
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
-                                    Completed
-                                  </div>
-                                </SelectItem>
-                                <SelectItem value="lost">
-                                  <div className="flex items-center gap-2">
-                                    <XCircle className="h-4 w-4 text-red-600" />
-                                    Lost
-                                  </div>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
+
+                        <TableCell className="min-w-[150px]">
+                          <Select
+                            value={submission.status}
+                            onValueChange={(newStatus) =>
+                              openConfirmDialog(submission, index, newStatus)
+                            }
+                            disabled={isUpdating}
+                          >
+                            <SelectTrigger className="w-36 bg-white border-border font-heading">
+                              {isUpdating ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span className="ml-2 hidden sm:inline">
+                                    Updating...
+                                  </span>
+                                </>
+                              ) : (
+                                <SelectValue />
+                              )}
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-border shadow-xl">
+                              <SelectItem
+                                value="pending"
+                                className="font-heading"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-amber-600" />
+                                  Pending
+                                </div>
+                              </SelectItem>
+                              <SelectItem
+                                value="completed"
+                                className="font-heading"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="h-4 w-4 text-emerald-600" />
+                                  Completed
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="lost" className="font-heading">
+                                <div className="flex items-center gap-2">
+                                  <XCircle className="h-4 w-4 text-red-600" />
+                                  Lost
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                       </TableRow>
                     );
@@ -536,23 +751,31 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                {type === "enquiry" ? 
-                  <Mail className="h-12 w-12 text-gray-400" /> : 
-                  <Briefcase className="h-12 w-12 text-gray-400" />
-                }
+              <div
+                className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6 ${
+                  type === "enquiry" ? "bg-blue-50" : "bg-purple-50"
+                }`}
+              >
+                {type === "enquiry" ? (
+                  <Mail className="h-10 w-10 text-blue-400" />
+                ) : (
+                  <Briefcase className="h-10 w-10 text-purple-400" />
+                )}
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">
+              <h3 className="text-xl font-heading font-bold text-foreground mb-2">
                 No {getTypeTitle()} Found
               </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                {statusFilter === "all" 
+              <p className="text-muted-foreground font-sans mb-6 max-w-md mx-auto">
+                {statusFilter === "all"
                   ? `No ${type} submissions have been received yet. They will appear here once users start submitting forms.`
-                  : `No submissions found with "${statusFilter}" status. Try changing the filter or check back later.`
-                }
+                  : `No submissions found with "${statusFilter}" status. Try changing the filter or check back later.`}
               </p>
               {statusFilter !== "all" && (
-                <Button variant="outline" onClick={() => setStatusFilter("all")}>
+                <Button
+                  variant="outline"
+                  onClick={() => setStatusFilter("all")}
+                  className="font-heading"
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   Clear Filter
                 </Button>
@@ -561,6 +784,35 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Status Update Confirmation Dialog */}
+      <Dialog open={confirmDialog.open} onOpenChange={closeConfirmDialog}>
+        <DialogContent className="bg-white border-border shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-foreground font-heading flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2 text-amber-600" />
+              Confirm Status Change
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground font-sans">
+              Are you sure you want to change the status of{" "}
+              <strong>{confirmDialog.submission?.name}</strong>'s submission to{" "}
+              <strong>{confirmDialog.newStatus}</strong>?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={closeConfirmDialog}
+              className="font-heading"
+            >
+              Cancel
+            </Button>
+            <Button onClick={confirmStatusChange} className="font-heading">
+              Confirm Change
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

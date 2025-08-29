@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, Suspense } from 'react';
-import { useContentStore } from '@/stores/content';
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { Suspense, useEffect } from "react";
+import { useContentStore } from "@/stores/content";
 
 // Lazy load ContactUs
-const ContactUs = dynamic(() => import('../sections/ContactUs'), {
+const ContactUs = dynamic(() => import("../sections/ContactUs"), {
   ssr: false,
   loading: () => <SectionLoader label="Loading contact section..." />,
 });

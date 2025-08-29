@@ -1,28 +1,36 @@
-'use client'
-import { useEffect, useRef, useMemo } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { gsap } from 'gsap';
-import { useSectionContent } from '@/stores/content';
-import { ArrowRight, Phone, Zap, Star } from 'lucide-react';
+"use client";
+import { motion, useInView } from "framer-motion";
+import { gsap } from "gsap";
+import { ArrowRight, Phone, Star, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef } from "react";
+import { useSectionContent } from "@/stores/content";
 
 export default function ServiceOptions() {
-  const { data: serviceOptions, loading, error } = useSectionContent('serviceOptions');
+  const {
+    data: serviceOptions,
+    loading,
+    error,
+  } = useSectionContent("serviceOptions");
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
+  const router = useRouter();
 
   // ✅ Theme-consistent background particles
-  const backgroundElements = useMemo(() => 
-    Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      size: Math.random() * 60 + 40,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      hue: 220 + (Math.random() * 60),
-      delay: Math.random() * 2
-    })), []
+  const backgroundElements = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, i) => ({
+        id: i,
+        size: Math.random() * 60 + 40,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        hue: 220 + Math.random() * 60,
+        delay: Math.random() * 2,
+      })),
+    [],
   );
 
   // ✅ Enhanced GSAP timeline animations
@@ -31,82 +39,114 @@ export default function ServiceOptions() {
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
-      
-      tl.fromTo('.service-title', 
-        { 
-          y: 80, 
+
+      tl.fromTo(
+        ".service-title",
+        {
+          y: 80,
           opacity: 0,
           scale: 0.9,
-          rotationX: 15
+          rotationX: 15,
         },
-        { 
-          y: 0, 
+        {
+          y: 0,
           opacity: 1,
           scale: 1,
           rotationX: 0,
-          duration: 1.2, 
-          ease: "power3.out" 
-        }
-      )
-      .fromTo('.service-description', 
-        { 
-          y: 50, 
-          opacity: 0,
-          blur: 5
+          duration: 1.2,
+          ease: "power3.out",
         },
-        { 
-          y: 0, 
-          opacity: 1,
-          blur: 0,
-          duration: 1, 
-          ease: "power2.out" 
-        }, "-=0.6"
       )
-      .fromTo('.service-card', 
-        { 
-          y: 60, 
-          opacity: 0, 
-          scale: 0.85,
-          rotationY: 10
-        },
-        { 
-          y: 0, 
-          opacity: 1, 
-          scale: 1,
-          rotationY: 0,
-          duration: 0.8, 
-          stagger: {
-            amount: 0.6,
-            from: "start",
-            ease: "power2.out"
-          }
-        }, "-=0.4"
-      )
-      .fromTo('.bg-particle',
-        {
-          opacity: 0,
-          scale: 0,
-          rotation: -90
-        },
-        {
-          opacity: 0.4,
-          scale: 1,
-          rotation: 0,
-          duration: 1.5,
-          stagger: 0.1,
-          ease: "back.out(1.7)"
-        }, "-=1"
-      );
+        .fromTo(
+          ".service-description",
+          {
+            y: 50,
+            opacity: 0,
+            blur: 5,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            blur: 0,
+            duration: 1,
+            ease: "power2.out",
+          },
+          "-=0.6",
+        )
+        .fromTo(
+          ".service-card",
+          {
+            y: 60,
+            opacity: 0,
+            scale: 0.85,
+            rotationY: 10,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            rotationY: 0,
+            duration: 0.8,
+            stagger: {
+              amount: 0.6,
+              from: "start",
+              ease: "power2.out",
+            },
+          },
+          "-=0.4",
+        )
+        .fromTo(
+          ".bg-particle",
+          {
+            opacity: 0,
+            scale: 0,
+            rotation: -90,
+          },
+          {
+            opacity: 0.4,
+            scale: 1,
+            rotation: 0,
+            duration: 1.5,
+            stagger: 0.1,
+            ease: "back.out(1.7)",
+          },
+          "-=1",
+        );
     }, containerRef);
 
     return () => ctx.revert();
   }, [isInView, loading]);
 
+  // ✅ FIXED: Multiple fallback methods for navigation
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("Contact button clicked, attempting navigation...");
+
+    // Method 1: Try Next.js router first
+    try {
+      router.push("/contact");
+      console.log("Next.js router navigation attempted");
+    } catch (_routerError) {
+      console.log("Router failed, trying window.location");
+
+      // Method 2: Fallback to window.location
+      try {
+        window.location.href = "/contact";
+      } catch (_locationError) {
+        // Method 3: Last resort - reload with contact
+        console.log("Window.location failed, trying replace");
+        window.location.replace("/contact");
+      }
+    }
+  };
+
   // ✅ Early return after hooks
   if (loading || error || !serviceOptions || serviceOptions.hidden) return null;
 
-  const title = serviceOptions.title || '';
-  const description = serviceOptions.description || '';
+  const title = serviceOptions.title || "";
+  const description = serviceOptions.description || "";
   const cards = serviceOptions.cards || [];
 
   if (!title && !description && cards.length === 0) return null;
@@ -114,28 +154,31 @@ export default function ServiceOptions() {
   // ✅ Enhanced dynamic grid system
   const getGridClasses = (count: number) => {
     const gridConfigs = {
-      1: 'grid-cols-1 max-w-lg mx-auto',
-      2: 'grid-cols-1 lg:grid-cols-2 max-w-4xl mx-auto gap-8',
-      3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto gap-6',
-      4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto gap-6',
-      5: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5 max-w-7xl mx-auto gap-5',
-      6: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6 max-w-7xl mx-auto gap-4',
-      7: 'grid-cols-3 md:grid-cols-4 lg:grid-cols-7 max-w-7xl mx-auto gap-4',
-      8: 'grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 max-w-7xl mx-auto gap-3'
+      1: "grid-cols-1 max-w-lg mx-auto",
+      2: "grid-cols-1 lg:grid-cols-2 max-w-4xl mx-auto gap-8",
+      3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto gap-6",
+      4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto gap-6",
+      5: "grid-cols-2 md:grid-cols-3 lg:grid-cols-5 max-w-7xl mx-auto gap-5",
+      6: "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 max-w-7xl mx-auto gap-4",
+      7: "grid-cols-3 md:grid-cols-4 lg:grid-cols-7 max-w-7xl mx-auto gap-4",
+      8: "grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 max-w-7xl mx-auto gap-3",
     };
-    return gridConfigs[Math.min(count, 8) as keyof typeof gridConfigs] || gridConfigs[8];
+    return (
+      gridConfigs[Math.min(count, 8) as keyof typeof gridConfigs] ||
+      gridConfigs[8]
+    );
   };
 
   // ✅ Smart card height based on count
   const getCardHeight = (count: number) => {
-    if (count === 1) return 'min-h-[350px]';
-    if (count <= 3) return 'min-h-[300px]';
-    if (count <= 6) return 'min-h-[280px]';
-    return 'min-h-[250px]';
+    if (count === 1) return "min-h-[400px]";
+    if (count <= 3) return "min-h-[350px]";
+    if (count <= 6) return "min-h-[320px]";
+    return "min-h-[300px]";
   };
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="py-16 md:py-24 bg-gradient-to-br from-background via-muted/20 to-primary/8 relative overflow-hidden"
     >
@@ -157,19 +200,21 @@ export default function ServiceOptions() {
               height: element.size,
               top: `${element.top}%`,
               left: `${element.left}%`,
-              background: `radial-gradient(circle, hsla(${element.hue}, 60%, 70%, 0.4), hsla(${element.hue + 30}, 70%, 75%, 0.2))`
+              background: `radial-gradient(circle, hsla(${
+                element.hue
+              }, 60%, 70%, 0.4), hsla(${element.hue + 30}, 70%, 75%, 0.2))`,
             }}
             animate={{
               y: [-15, 15, -15],
               x: [-10, 10, -10],
               scale: [1, 1.1, 1],
-              opacity: [0.2, 0.35, 0.2]
+              opacity: [0.2, 0.35, 0.2],
             }}
             transition={{
               duration: 12 + Math.random() * 8,
               repeat: Infinity,
               delay: element.delay,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
@@ -179,7 +224,7 @@ export default function ServiceOptions() {
         {/* ✅ Header section with smaller fonts */}
         <div className="text-center max-w-4xl mx-auto mb-16">
           {title && (
-            <h2 
+            <h2
               ref={titleRef}
               className="service-title text-2xl md:text-3xl lg:text-4xl font-heading font-black mb-6 leading-tight"
             >
@@ -188,9 +233,9 @@ export default function ServiceOptions() {
               </span>
             </h2>
           )}
-          
+
           {description && (
-            <p 
+            <p
               ref={descRef}
               className="service-description text-base md:text-lg lg:text-xl text-foreground leading-relaxed font-sans font-medium max-w-3xl mx-auto"
             >
@@ -199,31 +244,34 @@ export default function ServiceOptions() {
           )}
         </div>
 
-        {/* ✅ Theme-consistent service cards */}
+        {/* ✅ Theme-consistent service cards with descriptions */}
         {cards.length > 0 && (
-          <div 
+          <div
             ref={cardsRef}
             className={`grid ${getGridClasses(cards.length)}`}
           >
             {cards.map((card: any, index: number) => {
-              const imageUrl = card.imageUrl || '';
-              const text = card.text || '';
-              const contactButton = card.contactButton || '';
+              const imageUrl = card.imageUrl || "";
+              const text = card.text || "";
+              const description = card.description || "";
+              const contactButton = card.contactButton || "";
 
               return (
                 <motion.div
                   key={index}
-                  className={`service-card group relative bg-card/80 backdrop-blur-sm rounded-xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-border/50 ${getCardHeight(cards.length)}`}
-                  whileHover={{ 
-                    y: -8, 
+                  className={`service-card group relative bg-card/80 backdrop-blur-sm rounded-xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-border/50 ${getCardHeight(
+                    cards.length,
+                  )}`}
+                  whileHover={{
+                    y: -8,
                     scale: 1.02,
-                    rotateY: 2
+                    rotateY: 2,
                   }}
                   whileTap={{ scale: 0.98 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300, 
-                    damping: 20 
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20,
                   }}
                 >
                   {/* ✅ Service image with theme overlay */}
@@ -235,10 +283,10 @@ export default function ServiceOptions() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         loading={index < 4 ? "eager" : "lazy"}
                         style={{
-                          filter: 'brightness(0.9) contrast(1.1) saturate(1.1)'
+                          filter: "brightness(0.9) contrast(1.1) saturate(1.1)",
                         }}
                       />
-                      
+
                       <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 via-secondary/10 to-transparent" />
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -253,7 +301,7 @@ export default function ServiceOptions() {
                     </div>
                   )}
 
-                  {/* ✅ Theme card content */}
+                  {/* ✅ Theme card content with description */}
                   <div className="p-5 md:p-6 space-y-4 flex flex-col justify-between flex-grow">
                     {/* Service title with theme icon */}
                     {text && (
@@ -266,33 +314,46 @@ export default function ServiceOptions() {
                             {text}
                           </h3>
                         </div>
-                        
-                        <p className="text-muted-foreground text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-sans">
-                          Professional service with premium quality and dedicated support.
-                        </p>
+
+                        {/* ✅ Service description */}
+                        {description && (
+                          <p className="text-muted-foreground text-sm leading-relaxed font-sans">
+                            {description}
+                          </p>
+                        )}
                       </div>
                     )}
 
-                    {/* Theme contact button */}
+                    {/* ✅ FIXED: Multiple navigation methods with better error handling */}
                     {contactButton && (
-                      <div className="mt-auto">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group/button"
+                      <div className="mt-auto pt-4">
+                        <button
+                          type="button"
+                          onClick={handleContactClick}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleContactClick(e as any);
+                            }
+                          }}
+                          className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          tabIndex={0}
+                          aria-label={`Contact us about ${text || "this service"}`}
                         >
-                          <Phone className="w-4 h-4" />
-                          <span className="text-sm">{contactButton}</span>
-                          <ArrowRight className="w-4 h-4 group-hover/button:translate-x-1 transition-transform" />
-                        </motion.button>
+                          <Phone className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm font-medium">
+                            {contactButton}
+                          </span>
+                          <ArrowRight className="w-4 h-4 flex-shrink-0" />
+                        </button>
                       </div>
                     )}
                   </div>
 
                   {/* ✅ Theme hover effects */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl" />
-                  
-                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-primary/30 transition-colors duration-300" />
+
+                  <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-primary/30 transition-colors duration-300 pointer-events-none" />
                 </motion.div>
               );
             })}
