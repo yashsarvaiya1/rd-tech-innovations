@@ -62,10 +62,10 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 left-8 right-8 z-50 mt-4 mx-20 rounded-2xl transition-all duration-500 ${
+      className={`fixed top-0 left-8 right-8 z-50 mt-4 mx-auto max-w-7xl rounded-lg overflow-hidden transition-all duration-500 ${
         isScrolled
-          ? 'bg-white/90 backdrop-blur-lg shadow-2xl border border-gray-100'
-          : 'bg-white/70 backdrop-blur-sm shadow-lg'
+          ? 'bg-background/90 backdrop-blur-lg shadow-2xl border border-border'
+          : 'bg-background/70 backdrop-blur-sm shadow-lg'
       }`}
     >
       <div className="px-8 py-6 flex items-center justify-center relative">
@@ -80,15 +80,15 @@ export default function Navbar() {
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="h-10 w-auto object-contain"
+                className="h-10 w-auto object-contain rounded-lg"
                 onError={(e) => {
                   console.error('Logo failed to load:', logoUrl);
                   e.currentTarget.style.display = 'none';
                 }}
               />
             ) : (
-              <div className="h-10 px-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center">
-                <span className="text-white font-bold text-sm">Logo</span>
+              <div className="h-10 px-4 bg-gradient-to-r from-primary to-primary/70 rounded-lg flex items-center">
+                <span className="text-primary-foreground font-heading font-bold text-sm">Logo</span>
               </div>
             )}
           </Link>
@@ -107,17 +107,17 @@ export default function Navbar() {
               >
                 <Link
                   href={route?.path}
-                  className={`text-sm font-semibold transition-all duration-300 relative ${
+                  className={`text-sm font-semibold font-sans transition-all duration-300 relative ${
                     pathname === route?.path
-                      ? 'text-blue-600'
-                      : 'text-gray-700 hover:text-blue-600'
+                      ? 'text-primary'
+                      : 'text-foreground hover:text-primary'
                   }`}
                 >
                   {route?.name}
                   {pathname === route?.path && (
                     <motion.div
                       layoutId="navbar-indicator"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-600 rounded-full"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
                       transition={{
                         type: 'spring',
                         stiffness: 300,
@@ -129,7 +129,7 @@ export default function Navbar() {
               </motion.div>
             ))
           ) : (
-            <span className="text-gray-500 text-sm">No navigation routes</span>
+            <span className="text-muted-foreground text-sm font-sans">No navigation routes</span>
           )}
         </div>
 
@@ -142,7 +142,7 @@ export default function Navbar() {
           >
             <Link
               href="/contact"
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <Phone className="h-4 w-4" />
               <span>{contactButton}</span>
@@ -152,7 +152,7 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -167,7 +167,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden border-t border-gray-200 bg-white rounded-b-2xl overflow-hidden"
+            className="lg:hidden border-t border-border bg-background rounded-b-lg overflow-hidden scrollbar-clean"
           >
             <div className="px-8 py-4 space-y-4">
               {routes.length > 0 ? (
@@ -176,24 +176,24 @@ export default function Navbar() {
                     key={route?.path}
                     href={route?.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block py-2 text-gray-700 hover:text-blue-600 transition-colors font-medium ${
-                      pathname === route?.path ? 'text-blue-600' : ''
+                    className={`block py-2 text-foreground hover:text-primary transition-colors font-sans font-medium ${
+                      pathname === route?.path ? 'text-primary' : ''
                     }`}
                   >
                     {route?.name}
                   </Link>
                 ))
               ) : (
-                <span className="text-gray-500">No navigation routes</span>
+                <span className="text-muted-foreground font-sans">No navigation routes</span>
               )}
 
               <Link
                 href="/contact"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                <span>{contactButton}</span>
+                <span className="font-heading">{contactButton}</span>
               </Link>
             </div>
           </motion.div>

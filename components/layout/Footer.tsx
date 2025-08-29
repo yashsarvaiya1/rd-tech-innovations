@@ -67,14 +67,14 @@ export default function Footer() {
 
   if (loading) {
     return (
-      <footer className="bg-gray-900 text-white py-16">
+      <footer className="bg-background text-foreground py-8 pt-20">
         <div className="max-w-7xl mx-auto px-6 animate-pulse">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="space-y-4">
-                <div className="h-4 bg-gray-700 rounded w-3/4" />
-                <div className="h-3 bg-gray-800 rounded" />
-                <div className="h-3 bg-gray-800 rounded w-5/6" />
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded" />
+                <div className="h-3 bg-muted rounded w-5/6" />
               </div>
             ))}
           </div>
@@ -101,15 +101,15 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white relative overflow-hidden">
+      <footer className="bg-gradient-to-br from-background to-primary/30 text-foreground relative overflow-hidden pt-20 py-8 rounded-lg">
         {/* Background accents */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.08),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(139,92,246,0.06),transparent_50%)]" />
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(39,180,198,0.08),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(39,180,198,0.06),transparent_50%)]" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent/50" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12 py-16">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
           {/* Grid layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             
@@ -120,13 +120,13 @@ export default function Footer() {
                   <img
                     src={logoUrl}
                     alt="Company Logo"
-                    className="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+                    className="h-12 w-auto object-contain rounded-lg transition-transform group-hover:scale-105"
                   />
                 </Link>
               ) : (
                 <Link href="/" className="inline-block">
-                  <div className="h-12 px-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center">
-                    <span className="text-white font-bold text-lg">
+                  <div className="h-12 px-4 bg-gradient-to-r from-primary to-secondary/50 rounded-lg flex items-center">
+                    <span className="text-primary-foreground font-heading font-bold text-lg">
                       RD Tech Innovations
                     </span>
                   </div>
@@ -134,17 +134,17 @@ export default function Footer() {
               )}
 
               {text && (
-                <p className="text-gray-300 leading-relaxed max-w-md text-sm lg:text-base">
+                <p className="text-muted-foreground leading-relaxed max-w-md text-sm lg:text-base font-sans">
                   {text}
                 </p>
               )}
               {text2 && (
-                <p className="text-gray-400 text-sm max-w-md">{text2}</p>
+                <p className="text-muted-foreground text-sm max-w-md font-sans">{text2}</p>
               )}
 
               {socialLinks.length > 0 && (
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-white">
+                  <h4 className="text-lg font-semibold mb-4 text-foreground font-heading">
                     Follow Us
                   </h4>
                   <div className="flex flex-wrap gap-3">
@@ -154,7 +154,7 @@ export default function Footer() {
                         href={social.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 bg-gray-800/50 backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-blue-600 transition-all duration-300 group border border-gray-700 hover:border-blue-500"
+                        className="w-10 h-10 bg-muted/50 backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-gradient-to-r hover:from-primary hover:to-accent/60 hover:text-primary-foreground transition-all duration-300 group border border-border hover:border-primary"
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                         title={social.name}
@@ -179,22 +179,22 @@ export default function Footer() {
 
             {/* Contact Info */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold mb-6 text-white flex items-center">
-                <Building className="w-5 h-5 mr-2 text-blue-400" />
+              <h3 className="text-xl font-bold mb-6 text-foreground flex items-center font-heading">
+                <Building className="w-5 h-5 mr-2 text-primary" />
                 Contact Info
               </h3>
 
               <div className="space-y-4">
                 {companyEmail && (
                   <div className="flex items-start space-x-3 group">
-                    <Mail className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                    <Mail className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-sans">
                         Email
                       </p>
                       <a
                         href={`mailto:${companyEmail}`}
-                        className="text-gray-300 hover:text-white transition-colors text-sm"
+                        className="text-foreground hover:text-primary transition-colors text-sm font-sans"
                       >
                         {companyEmail}
                       </a>
@@ -204,14 +204,14 @@ export default function Footer() {
 
                 {companyPhone && (
                   <div className="flex items-start space-x-3 group">
-                    <Phone className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                    <Phone className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-sans">
                         Phone
                       </p>
                       <a
                         href={`tel:${companyPhone}`}
-                        className="text-gray-300 hover:text-white transition-colors text-sm"
+                        className="text-foreground hover:text-primary transition-colors text-sm font-sans"
                       >
                         {companyPhone}
                       </a>
@@ -221,12 +221,12 @@ export default function Footer() {
 
                 {address && (
                   <div className="flex items-start space-x-3 group">
-                    <MapPin className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                    <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-sans">
                         Address
                       </p>
-                      <p className="text-gray-300 leading-relaxed text-sm">
+                      <p className="text-foreground leading-relaxed text-sm font-sans">
                         {address}
                       </p>
                     </div>
@@ -237,8 +237,8 @@ export default function Footer() {
 
             {/* Quick Links */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold mb-6 text-white flex items-center">
-                <Users className="w-5 h-5 mr-2 text-blue-400" />
+              <h3 className="text-xl font-bold mb-6 text-foreground flex items-center font-heading">
+                <Users className="w-5 h-5 mr-2 text-primary" />
                 Quick Links
               </h3>
 
@@ -252,9 +252,9 @@ export default function Footer() {
                   <Link
                     key={idx}
                     href={link.path || '/'}
-                    className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm flex items-center group"
+                    className="text-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 text-sm font-sans flex items-center group"
                   >
-                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors" />
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3 group-hover:bg-foreground transition-colors" />
                     {link.name}
                   </Link>
                 ))}
@@ -263,9 +263,9 @@ export default function Footer() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="mt-4 pt-8 border-t border-gray-800">
+          <div className="mt-4 pt-6 border-t border-border">
             <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
-              <p className="text-gray-400 text-sm text-center lg:text-right flex items-center">
+              <p className="text-muted-foreground text-sm text-center lg:text-right flex items-center font-sans">
                 <Calendar className="w-4 h-4 mr-2" />
                 © {currentYear} RD Tech Innovations. All rights reserved.
               </p>
@@ -278,7 +278,7 @@ export default function Footer() {
           {showScrollTop && (
             <motion.button
               onClick={scrollToTop}
-              className="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
+              className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-primary to-accent/60 text-primary-foreground rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}

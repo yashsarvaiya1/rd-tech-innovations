@@ -252,7 +252,7 @@ export default function Testimonials() {
                       </div>
 
                       {/* Message with dynamic sizing and scrollable container */}
-                      <div className="flex-1 flex items-center justify-center pt-8 pb-4">
+                      <div className="flex-1 flex items-center justify-center pt-8">
                         {message ? (
                           <div className="w-full h-full flex items-center justify-center overflow-hidden">
                             <blockquote 

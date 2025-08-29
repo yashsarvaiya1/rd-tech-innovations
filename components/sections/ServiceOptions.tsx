@@ -244,14 +244,11 @@ export default function ServiceOptions() {
                       {/* Multiple overlay gradients for depth */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
-                      {/* Service number indicator */}
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-                        <span className="text-white text-sm font-bold">{index + 1}</span>
-                      </div>
 
                       {/* Quality indicator */}
                       <div className="absolute top-4 left-4 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
