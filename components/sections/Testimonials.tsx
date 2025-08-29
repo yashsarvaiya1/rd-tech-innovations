@@ -152,7 +152,7 @@ export default function Testimonials() {
         <div className="text-center max-w-4xl mx-auto mb-20">
           {title && (
             <h2 className="testimonial-title text-2xl md:text-3xl lg:text-4xl font-heading font-black mb-8 leading-tight">
-              <span className="bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent to-accent/90 bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>
@@ -267,7 +267,7 @@ export default function Testimonials() {
                     <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-accent to-primary rounded-xl shadow-2xl p-5 md:p-6 flex flex-col justify-between text-accent-foreground overflow-hidden">
                       {/* Quote icon */}
                       <div className="absolute top-3 left-3 md:top-4 md:left-4">
-                        <Quote className="w-6 h-6 md:w-8 md:h-8 text-accent-foreground/30" />
+                        <Quote className="w-6 h-6 md:w-8 md:h-8 text-accent-foreground/50" />
                       </div>
 
                       {/* Message with dynamic sizing */}

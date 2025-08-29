@@ -9,7 +9,7 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react"; // ✅ Added useCallback, useMemo
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,53 +89,8 @@ export default function ContentEditor() {
     techCategories: [],
   });
 
-  // Load dependencies
-  useEffect(() => {
-    const loadDependencies = async () => {
-      try {
-        const [industries, technologies, techCategories] = await Promise.all([
-          ContentService.getIndustryOptions(),
-          ContentService.getTechnologyOptions(),
-          ContentService.getTechCategoryOptions(),
-        ]);
-
-        setDependencyOptions({ industries, technologies, techCategories });
-      } catch (error) {
-        console.error("Error loading dependencies:", error);
-      }
-    };
-
-    loadDependencies();
-  }, []);
-
-  // Load content when section changes
-  
-
-  // Auto-clear success message
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(""), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
-
-  if (!selectedSection || !sections.includes(selectedSection)) {
-    return (
-      <div className="text-center py-16 bg-white">
-        <div className="w-20 h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <AlertCircle className="h-10 w-10 text-muted-foreground" />
-        </div>
-        <h3 className="text-xl font-heading font-bold text-foreground mb-2">
-          No Section Selected
-        </h3>
-        <p className="text-muted-foreground font-sans">
-          Please select a section from the sidebar to edit its content.
-        </p>
-      </div>
-    );
-  }
-
-  const getDefaultForm = (section: string): Record<string, any> => {
+  // ✅ FIXED: Memoized getDefaultForm function
+  const getDefaultForm = useCallback((section: string): Record<string, any> => {
     switch (section) {
       case "contactUs":
         return {
@@ -163,8 +118,28 @@ export default function ContentEditor() {
       default:
         return {};
     }
-  };
+  }, []);
 
+  // Load dependencies
+  useEffect(() => {
+    const loadDependencies = async () => {
+      try {
+        const [industries, technologies, techCategories] = await Promise.all([
+          ContentService.getIndustryOptions(),
+          ContentService.getTechnologyOptions(),
+          ContentService.getTechCategoryOptions(),
+        ]);
+
+        setDependencyOptions({ industries, technologies, techCategories });
+      } catch (error) {
+        console.error("Error loading dependencies:", error);
+      }
+    };
+
+    loadDependencies();
+  }, []);
+
+  // ✅ FIXED: Load content when section changes with proper dependencies
   useEffect(() => {
     if (content && selectedSection) {
       const sectionKey = selectedSection as keyof Omit<
@@ -199,9 +174,34 @@ export default function ContentEditor() {
       setLocalContent(updatedContent as Record<string, any>);
       setHasChanges(false);
     }
-  }, [content, selectedSection, getDefaultForm]);
+  }, [content, selectedSection, getDefaultForm]); // ✅ Added getDefaultForm to deps
 
-  const handleFieldChange = (field: string, value: any) => {
+  // Auto-clear success message
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  if (!selectedSection || !sections.includes(selectedSection)) {
+    return (
+      <div className="text-center py-16 bg-white">
+        <div className="w-20 h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <AlertCircle className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <h3 className="text-xl font-heading font-bold text-foreground mb-2">
+          No Section Selected
+        </h3>
+        <p className="text-muted-foreground font-sans">
+          Please select a section from the sidebar to edit its content.
+        </p>
+      </div>
+    );
+  }
+
+  // ✅ FIXED: Memoized field change handler
+  const handleFieldChange = useCallback((field: string, value: any) => {
     setLocalContent((prev: Record<string, any>) => {
       if (field === "form" && typeof value === "object" && value !== null) {
         return {
@@ -215,9 +215,10 @@ export default function ContentEditor() {
       };
     });
     setHasChanges(true);
-  };
+  }, []);
 
-  const handleSave = async () => {
+  // ✅ FIXED: Memoized save handler
+  const handleSave = useCallback(async () => {
     if (!hasChanges) return;
 
     setIsSaving(true);
@@ -245,44 +246,52 @@ export default function ContentEditor() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [hasChanges, localContent, selectedSection, updateContentField, fetchContent, clearError]);
 
-  const handleToggleVisibility = async () => {
+  // ✅ FIXED: This is the main fix - Memoized toggle handler
+  const handleToggleVisibility = useCallback(async () => {
     try {
       clearError();
       await toggleSectionVisibility(selectedSection, selectedSection);
       await fetchContent(selectedSection);
 
-      setSuccess(
-        `✅ Section ${localContent.hidden ? "shown" : "hidden"} successfully!`,
-      );
+      // Update local content to reflect the change
+      setLocalContent(prev => ({
+        ...prev,
+        hidden: !prev.hidden
+      }));
+
+      setSuccess("✅ Section visibility updated successfully!");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
       console.error("Error toggling visibility:", error);
     }
-  };
+  }, [selectedSection, toggleSectionVisibility, fetchContent, clearError]);
 
-  const handleArrayAdd = (field: string) => {
+  // ✅ FIXED: Memoized array handlers
+  const handleArrayAdd = useCallback((field: string) => {
     const currentArray = localContent[field] || [];
     const newItem = getDefaultArrayItem(selectedSection, field);
     handleFieldChange(field, [...currentArray, newItem]);
-  };
+  }, [localContent, selectedSection, handleFieldChange]);
 
-  const handleArrayUpdate = (field: string, index: number, newValue: any) => {
+  const handleArrayUpdate = useCallback((field: string, index: number, newValue: any) => {
     const currentArray = localContent[field] || [];
     const updatedArray = [...currentArray];
     updatedArray[index] = newValue;
     handleFieldChange(field, updatedArray);
-  };
+  }, [localContent, handleFieldChange]);
 
-  const handleArrayRemove = (field: string, index: number) => {
+  const handleArrayRemove = useCallback((field: string, index: number) => {
     const currentArray = localContent[field] || [];
     const updatedArray = currentArray.filter(
       (_: any, i: number) => i !== index,
     );
     handleFieldChange(field, updatedArray);
-  };
+  }, [localContent, handleFieldChange]);
 
-  const getDefaultArrayItem = (section: string, field: string): any => {
+  // ✅ FIXED: Memoized getDefaultArrayItem
+  const getDefaultArrayItem = useCallback((section: string, field: string): any => {
     switch (section) {
       case "navbar":
         if (field === "routesList") return { name: "", path: "" };
@@ -364,9 +373,10 @@ export default function ContentEditor() {
         return "";
     }
     return "";
-  };
+  }, [getDefaultForm]);
 
-  const renderField = (fieldName: string, fieldType: string) => {
+  // ✅ FIXED: Memoized renderField function
+  const renderField = useCallback((fieldName: string, fieldType: string) => {
     const value = localContent[fieldName] || (fieldType === "array" ? [] : "");
 
     switch (fieldType) {
@@ -999,9 +1009,19 @@ export default function ContentEditor() {
           />
         );
     }
-  };
+  }, [
+    localContent,
+    handleFieldChange,
+    handleArrayUpdate,
+    handleArrayRemove,
+    handleArrayAdd,
+    dependencyOptions,
+    selectedSection,
+    getDefaultForm
+  ]);
 
-  const getSectionFields = (section: string): FieldConfig[] => {
+  // ✅ FIXED: Memoized getSectionFields
+  const getSectionFields = useCallback((section: string): FieldConfig[] => {
     const fieldMaps: Record<string, FieldConfig[]> = {
       navbar: [
         { name: "logoUrl", type: "image", label: "Logo" },
@@ -1105,9 +1125,10 @@ export default function ContentEditor() {
         { name: "description", type: "textarea", label: "Description" },
       ]
     );
-  };
+  }, []);
 
-  const sectionFields = getSectionFields(selectedSection);
+  // ✅ FIXED: Memoized section fields
+  const sectionFields = useMemo(() => getSectionFields(selectedSection), [selectedSection, getSectionFields]);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto bg-white">
@@ -1136,9 +1157,10 @@ export default function ContentEditor() {
               <span className="text-sm font-heading">
                 {localContent.hidden ? "Hidden" : "Visible"}
               </span>
+              {/* ✅ FIXED: Switch with stable props and memoized handler */}
               <Switch
-                checked={!localContent.hidden}
-                onCheckedChange={handleToggleVisibility}
+                checked={Boolean(!localContent.hidden)} // Ensure it's always a boolean
+                onCheckedChange={handleToggleVisibility} // Memoized handler
               />
             </div>
           </div>

@@ -82,14 +82,14 @@ export default function Vision() {
 
   // ✅ Theme-consistent gradients for cards
   const gradients = [
-    "from-primary to-primary/70",
-    "from-accent to-accent/70",
+    "from-primary to-accent/50",
+    "from-accent to-primary/70",
     "from-primary/80 to-accent/60",
     "from-accent/80 to-primary/60",
     "from-primary to-accent/70",
     "from-accent to-primary/70",
-    "from-primary/90 to-primary/60",
-    "from-accent/90 to-accent/60",
+    "from-primary/90 to-accent/60",
+    "from-accent/90 to-primary/50",
   ];
 
   return (
