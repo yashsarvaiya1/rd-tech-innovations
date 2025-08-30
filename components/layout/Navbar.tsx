@@ -67,33 +67,33 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-8 right-8 z-50 mt-4 mx-auto max-w-7xl rounded-xl overflow-hidden transition-all duration-500 ${
+      className={`fixed top-0 left-4 right-4 sm:left-8 sm:right-8 z-50 mt-4 mx-auto max-w-7xl rounded-xl overflow-hidden transition-all duration-500 ${
         isScrolled
           ? "bg-background/90 backdrop-blur-lg shadow-2xl border border-border"
           : "bg-background/70 backdrop-blur-sm shadow-lg"
       }`}
     >
-      <div className="px-8 py-6 flex items-center justify-center relative">
+      <div className="px-4 py-8 sm:px-8 sm:py-6 flex items-center justify-center relative">
         {/* Logo */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 300 }}
-          className="absolute left-8"
+          className="absolute left-4 sm:left-8"
         >
           <Link href="/" className="flex items-center">
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="h-10 w-auto object-contain rounded-lg"
+                className="h-8 sm:h-10 w-auto object-contain rounded-lg"
                 onError={(e) => {
                   console.error("Logo failed to load:", logoUrl);
                   e.currentTarget.style.display = "none";
                 }}
               />
             ) : (
-              <div className="h-10 px-4 bg-gradient-to-r from-primary/90 via-primary/70 to-accent/50 rounded-lg flex items-center">
-                <span className="text-primary-foreground font-heading font-bold text-sm">
+              <div className="h-8 sm:h-10 px-3 sm:px-4 bg-gradient-to-r from-primary/90 via-primary/70 to-accent/50 rounded-lg flex items-center">
+                <span className="text-primary-foreground font-heading font-bold text-xs sm:text-sm">
                   Logo
                 </span>
               </div>
@@ -143,7 +143,7 @@ export default function Navbar() {
         </div>
 
         {/* Contact Button + Mobile Menu Toggle */}
-        <div className="absolute right-8 flex items-center space-x-4">
+        <div className="absolute right-4 sm:right-8 flex items-center space-x-2 sm:space-x-4">
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -151,7 +151,7 @@ export default function Navbar() {
           >
             <Link
               href="/contact"
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 focus:ring-2 focus:ring-ring/50"
+              className="inline-flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 focus:ring-2 focus:ring-ring/50 text-sm"
             >
               <Phone className="h-4 w-4" />
               <span>{contactButton}</span>
@@ -161,9 +161,10 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+            className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-ring/50"
+            aria-label="Toggle mobile menu"
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -176,36 +177,52 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden border-t border-border bg-background rounded-b-xl overflow-hidden scrollbar-clean"
+            className="lg:hidden border-t border-border bg-background/95 backdrop-blur-lg rounded-b-xl overflow-hidden"
           >
-            <div className="px-8 py-4 space-y-4">
+            <div className="px-4 py-6 sm:px-8 space-y-1">
               {routes.length > 0 ? (
                 routes.map((route) => (
-                  <Link
+                  <motion.div
                     key={route?.path}
-                    href={route?.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block py-2 text-foreground hover:text-primary transition-colors font-sans font-medium ${
-                      pathname === route?.path ? "text-primary" : ""
-                    }`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    {route?.name}
-                  </Link>
+                    <Link
+                      href={route?.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block py-3 px-4 rounded-lg text-foreground hover:text-primary hover:bg-muted/50 transition-all duration-200 font-sans font-medium ${
+                        pathname === route?.path 
+                          ? "text-primary bg-primary/10 border-l-2 border-primary" 
+                          : ""
+                      }`}
+                    >
+                      {route?.name}
+                    </Link>
+                  </motion.div>
                 ))
               ) : (
-                <span className="text-muted-foreground font-sans">
+                <span className="text-muted-foreground font-sans px-4">
                   No navigation routes
                 </span>
               )}
 
-              <Link
-                href="/contact"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg hover:shadow-lg transition-all duration-300"
+              {/* Mobile Contact Button */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, delay: 0.1 }}
+                className="pt-4 border-t border-border/50"
               >
-                <Phone className="h-4 w-4" />
-                <span className="font-heading">{contactButton}</span>
-              </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg hover:shadow-lg transition-all duration-300 font-heading font-semibold"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>{contactButton}</span>
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
         )}

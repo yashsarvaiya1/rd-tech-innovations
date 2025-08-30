@@ -75,6 +75,10 @@ interface AdminState {
   fetchSubmissionStats: () => Promise<void>;
   addAdminEmail: (email: string) => Promise<void>;
   removeAdmin: (email: string) => Promise<void>;
+
+  // New: unsubscribe cleanup
+  unsubscribeAdminsListener: (() => void) | null;
+  startAdminsListener: () => void;
 }
 
 const initialState = {
@@ -85,6 +89,7 @@ const initialState = {
   loading: false,
   error: null,
   submissionStats: null,
+  unsubscribeAdminsListener: null,
 };
 
 export const useAdminStore = create<AdminState>()(
@@ -123,14 +128,14 @@ export const useAdminStore = create<AdminState>()(
       // KEEP THIS METHOD - used by logout in AdminLayout
       clearAdminData: () => {
         console.log("Clearing all admin data...");
+        // stop listening to Firestore
+        const unsubscribe = get().unsubscribeAdminsListener;
+        if (unsubscribe) {
+          unsubscribe();
+          console.log("Stopped Firestore listener for admins");
+        }
         set({
-          selectedSection: null,
-          content: null,
-          submissions: [],
-          admins: [],
-          loading: false,
-          error: null,
-          submissionStats: null,
+          ...initialState,
         });
       },
 
@@ -207,6 +212,23 @@ export const useAdminStore = create<AdminState>()(
         } finally {
           setLoading(false);
         }
+      },
+
+      // 🔥 Real-time listener for admins (better approach than polling)
+      startAdminsListener: () => {
+        const existingUnsub = get().unsubscribeAdminsListener;
+        if (existingUnsub) {
+          console.log("[AdminStore] Admins listener already active");
+          return;
+        }
+
+        console.log("[AdminStore] Starting real-time admins listener...");
+        const unsubscribe = AdminService.listenAdmins((emails) => {
+          set({ admins: emails });
+          console.log(`[AdminStore] Realtime update: ${emails.length} admins`);
+        });
+
+        set({ unsubscribeAdminsListener: unsubscribe });
       },
 
       // New enhanced methods
@@ -402,7 +424,7 @@ export const useAdminStore = create<AdminState>()(
       },
 
       updateSubmissionStatus: async (submissionId, status) => {
-        const { setError, submissions } = get();
+        const { setError } = get();
 
         try {
           setError(null);
@@ -412,8 +434,7 @@ export const useAdminStore = create<AdminState>()(
           );
           await SubmissionService.updateSubmissionStatus(submissionId, status);
 
-          // Note: You'll need to add an id field when fetching submissions
-          // For now, we'll refetch submissions after update
+          // Refetch submissions after update
           await get().fetchSubmissions();
           console.log(`[AdminStore] Submission status updated successfully`);
         } catch (error) {
@@ -462,7 +483,7 @@ export const useAdminStore = create<AdminState>()(
           console.log(`[AdminStore] Adding admin: ${email}`);
           await AdminService.addAdmin(email);
 
-          // Update local state optimistically
+          // Optimistic update
           set({ admins: [...admins, email] });
           console.log(`[AdminStore] Admin ${email} added successfully`);
         } catch (error) {
@@ -484,7 +505,7 @@ export const useAdminStore = create<AdminState>()(
           console.log(`[AdminStore] Removing admin: ${email}`);
           await AdminService.removeAdmin(email);
 
-          // Update local state optimistically
+          // Optimistic update
           const updatedAdmins = admins.filter((admin) => admin !== email);
           set({ admins: updatedAdmins });
           console.log(`[AdminStore] Admin ${email} removed successfully`);

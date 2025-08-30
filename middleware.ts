@@ -4,27 +4,28 @@ import { NextResponse } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if trying to access /admin
+  console.log(`Middleware: Processing ${pathname}`);
+
+  // Let client-side handle all auth logic
+  // The AuthPage and AdminLayout components will:
+  // 1. Rehydrate auth store from localStorage
+  // 2. Verify Firebase auth state
+  // 3. Check admin permissions
+  // 4. Redirect accordingly
+
   if (pathname.startsWith("/admin")) {
-    const authToken = request.cookies.get("auth-token")?.value;
+    console.log("Middleware: Allowing /admin access - client will verify auth");
+    return NextResponse.next();
+  }
 
-    if (!authToken) {
-      console.log("Middleware: No auth token, redirecting to /auth");
-      return NextResponse.redirect(new URL("/auth", request.url));
-    }
-
-    // Only admin users should access /admin
-    if (authToken !== "admin") {
-      console.log("Middleware: User not admin, redirecting to /");
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    console.log("Middleware: Admin access granted");
+  if (pathname === "/auth") {
+    console.log("Middleware: Allowing /auth access - client will check if already authenticated");
+    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/auth"],
 };
