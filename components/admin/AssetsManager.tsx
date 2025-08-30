@@ -14,7 +14,7 @@ import {
   Upload,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,8 +47,10 @@ export default function AssetsManager() {
   }>({ open: false, asset: null });
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
 
-  const loadAssets = async () => {
+  // Memoized function to prevent re-creation on every render
+  const loadAssets = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -65,7 +67,7 @@ export default function AssetsManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadAssets();
@@ -96,23 +98,23 @@ export default function AssetsManager() {
     }
   };
 
-  const openDeleteDialog = (asset: StorageFile) => {
+  const openDeleteDialog = useCallback((asset: StorageFile) => {
     setDeleteDialog({ open: true, asset });
-  };
+  }, []);
 
-  const closeDeleteDialog = () => {
+  const closeDeleteDialog = useCallback(() => {
     if (!deleting) {
       setDeleteDialog({ open: false, asset: null });
     }
-  };
+  }, [deleting]);
 
-  const openViewDialog = (asset: StorageFile) => {
+  const openViewDialog = useCallback((asset: StorageFile) => {
     setViewDialog({ open: true, asset });
-  };
+  }, []);
 
-  const closeViewDialog = () => {
+  const closeViewDialog = useCallback(() => {
     setViewDialog({ open: false, asset: null });
-  };
+  }, []);
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -137,32 +139,39 @@ export default function AssetsManager() {
     }
   };
 
-  const isImage = (fileName: string) => {
+  const isImage = useCallback((fileName: string) => {
     const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
     return imageExtensions.some((ext) => fileName.toLowerCase().includes(ext));
-  };
+  }, []);
 
-  const getFileType = (fileName: string) => {
+  const getFileType = useCallback((fileName: string) => {
     if (isImage(fileName)) return "Image";
     if (fileName.toLowerCase().includes(".pdf")) return "PDF";
     if (fileName.toLowerCase().includes(".doc")) return "Document";
     if (fileName.toLowerCase().includes(".mp4")) return "Video";
     return "File";
-  };
+  }, [isImage]);
 
-  const _formatFileSize = (bytes: number) => {
+  const formatFileSize = useCallback((bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
-  };
+  }, []);
 
-  const filteredAssets = assets.filter(
-    (asset) =>
-      asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.fullPath.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const handleImageError = useCallback((fullPath: string) => {
+    setImageLoadErrors(prev => new Set([...prev, fullPath]));
+  }, []);
+
+  // Memoized filtered assets to prevent recalculation
+  const filteredAssets = useMemo(() => {
+    return assets.filter(
+      (asset) =>
+        asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        asset.fullPath.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [assets, searchTerm]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -311,16 +320,25 @@ export default function AssetsManager() {
                   className="overflow-hidden bg-background border-border hover:shadow-lg transition-shadow duration-300"
                 >
                   <div
-                    className="aspect-video bg-muted/20 relative group cursor-pointer"
+                    className="aspect-video bg-muted/20 relative group cursor-pointer overflow-hidden"
                     onClick={() => openViewDialog(asset)}
                   >
-                    {isImage(asset.name) ? (
+                    {isImage(asset.name) && !imageLoadErrors.has(asset.fullPath) ? (
                       <img
                         src={asset.url}
                         alt={asset.name}
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        onError={() => handleImageError(asset.fullPath)}
+                        onLoad={(e) => {
+                          // Remove any previous error state when image loads successfully
+                          if (imageLoadErrors.has(asset.fullPath)) {
+                            setImageLoadErrors(prev => {
+                              const next = new Set(prev);
+                              next.delete(asset.fullPath);
+                              return next;
+                            });
+                          }
                         }}
                       />
                     ) : (
@@ -351,8 +369,7 @@ export default function AssetsManager() {
                       </h3>
                       <p className="text-xs text-muted-foreground font-sans flex items-center mt-1">
                         <Calendar className="h-3 w-3 mr-1" />
-                        {new Date().toLocaleDateString()}{" "}
-                        {/* You can add actual date from asset if available */}
+                        {new Date().toLocaleDateString()}
                       </p>
                     </div>
 
@@ -428,7 +445,7 @@ export default function AssetsManager() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog - SOLID BACKGROUND */}
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialog.open} onOpenChange={closeDeleteDialog}>
         <DialogContent className="bg-white border-border shadow-2xl">
           <DialogHeader>
@@ -473,7 +490,7 @@ export default function AssetsManager() {
         </DialogContent>
       </Dialog>
 
-      {/* View Asset Dialog - SOLID BACKGROUND */}
+      {/* View Asset Dialog */}
       <Dialog open={viewDialog.open} onOpenChange={closeViewDialog}>
         <DialogContent className="bg-white border-border shadow-2xl max-w-4xl">
           <DialogHeader>
@@ -492,6 +509,8 @@ export default function AssetsManager() {
                     alt={viewDialog.asset.name}
                     fill
                     className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority
                   />
                 </div>
               ) : (
@@ -514,7 +533,8 @@ export default function AssetsManager() {
                   <a
                     href={viewDialog.asset.url}
                     target="_blank"
-                    className="text-primary hover:underline"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline break-all"
                   >
                     {viewDialog.asset.url}
                   </a>
@@ -533,7 +553,11 @@ export default function AssetsManager() {
             </Button>
             {viewDialog.asset && (
               <Button asChild className="font-heading">
-                <a href={viewDialog.asset.url} target="_blank">
+                <a 
+                  href={viewDialog.asset.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   <Eye className="h-4 w-4 mr-2" />
                   Open in New Tab
                 </a>

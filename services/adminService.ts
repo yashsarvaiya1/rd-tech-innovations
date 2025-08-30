@@ -1,10 +1,10 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
 import { collections, rdTechDb } from "@/firebase";
 import type { Admins } from "@/models/admins";
 import { FirebaseError } from "./base";
 
 export class AdminService {
-  // Fetch admin emails
+  // Fetch admin emails (one-time)
   static async fetchAdmins(): Promise<string[]> {
     try {
       console.log("Fetching admin emails...");
@@ -24,6 +24,33 @@ export class AdminService {
       console.error("Error fetching admins:", error);
       throw new FirebaseError("Failed to fetch admin list");
     }
+  }
+
+  // Realtime listener for admin emails
+  static listenAdmins(callback: (emails: string[]) => void): Unsubscribe {
+    console.log("Listening for admin email changes...");
+
+    const docRef = doc(rdTechDb, collections.admins, "admins");
+
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() as Admins;
+          console.log(`Realtime update: ${data.emails.length} admin emails`);
+          callback(data.emails);
+        } else {
+          console.log("No admin document found in realtime listener");
+          callback([]);
+        }
+      },
+      (error) => {
+        console.error("Error in admin listener:", error);
+        callback([]);
+      }
+    );
+
+    return unsubscribe;
   }
 
   // Add new admin email
