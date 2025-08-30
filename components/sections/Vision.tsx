@@ -95,7 +95,7 @@ export default function Vision() {
   return (
     <section
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-primary/10 relative overflow-hidden flex items-center"
+      className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-primary/10 relative overflow-hidden flex items-center py-10"
     >
       {/* ✅ Enhanced background with floating particles */}
       <div className="absolute inset-0">

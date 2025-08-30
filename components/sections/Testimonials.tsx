@@ -2,7 +2,7 @@
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
 import { Building, ExternalLink, Quote, Star, User } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSectionContent } from "@/stores/content";
 
 export default function Testimonials() {
@@ -13,6 +13,37 @@ export default function Testimonials() {
   } = useSectionContent("testimonials");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
+  
+  // State for mobile card flipping
+  const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Handle card flip on mobile
+  const handleCardClick = (index: number) => {
+    if (!isMobile) return;
+    
+    setFlippedCards(prev => {
+      const newFlipped = new Set(prev);
+      if (newFlipped.has(index)) {
+        newFlipped.delete(index);
+      } else {
+        newFlipped.add(index);
+      }
+      return newFlipped;
+    });
+  };
 
   // ✅ Theme-consistent background particles
   const backgroundElements = useMemo(
@@ -175,16 +206,25 @@ export default function Testimonials() {
               const imageUrl = testimonial.imageUrl || "";
               const message = testimonial.message || "";
               const socialLinks = testimonial.socialLinks || [];
+              
+              const isFlipped = flippedCards.has(index);
 
               return (
                 <motion.div
                   key={index}
-                  className={`testimonial-card group relative ${getCardHeight(message)} perspective-1000`}
-                  whileHover={{ y: -8 }}
+                  className={`testimonial-card group relative ${getCardHeight(message)} perspective-1000 cursor-pointer`}
+                  whileHover={!isMobile ? { y: -8 } : {}}
+                  whileTap={isMobile ? { scale: 0.98 } : {}}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  onClick={() => handleCardClick(index)}
                 >
                   {/* ✅ Flip card container */}
-                  <div className="relative w-full h-full transition-transform duration-700 transform-style-preserve-3d group-hover:rotate-y-180">
+                  <div className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
+                    isMobile 
+                      ? (isFlipped ? 'rotate-y-180' : '') 
+                      : 'group-hover:rotate-y-180'
+                  }`}>
+                    
                     {/* ✅ FRONT CARD - Profile Information */}
                     <div className="absolute inset-0 w-full h-full backface-hidden bg-card/90 backdrop-blur-xl rounded-xl shadow-xl border border-border/60 p-6 flex flex-col items-center justify-center text-center">
                       {/* Profile Image */}
@@ -248,14 +288,14 @@ export default function Testimonials() {
                         ))}
                       </div>
 
-                      {/* Hover indicator */}
+                      {/* Interactive indicator */}
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                         <motion.div
                           animate={{ y: [0, -4, 0] }}
                           transition={{ duration: 2, repeat: Infinity }}
                           className="px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-sans font-medium"
                         >
-                          Hover to read review
+                          {isMobile ? 'Tap to read review' : 'Hover to read review'}
                         </motion.div>
                       </div>
 
@@ -330,6 +370,7 @@ export default function Testimonials() {
                                     className="w-7 h-7 md:w-8 md:h-8 bg-accent-foreground/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-accent-foreground/30 transition-colors border border-accent-foreground/20 flex-shrink-0"
                                     whileHover={{ scale: 1.1, rotate: 5 }}
                                     whileTap={{ scale: 0.95 }}
+                                    onClick={(e) => e.stopPropagation()} // Prevent card flip when clicking social link
                                   >
                                     {social.iconUrl ? (
                                       <img
@@ -346,6 +387,15 @@ export default function Testimonials() {
                           </div>
                         )}
                       </div>
+
+                      {/* Mobile close indicator */}
+                      {isMobile && (
+                        <div className="absolute top-3 right-3 md:top-4 md:right-4">
+                          <div className="w-6 h-6 bg-accent-foreground/20 rounded-full flex items-center justify-center">
+                            <span className="text-xs text-accent-foreground">✕</span>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Animated background pattern */}
                       <div className="absolute inset-0 opacity-10 pointer-events-none">
