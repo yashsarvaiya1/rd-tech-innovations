@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Phone, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useContentStore } from "@/stores/content";
 
 export default function Navbar() {
@@ -14,13 +14,67 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Optimized scroll handler with throttling
+  const handleScroll = useCallback(() => {
+    const scrolled = window.scrollY > 20;
+    if (scrolled !== isScrolled) {
+      setIsScrolled(scrolled);
+    }
+  }, [isScrolled]);
 
-  // Hide Navbar for admin/auth or missing data
+  useEffect(() => {
+    let ticking = false;
+    
+    const throttledScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", throttledScroll, { passive: true });
+    return () => window.removeEventListener("scroll", throttledScroll);
+  }, [handleScroll]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Memoized route processing to prevent unnecessary re-computations
+  const routes = useMemo(() => {
+    if (!navbar?.routesList || !Array.isArray(navbar.routesList)) {
+      return [];
+    }
+
+    return navbar.routesList
+      .map((route: any, index: number) => {
+        if (typeof route === "string") {
+          const routeName = route;
+          const routePath = routeName.toLowerCase() === "home" 
+            ? "/" 
+            : `/${routeName.toLowerCase().replace(/\s+/g, "-")}`;
+          return { name: routeName, path: routePath };
+        } else if (route && typeof route === "object") {
+          return {
+            name: route.name || route.title || `Route ${index + 1}`,
+            path: route.path || route.url || 
+              `/${(route.name || route.title || "route").toLowerCase().replace(/\s+/g, "-")}`,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }, [navbar?.routesList]);
+
+  // Memoized values
+  const logoUrl = useMemo(() => navbar?.logoUrl || "", [navbar?.logoUrl]);
+  const contactButton = useMemo(() => navbar?.contactButton || "Contact", [navbar?.contactButton]);
+
+  // Early returns for admin/auth or missing data
   if (
     !navbar ||
     navbar.hidden ||
@@ -30,54 +84,22 @@ export default function Navbar() {
     return null;
   }
 
-  // Extract safe values
-  const logoUrl = navbar.logoUrl || "";
-  const contactButton = navbar.contactButton || "Contact";
-  const routesList = navbar.routesList || [];
-
-  // Normalize routes (handle both ["Home", "About"] and [{ name, path }])
-  const routes = Array.isArray(routesList)
-    ? routesList
-        .map((route: any, index: number) => {
-          if (typeof route === "string") {
-            const routeName = route;
-            const routePath =
-              routeName.toLowerCase() === "home"
-                ? "/"
-                : `/${routeName.toLowerCase().replace(/\s+/g, "-")}`;
-            return { name: routeName, path: routePath };
-          } else if (route && typeof route === "object") {
-            return {
-              name: route.name || route.title || `Route ${index + 1}`,
-              path:
-                route.path ||
-                route.url ||
-                `/${(route.name || route.title || "route")
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}`,
-            };
-          }
-          return null;
-        })
-        .filter(Boolean)
-    : [];
-
   return (
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-4 right-4 sm:left-8 sm:right-8 z-50 mt-4 mx-auto max-w-7xl rounded-xl overflow-hidden transition-all duration-500 ${
+      transition={{ duration: 0.5, ease: "easeOut" }} // Reduced duration
+      className={`fixed top-0 left-4 right-4 sm:left-8 sm:right-8 z-50 mt-4 mx-auto max-w-7xl rounded-xl overflow-hidden transition-all duration-300 ${
         isScrolled
-          ? "bg-background/90 backdrop-blur-lg shadow-2xl border border-border"
-          : "bg-background/70 backdrop-blur-sm shadow-lg"
+          ? "bg-background/95 backdrop-blur-lg shadow-2xl border border-border"
+          : "bg-background/80 backdrop-blur-md shadow-lg"
       }`}
     >
-      <div className="px-4 py-8 sm:px-8 sm:py-6 flex items-center justify-center relative">
+      <div className="px-4 py-6 sm:px-8 sm:py-5 flex items-center justify-center relative">
         {/* Logo */}
         <motion.div
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
+          whileHover={{ scale: 1.03 }} // Reduced scale
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className="absolute left-4 sm:left-8"
         >
           <Link href="/" className="flex items-center">
@@ -86,6 +108,7 @@ export default function Navbar() {
                 src={logoUrl}
                 alt="Logo"
                 className="h-8 sm:h-10 w-auto object-contain rounded-lg"
+                loading="eager" // Logo should load immediately
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                 }}
@@ -101,19 +124,19 @@ export default function Navbar() {
         </motion.div>
 
         {/* Routes (desktop) */}
-        <div className="hidden lg:flex items-center space-x-8">
+        <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
           {routes.length > 0 ? (
-            routes.map((route, index) => (
+            routes.map((route : { name: string; path: string }, index: number) => (
               <motion.div
                 key={route?.path || index}
-                initial={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0, y: -15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.08, duration: 0.4 }} // Reduced delay and duration
                 className="relative group"
               >
                 <Link
                   href={route?.path}
-                  className={`text-sm font-semibold font-sans transition-all duration-300 relative ${
+                  className={`text-sm font-semibold font-sans transition-all duration-200 relative ${
                     pathname === route?.path
                       ? "text-primary"
                       : "text-foreground hover:text-primary"
@@ -126,7 +149,7 @@ export default function Navbar() {
                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
                       transition={{
                         type: "spring",
-                        stiffness: 300,
+                        stiffness: 400,
                         damping: 30,
                       }}
                     />
@@ -144,13 +167,13 @@ export default function Navbar() {
         {/* Contact Button + Mobile Menu Toggle */}
         <div className="absolute right-4 sm:right-8 flex items-center space-x-2 sm:space-x-4">
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             className="hidden sm:block"
           >
             <Link
               href="/contact"
-              className="inline-flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-300 focus:ring-2 focus:ring-ring/50 text-sm"
+              className="inline-flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-lg font-heading font-semibold shadow-lg hover:shadow-xl transition-all duration-200 focus:ring-2 focus:ring-ring/50 text-sm"
             >
               <Phone className="h-4 w-4" />
               <span>{contactButton}</span>
@@ -160,7 +183,7 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-ring/50"
+            className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring/50"
             aria-label="Toggle mobile menu"
           >
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -169,23 +192,23 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="lg:hidden border-t border-border bg-background/95 backdrop-blur-lg rounded-b-xl overflow-hidden"
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="lg:hidden border-t border-border bg-background/98 backdrop-blur-lg rounded-b-xl overflow-hidden"
           >
             <div className="px-4 py-6 sm:px-8 space-y-1">
               {routes.length > 0 ? (
-                routes.map((route) => (
+                routes.map((route : { name: string; path: string }, index: number) => (
                   <motion.div
                     key={route?.path}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -15 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
                   >
                     <Link
                       href={route?.path}
@@ -208,15 +231,15 @@ export default function Navbar() {
 
               {/* Mobile Contact Button */}
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -15 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2, delay: 0.1 }}
+                transition={{ duration: 0.2, delay: routes.length * 0.05 + 0.1 }}
                 className="pt-4 border-t border-border/50"
               >
                 <Link
                   href="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground rounded-lg hover:shadow-lg transition-all duration-300 font-heading font-semibold"
+                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-lg hover:shadow-lg transition-all duration-200 font-heading font-semibold"
                 >
                   <Phone className="h-4 w-4" />
                   <span>{contactButton}</span>

@@ -148,9 +148,9 @@ export default function Footer() {
 
             {socialLinks.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground font-heading">
+                <h2 className="text-lg font-semibold mb-4 text-foreground font-heading">
                   Follow Us
-                </h3>
+                </h2>
                 <div className="flex flex-wrap gap-3">
                   {socialLinks.map((social: any, idx: number) => (
                     <motion.a
