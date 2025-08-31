@@ -171,7 +171,7 @@ export default function CareerForm() {
           });
           setResumeFile(null);
         }
-      } catch (error) {
+      } catch (_error) {
         alert("Failed to submit application. Please try again.");
       } finally {
         setIsUploading(false);

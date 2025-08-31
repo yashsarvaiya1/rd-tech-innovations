@@ -191,8 +191,8 @@ export default function Navbar() {
                       href={route?.path}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`block py-3 px-4 rounded-lg text-foreground hover:text-primary hover:bg-muted/50 transition-all duration-200 font-sans font-medium ${
-                        pathname === route?.path 
-                          ? "text-primary bg-primary/10 border-l-2 border-primary" 
+                        pathname === route?.path
+                          ? "text-primary bg-primary/10 border-l-2 border-primary"
                           : ""
                       }`}
                     >

@@ -4,10 +4,12 @@ export { default } from "@/components/pages/ContactPage";
 
 // Helper function to get base URL
 const getBaseUrl = (): string => {
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_SITE_URL || "https://www.rdtechinnovations.com";
+  if (process.env.NODE_ENV === "production") {
+    return (
+      process.env.NEXT_PUBLIC_SITE_URL || "https://www.rdtechinnovations.com"
+    );
   }
-  return 'http://localhost:3000';
+  return "http://localhost:3000";
 };
 
 const baseURL = getBaseUrl();

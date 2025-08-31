@@ -7,7 +7,6 @@ export class ContentService {
   // FIXED: Fetch and properly structure section content based on your Firestore document
   static async fetchSectionContent(sectionId: string): Promise<Content | null> {
     try {
-
       const docRef = doc(rdTechDb, collections.content, sectionId);
       const docSnap = await getDoc(docRef);
 
@@ -40,7 +39,7 @@ export class ContentService {
 
       // Return empty structure if document doesn't exist
       return { id: sectionId, [sectionId]: {} } as Content;
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to fetch content for ${sectionId}`);
     }
   }
@@ -51,7 +50,6 @@ export class ContentService {
     content: Partial<Content>,
   ): Promise<void> {
     try {
-
       const docRef = doc(rdTechDb, collections.content, sectionId);
       const updatedContent = {
         ...content,
@@ -60,7 +58,7 @@ export class ContentService {
       };
 
       await setDoc(docRef, updatedContent, { merge: true });
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to update content for ${sectionId}`);
     }
   }
@@ -73,7 +71,6 @@ export class ContentService {
     value: any,
   ): Promise<void> {
     try {
-
       const docRef = doc(rdTechDb, collections.content, sectionId);
 
       // Use dot notation for nested fields (navbar.title, navbar.logoUrl, etc.)
@@ -83,8 +80,7 @@ export class ContentService {
       };
 
       await setDoc(docRef, updateData, { merge: true });
-
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to update field ${field}`);
     }
   }
@@ -95,7 +91,6 @@ export class ContentService {
     _sectionKey: string,
   ): Promise<boolean> {
     try {
-
       const docRef = doc(rdTechDb, collections.content, sectionId);
       const docSnap = await getDoc(docRef);
 
@@ -118,7 +113,7 @@ export class ContentService {
 
       await setDoc(docRef, updateData, { merge: true });
       return newHiddenState;
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to toggle section visibility`);
     }
   }
@@ -143,7 +138,7 @@ export class ContentService {
         field,
         updatedArray,
       );
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to add item to ${field}`);
     }
   }
@@ -172,7 +167,7 @@ export class ContentService {
       } else {
         throw new FirebaseError(`Invalid index ${index} for array ${field}`);
       }
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to update array item`);
     }
   }
@@ -200,7 +195,7 @@ export class ContentService {
       } else {
         throw new FirebaseError(`Invalid index ${index} for array ${field}`);
       }
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError(`Failed to remove array item`);
     }
   }
@@ -213,7 +208,7 @@ export class ContentService {
       return (
         industriesSection?.industries?.map((industry) => industry.name) || []
       );
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -224,7 +219,7 @@ export class ContentService {
       const content = await ContentService.fetchSectionContent("technologies");
       const techSection = content?.technologies;
       return techSection?.tech?.map((tech) => tech.name) || [];
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -235,7 +230,7 @@ export class ContentService {
       const content = await ContentService.fetchSectionContent("technologies");
       const techSection = content?.technologies;
       return techSection?.techCategories || [];
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }

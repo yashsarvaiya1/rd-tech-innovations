@@ -2,6 +2,7 @@
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
 import {
+  ChevronRight,
   Code,
   ExternalLink,
   FileText,
@@ -10,9 +11,6 @@ import {
   Github,
   Search,
   X,
-  Menu,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSectionContent } from "@/stores/content";
@@ -25,27 +23,31 @@ export default function ProjectPlayground() {
 
   // ✅ State management - ALWAYS called
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
-  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
+  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>(
+    [],
+  );
   const [draggedItem, setDraggedItem] = useState<{
     type: string;
     value: string;
   } | null>(null);
-  
+
   // New mobile states
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [mobileActiveTab, setMobileActiveTab] = useState<'industries' | 'technologies'>('industries');
+  const [mobileActiveTab, setMobileActiveTab] = useState<
+    "industries" | "technologies"
+  >("industries");
 
   // Mobile detection
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024); // lg breakpoint
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // ✅ Extract unique industries and technologies - ALWAYS called
@@ -276,13 +278,16 @@ export default function ProjectPlayground() {
             <div className="flex items-center space-x-2">
               <Filter className="w-4 h-4 text-primary" />
               <span className="text-foreground text-sm font-medium">
-                Filters {(selectedIndustries.length + selectedTechnologies.length > 0) && 
+                Filters{" "}
+                {selectedIndustries.length + selectedTechnologies.length > 0 &&
                   `(${selectedIndustries.length + selectedTechnologies.length})`}
               </span>
             </div>
-            <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${
-              showMobileFilters ? 'rotate-90' : ''
-            }`} />
+            <ChevronRight
+              className={`w-4 h-4 text-muted-foreground transition-transform ${
+                showMobileFilters ? "rotate-90" : ""
+              }`}
+            />
           </button>
         </div>
       )}
@@ -291,15 +296,18 @@ export default function ProjectPlayground() {
       {isMobile && showMobileFilters && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
+          animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
           className="w-full max-w-sm mb-4 bg-card rounded-lg border border-border overflow-hidden"
         >
           {/* Active Filters */}
-          {(selectedIndustries.length > 0 || selectedTechnologies.length > 0) && (
+          {(selectedIndustries.length > 0 ||
+            selectedTechnologies.length > 0) && (
             <div className="p-4 border-b border-border">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-foreground text-sm font-medium">Active Filters</span>
+                <span className="text-foreground text-sm font-medium">
+                  Active Filters
+                </span>
                 <button
                   onClick={clearAllFilters}
                   className="text-accent text-xs px-2 py-1 bg-accent/10 rounded-md"
@@ -343,11 +351,11 @@ export default function ProjectPlayground() {
           {/* Filter Tabs */}
           <div className="flex border-b border-border">
             <button
-              onClick={() => setMobileActiveTab('industries')}
+              onClick={() => setMobileActiveTab("industries")}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                mobileActiveTab === 'industries' 
-                  ? 'text-accent border-b-2 border-accent bg-accent/5' 
-                  : 'text-muted-foreground hover:text-foreground'
+                mobileActiveTab === "industries"
+                  ? "text-accent border-b-2 border-accent bg-accent/5"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-center space-x-2">
@@ -356,11 +364,11 @@ export default function ProjectPlayground() {
               </div>
             </button>
             <button
-              onClick={() => setMobileActiveTab('technologies')}
+              onClick={() => setMobileActiveTab("technologies")}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                mobileActiveTab === 'technologies' 
-                  ? 'text-primary border-b-2 border-primary bg-primary/5' 
-                  : 'text-muted-foreground hover:text-foreground'
+                mobileActiveTab === "technologies"
+                  ? "text-primary border-b-2 border-primary bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-center space-x-2">
@@ -372,23 +380,29 @@ export default function ProjectPlayground() {
 
           {/* Filter Content */}
           <div className="p-4 max-h-48 overflow-y-auto">
-            {mobileActiveTab === 'industries' ? (
+            {mobileActiveTab === "industries" ? (
               <div className="space-y-2">
                 {allIndustries.map((industry, index) => (
                   <button
                     key={index}
-                    onClick={() => handleMobileFilterClick('industry', industry)}
+                    onClick={() =>
+                      handleMobileFilterClick("industry", industry)
+                    }
                     disabled={selectedIndustries.includes(industry)}
                     className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                       selectedIndustries.includes(industry)
-                        ? 'bg-accent/20 text-accent cursor-not-allowed'
-                        : 'bg-muted/50 text-foreground hover:bg-accent/10 hover:text-accent'
+                        ? "bg-accent/20 text-accent cursor-not-allowed"
+                        : "bg-muted/50 text-foreground hover:bg-accent/10 hover:text-accent"
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        selectedIndustries.includes(industry) ? 'bg-accent' : 'bg-muted-foreground'
-                      }`}></div>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          selectedIndustries.includes(industry)
+                            ? "bg-accent"
+                            : "bg-muted-foreground"
+                        }`}
+                      ></div>
                       <span className="font-sans">{industry}</span>
                     </div>
                   </button>
@@ -399,18 +413,22 @@ export default function ProjectPlayground() {
                 {allTechnologies.map((tech, index) => (
                   <button
                     key={index}
-                    onClick={() => handleMobileFilterClick('technology', tech)}
+                    onClick={() => handleMobileFilterClick("technology", tech)}
                     disabled={selectedTechnologies.includes(tech)}
                     className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                       selectedTechnologies.includes(tech)
-                        ? 'bg-primary/20 text-primary cursor-not-allowed'
-                        : 'bg-muted/50 text-foreground hover:bg-primary/10 hover:text-primary'
+                        ? "bg-primary/20 text-primary cursor-not-allowed"
+                        : "bg-muted/50 text-foreground hover:bg-primary/10 hover:text-primary"
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        selectedTechnologies.includes(tech) ? 'bg-primary' : 'bg-muted-foreground'
-                      }`}></div>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          selectedTechnologies.includes(tech)
+                            ? "bg-primary"
+                            : "bg-muted-foreground"
+                        }`}
+                      ></div>
                       <span className="font-sans">{tech}</span>
                     </div>
                   </button>
@@ -422,9 +440,11 @@ export default function ProjectPlayground() {
       )}
 
       {/* ✅ VSCode-like Container */}
-      <div className={`vscode-container w-full max-w-7xl bg-card rounded-xl shadow-2xl overflow-hidden border border-border ${
-        isMobile ? 'h-[60vh]' : 'h-[65vh]'
-      }`}>
+      <div
+        className={`vscode-container w-full max-w-7xl bg-card rounded-xl shadow-2xl overflow-hidden border border-border ${
+          isMobile ? "h-[60vh]" : "h-[65vh]"
+        }`}
+      >
         {/* ✅ VSCode Title Bar */}
         <div className="bg-muted h-8 flex items-center justify-between px-4 border-b border-border">
           <div className="flex items-center space-x-3">
@@ -434,13 +454,13 @@ export default function ProjectPlayground() {
             </span>
           </div>
           <div className="text-muted-foreground text-xs">
-            {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''}
+            {filteredProjects.length} project
+            {filteredProjects.length !== 1 ? "s" : ""}
           </div>
         </div>
 
         {/* ✅ VSCode Content Area */}
         <div className="flex h-[calc(100%-2rem)]">
-          
           {/* Desktop Sidebars */}
           {!isMobile && (
             <>
@@ -545,11 +565,13 @@ export default function ProjectPlayground() {
             {/* Projects Grid */}
             <div className="flex-1 bg-background overflow-y-auto p-3 scrollbar-clean">
               {filteredProjects.length > 0 ? (
-                <div className={`grid gap-3 ${
-                  isMobile 
-                    ? 'grid-cols-1 sm:grid-cols-2' 
-                    : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'
-                }`}>
+                <div
+                  className={`grid gap-3 ${
+                    isMobile
+                      ? "grid-cols-1 sm:grid-cols-2"
+                      : "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+                  }`}
+                >
                   {filteredProjects.map((project: any, index: number) => {
                     const projectTitle = project.title || "";
                     const imageUrl = project.imageUrl || "";
@@ -568,7 +590,9 @@ export default function ProjectPlayground() {
                       >
                         {/* Project Image */}
                         {imageUrl && (
-                          <div className={`relative overflow-hidden ${isMobile ? 'h-32' : 'h-24'}`}>
+                          <div
+                            className={`relative overflow-hidden ${isMobile ? "h-32" : "h-24"}`}
+                          >
                             <img
                               src={imageUrl}
                               alt={projectTitle}

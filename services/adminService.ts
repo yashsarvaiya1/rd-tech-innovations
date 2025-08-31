@@ -1,4 +1,10 @@
-import { doc, getDoc, setDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  type Unsubscribe,
+} from "firebase/firestore";
 import { collections, rdTechDb } from "@/firebase";
 import type { Admins } from "@/models/admins";
 import { FirebaseError } from "./base";
@@ -7,7 +13,6 @@ export class AdminService {
   // Fetch admin emails (one-time)
   static async fetchAdmins(): Promise<string[]> {
     try {
-
       const docRef = doc(rdTechDb, collections.admins, "admins");
       const docSnap = await getDoc(docRef);
 
@@ -16,14 +21,13 @@ export class AdminService {
         return data.emails;
       }
       return [];
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError("Failed to fetch admin list");
     }
   }
 
   // Realtime listener for admin emails
   static listenAdmins(callback: (emails: string[]) => void): Unsubscribe {
-
     const docRef = doc(rdTechDb, collections.admins, "admins");
 
     const unsubscribe = onSnapshot(
@@ -36,9 +40,9 @@ export class AdminService {
           callback([]);
         }
       },
-      (error) => {
+      (_error) => {
         callback([]);
-      }
+      },
     );
 
     return unsubscribe;
@@ -47,7 +51,6 @@ export class AdminService {
   // Add new admin email
   static async addAdmin(email: string): Promise<void> {
     try {
-
       const currentAdmins = await AdminService.fetchAdmins();
 
       if (currentAdmins.includes(email)) {
@@ -61,7 +64,6 @@ export class AdminService {
         emails: updatedAdmins,
         updatedAt: new Date().toISOString(),
       });
-
     } catch (error) {
       if (error instanceof FirebaseError) throw error;
       throw new FirebaseError("Failed to add admin");
@@ -71,7 +73,6 @@ export class AdminService {
   // Remove admin email
   static async removeAdmin(email: string): Promise<void> {
     try {
-
       const currentAdmins = await AdminService.fetchAdmins();
       const updatedAdmins = currentAdmins.filter((admin) => admin !== email);
 
@@ -84,7 +85,6 @@ export class AdminService {
         emails: updatedAdmins,
         updatedAt: new Date().toISOString(),
       });
-
     } catch (error) {
       if (error instanceof FirebaseError) throw error;
       throw new FirebaseError("Failed to remove admin");
@@ -96,7 +96,7 @@ export class AdminService {
     try {
       const admins = await AdminService.fetchAdmins();
       return admins.includes(email);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

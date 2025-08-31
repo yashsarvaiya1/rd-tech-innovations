@@ -242,7 +242,6 @@ export const useAdminStore = create<AdminState>()(
             };
             set({ content: updatedContent });
           }
-
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
@@ -273,7 +272,6 @@ export const useAdminStore = create<AdminState>()(
             };
             set({ content: updatedContent });
           }
-
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError

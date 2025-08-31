@@ -122,12 +122,10 @@ export default function ServiceOptions() {
     e.preventDefault();
     e.stopPropagation();
 
-
     // Method 1: Try Next.js router first
     try {
       router.push("/contact");
     } catch (_routerError) {
-
       // Method 2: Fallback to window.location
       try {
         window.location.href = "/contact";

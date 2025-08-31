@@ -11,8 +11,8 @@ import { useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { rdTechAuth } from "@/firebase";
-import { useAuthStore } from "@/stores/auth";
 import { useAdminVerification } from "@/hooks/useAdminVerification";
+import { useAuthStore } from "@/stores/auth";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -29,12 +29,11 @@ export default function AuthPage() {
       setUser(null);
     }
     setIsInitializing(false);
-  }, []);
+  }, [setMessage, setUser, user]);
 
   // Listen for Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(rdTechAuth, (firebaseUser) => {
-
       setUser(firebaseUser);
 
       if (!firebaseUser) {
@@ -73,7 +72,7 @@ export default function AuthPage() {
         } else {
           router.replace("/");
         }
-      } catch (error) {
+      } catch (_error) {
         hasRedirected.current = false;
         setMessage("Failed to verify permissions. Please try again.");
       }
@@ -103,7 +102,7 @@ export default function AuthPage() {
     provider.setCustomParameters({ prompt: "select_account" });
 
     try {
-      const result = await signInWithPopup(rdTechAuth, provider);
+      const _result = await signInWithPopup(rdTechAuth, provider);
     } catch (error: unknown) {
       hasRedirected.current = false;
 

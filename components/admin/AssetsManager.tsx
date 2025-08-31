@@ -47,7 +47,9 @@ export default function AssetsManager() {
   }>({ open: false, asset: null });
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Memoized function to prevent re-creation on every render
   const loadAssets = useCallback(async () => {
@@ -61,7 +63,7 @@ export default function AssetsManager() {
       if (assetsList.length === 0) {
         setSuccess("No assets found. Upload some files to get started!");
       }
-    } catch (err: any) {
+    } catch (_err: any) {
       setError("Failed to load assets. Please try again.");
     } finally {
       setLoading(false);
@@ -88,7 +90,7 @@ export default function AssetsManager() {
 
       setSuccess(`✅ "${deleteDialog.asset.name}" deleted successfully!`);
       setTimeout(() => setSuccess(""), 5000);
-    } catch (err: any) {
+    } catch (_err: any) {
       setError("Failed to delete asset. Please try again.");
     } finally {
       setDeleting(null);
@@ -142,15 +144,18 @@ export default function AssetsManager() {
     return imageExtensions.some((ext) => fileName.toLowerCase().includes(ext));
   }, []);
 
-  const getFileType = useCallback((fileName: string) => {
-    if (isImage(fileName)) return "Image";
-    if (fileName.toLowerCase().includes(".pdf")) return "PDF";
-    if (fileName.toLowerCase().includes(".doc")) return "Document";
-    if (fileName.toLowerCase().includes(".mp4")) return "Video";
-    return "File";
-  }, [isImage]);
+  const getFileType = useCallback(
+    (fileName: string) => {
+      if (isImage(fileName)) return "Image";
+      if (fileName.toLowerCase().includes(".pdf")) return "PDF";
+      if (fileName.toLowerCase().includes(".doc")) return "Document";
+      if (fileName.toLowerCase().includes(".mp4")) return "Video";
+      return "File";
+    },
+    [isImage],
+  );
 
-  const formatFileSize = useCallback((bytes: number) => {
+  const _formatFileSize = useCallback((bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
@@ -159,7 +164,7 @@ export default function AssetsManager() {
   }, []);
 
   const handleImageError = useCallback((fullPath: string) => {
-    setImageLoadErrors(prev => new Set([...prev, fullPath]));
+    setImageLoadErrors((prev) => new Set([...prev, fullPath]));
   }, []);
 
   // Memoized filtered assets to prevent recalculation
@@ -321,17 +326,18 @@ export default function AssetsManager() {
                     className="aspect-video bg-muted/20 relative group cursor-pointer overflow-hidden"
                     onClick={() => openViewDialog(asset)}
                   >
-                    {isImage(asset.name) && !imageLoadErrors.has(asset.fullPath) ? (
+                    {isImage(asset.name) &&
+                    !imageLoadErrors.has(asset.fullPath) ? (
                       <img
                         src={asset.url}
                         alt={asset.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                         onError={() => handleImageError(asset.fullPath)}
-                        onLoad={(e) => {
+                        onLoad={(_e) => {
                           // Remove any previous error state when image loads successfully
                           if (imageLoadErrors.has(asset.fullPath)) {
-                            setImageLoadErrors(prev => {
+                            setImageLoadErrors((prev) => {
                               const next = new Set(prev);
                               next.delete(asset.fullPath);
                               return next;
@@ -551,9 +557,9 @@ export default function AssetsManager() {
             </Button>
             {viewDialog.asset && (
               <Button asChild className="font-heading">
-                <a 
-                  href={viewDialog.asset.url} 
-                  target="_blank" 
+                <a
+                  href={viewDialog.asset.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                 >
                   <Eye className="h-4 w-4 mr-2" />

@@ -1,10 +1,11 @@
 // hooks/useAdminVerification.ts
-import { useEffect, useRef, useState } from "react";
+
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { rdTechAuth } from "@/firebase";
-import { useAuthStore } from "@/stores/auth";
-import { useAdminStore } from "@/stores/admin";
 import { AdminService } from "@/services/adminService";
+import { useAdminStore } from "@/stores/admin";
+import { useAuthStore } from "@/stores/auth";
 
 export const useAdminVerification = () => {
   const router = useRouter();
@@ -15,7 +16,6 @@ export const useAdminVerification = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const redirectWithCleanup = async (path: string, reason: string) => {
-
     // Clear all state
     clearAuthState();
     clearAdminData();
@@ -24,8 +24,7 @@ export const useAdminVerification = () => {
     if (rdTechAuth.currentUser) {
       try {
         await rdTechAuth.signOut();
-      } catch (error) {
-      }
+      } catch (_error) {}
     }
 
     // Use window.location.href for logout to force full reload and prevent render loops

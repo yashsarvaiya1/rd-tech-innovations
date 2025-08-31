@@ -13,7 +13,7 @@ export default function Testimonials() {
   } = useSectionContent("testimonials");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
-  
+
   // State for mobile card flipping
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
@@ -23,18 +23,18 @@ export default function Testimonials() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024); // lg breakpoint
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Handle card flip on mobile
   const handleCardClick = (index: number) => {
     if (!isMobile) return;
-    
-    setFlippedCards(prev => {
+
+    setFlippedCards((prev) => {
       const newFlipped = new Set(prev);
       if (newFlipped.has(index)) {
         newFlipped.delete(index);
@@ -206,7 +206,7 @@ export default function Testimonials() {
               const imageUrl = testimonial.imageUrl || "";
               const message = testimonial.message || "";
               const socialLinks = testimonial.socialLinks || [];
-              
+
               const isFlipped = flippedCards.has(index);
 
               return (
@@ -219,12 +219,15 @@ export default function Testimonials() {
                   onClick={() => handleCardClick(index)}
                 >
                   {/* ✅ Flip card container */}
-                  <div className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
-                    isMobile 
-                      ? (isFlipped ? 'rotate-y-180' : '') 
-                      : 'group-hover:rotate-y-180'
-                  }`}>
-                    
+                  <div
+                    className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
+                      isMobile
+                        ? isFlipped
+                          ? "rotate-y-180"
+                          : ""
+                        : "group-hover:rotate-y-180"
+                    }`}
+                  >
                     {/* ✅ FRONT CARD - Profile Information */}
                     <div className="absolute inset-0 w-full h-full backface-hidden bg-card/90 backdrop-blur-xl rounded-xl shadow-xl border border-border/60 p-6 flex flex-col items-center justify-center text-center">
                       {/* Profile Image */}
@@ -295,7 +298,9 @@ export default function Testimonials() {
                           transition={{ duration: 2, repeat: Infinity }}
                           className="px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-sans font-medium"
                         >
-                          {isMobile ? 'Tap to read review' : 'Hover to read review'}
+                          {isMobile
+                            ? "Tap to read review"
+                            : "Hover to read review"}
                         </motion.div>
                       </div>
 
@@ -392,7 +397,9 @@ export default function Testimonials() {
                       {isMobile && (
                         <div className="absolute top-3 right-3 md:top-4 md:right-4">
                           <div className="w-6 h-6 bg-accent-foreground/20 rounded-full flex items-center justify-center">
-                            <span className="text-xs text-accent-foreground">✕</span>
+                            <span className="text-xs text-accent-foreground">
+                              ✕
+                            </span>
                           </div>
                         </div>
                       )}

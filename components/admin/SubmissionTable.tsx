@@ -168,7 +168,7 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
         hour: "2-digit",
         minute: "2-digit",
       })} (${relativeTime})`;
-    } catch (error) {
+    } catch (_error) {
       return "Invalid Date";
     }
   };

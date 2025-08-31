@@ -1,7 +1,7 @@
 "use client";
 import { AlertCircle, Bell, Loader2, LogOut, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { rdTechAuth } from "@/firebase";
+import { useAdminVerification } from "@/hooks/useAdminVerification";
 import { useAdminStore } from "@/stores/admin";
 import { useAuthStore } from "@/stores/auth";
-import { useAdminVerification } from "@/hooks/useAdminVerification";
 import AddMemberForm from "./AddMemberForm";
 import AssetsManager from "./AssetsManager";
 import ContentEditor from "./ContentEditor";
@@ -79,14 +79,14 @@ export default function AdminLayout() {
         "career",
         "jobOpening",
       ]),
-    []
+    [],
   );
 
   const isContentSection = useCallback(
     (section: string) => {
       return contentSections.has(section);
     },
-    [contentSections]
+    [contentSections],
   );
 
   // Add notification utility
@@ -102,11 +102,11 @@ export default function AdminLayout() {
 
       setTimeout(() => {
         setNotifications((prev) =>
-          prev.filter((n) => n.id !== notification.id)
+          prev.filter((n) => n.id !== notification.id),
         );
       }, 5000);
     },
-    []
+    [],
   );
 
   // Handle redirects in useEffect, not during render
@@ -147,7 +147,7 @@ export default function AdminLayout() {
           fetchAdmins(),
           fetchSubmissionStats(),
         ]);
-      } catch (error) {
+      } catch (_error) {
         addNotification("Failed to initialize admin dashboard", "error");
       } finally {
         setInitialLoad(false);
@@ -215,7 +215,7 @@ export default function AdminLayout() {
 
       // Redirect using the hook's cleanup method
       await redirectWithCleanup("/", "Logout completed");
-    } catch (error) {
+    } catch (_error) {
       addNotification("Logout error occurred", "error");
 
       // Force redirect even on error
@@ -253,8 +253,8 @@ export default function AdminLayout() {
               {isLoggingOut
                 ? "Logging out..."
                 : initialLoad
-                ? "Loading dashboard..."
-                : "Verifying access..."}
+                  ? "Loading dashboard..."
+                  : "Verifying access..."}
             </p>
           </div>
         </div>
@@ -309,8 +309,8 @@ export default function AdminLayout() {
             {!user?.email
               ? "Checking authentication..."
               : isLoggingOut
-              ? "Logging out..."
-              : "Loading dashboard..."}
+                ? "Logging out..."
+                : "Loading dashboard..."}
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import type { User } from "firebase/auth";
 import { create } from "zustand";
-import { devtools, persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { AdminService } from "@/services/adminService";
 
 interface AuthState {
@@ -53,8 +53,7 @@ export const useAuthStore = create<AuthState>()(
           try {
             const emails = await AdminService.fetchAdmins();
             set({ adminEmails: emails });
-          } catch (error) {
-          }
+          } catch (_error) {}
         },
 
         // Verify admin locally using cached emails
@@ -68,11 +67,11 @@ export const useAuthStore = create<AuthState>()(
       {
         name: "auth-store",
         storage: createJSONStorage(() => localStorage), // Persist in localStorage
-      }
+      },
     ),
     {
       name: "auth-store",
       enabled: process.env.NODE_ENV === "development",
-    }
-  )
+    },
+  ),
 );

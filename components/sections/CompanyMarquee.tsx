@@ -10,11 +10,11 @@ export default function CompanyMarquee() {
     loading,
     error,
   } = useSectionContent("companyMarquee");
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.2 });
-  
+
   // Mobile detection for responsive behavior
   const [isMobile, setIsMobile] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
@@ -23,11 +23,11 @@ export default function CompanyMarquee() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Get company logos from Firestore
@@ -38,11 +38,11 @@ export default function CompanyMarquee() {
     if (!isInView || !marqueeRef.current || companyLogos.length === 0) return;
 
     const marquee = marqueeRef.current;
-    
+
     // Wait for all images to load
-    const images = marquee.querySelectorAll('img');
+    const images = marquee.querySelectorAll("img");
     let loadedCount = 0;
-    
+
     const checkAllLoaded = () => {
       loadedCount++;
       if (loadedCount === images.length) {
@@ -50,7 +50,7 @@ export default function CompanyMarquee() {
       }
     };
 
-    Array.from(images).forEach(img => {
+    Array.from(images).forEach((img) => {
       if (img.complete) {
         checkAllLoaded();
       } else {
@@ -69,7 +69,8 @@ export default function CompanyMarquee() {
 
   // GSAP Animation Effect
   useEffect(() => {
-    if (!imagesLoaded || !marqueeRef.current || companyLogos.length === 0) return;
+    if (!imagesLoaded || !marqueeRef.current || companyLogos.length === 0)
+      return;
 
     const marquee = marqueeRef.current;
     let tween: gsap.core.Tween;
@@ -82,12 +83,14 @@ export default function CompanyMarquee() {
 
       // Get the width of one complete set (first third of the duplicated content)
       const children = Array.from(marquee.children);
-      const oneSetWidth = children.slice(0, companyLogos.length).reduce((total, child) => {
-        const rect = child.getBoundingClientRect();
-        const style = window.getComputedStyle(child);
-        const marginRight = parseFloat(style.marginRight) || 0;
-        return total + rect.width + marginRight;
-      }, 0);
+      const oneSetWidth = children
+        .slice(0, companyLogos.length)
+        .reduce((total, child) => {
+          const rect = child.getBoundingClientRect();
+          const style = window.getComputedStyle(child);
+          const marginRight = parseFloat(style.marginRight) || 0;
+          return total + rect.width + marginRight;
+        }, 0);
 
       // Set initial position
       gsap.set(marquee, { x: 0 });
@@ -103,8 +106,8 @@ export default function CompanyMarquee() {
             const val = parseFloat(x);
             // Reset position when we've moved one full set
             return val <= -oneSetWidth ? "0px" : x;
-          }
-        }
+          },
+        },
       });
 
       // Hover controls (desktop only)
@@ -120,13 +123,13 @@ export default function CompanyMarquee() {
         }
       };
 
-      marquee.addEventListener('mouseenter', handleMouseEnter);
-      marquee.addEventListener('mouseleave', handleMouseLeave);
+      marquee.addEventListener("mouseenter", handleMouseEnter);
+      marquee.addEventListener("mouseleave", handleMouseLeave);
 
       return () => {
         if (tween) tween.kill();
-        marquee.removeEventListener('mouseenter', handleMouseEnter);
-        marquee.removeEventListener('mouseleave', handleMouseLeave);
+        marquee.removeEventListener("mouseenter", handleMouseEnter);
+        marquee.removeEventListener("mouseleave", handleMouseLeave);
       };
     }, 100);
 
@@ -142,14 +145,21 @@ export default function CompanyMarquee() {
       <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-background via-muted/20 to-primary/8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-center">
-            <div className="animate-pulse text-muted-foreground">Loading companies...</div>
+            <div className="animate-pulse text-muted-foreground">
+              Loading companies...
+            </div>
           </div>
         </div>
       </section>
     );
   }
 
-  if (error || !companyMarquee || companyMarquee.hidden || companyLogos.length === 0) {
+  if (
+    error ||
+    !companyMarquee ||
+    companyMarquee.hidden ||
+    companyLogos.length === 0
+  ) {
     return null;
   }
 
@@ -187,7 +197,7 @@ export default function CompanyMarquee() {
           >
             {duplicatedLogos.map((logoUrl: string, index: number) => (
               <motion.div
-                key={`logo-${index}-${logoUrl.split('/').pop()}`}
+                key={`logo-${index}-${logoUrl.split("/").pop()}`}
                 className="logo-item flex-shrink-0 w-16 h-10 sm:w-20 sm:h-12 md:w-24 md:h-14 lg:w-28 lg:h-16 flex items-center justify-center p-1.5 sm:p-2 md:p-3 bg-card/80 backdrop-blur-sm rounded-lg shadow-sm border border-border/40 group hover:bg-card/90 transition-all duration-300"
                 whileHover={!isMobile ? { scale: 1.05, y: -2 } : {}}
                 whileTap={isMobile ? { scale: 0.95 } : {}}
@@ -202,7 +212,7 @@ export default function CompanyMarquee() {
                   onError={(e) => {
                     // Hide broken images gracefully
                     const target = e.currentTarget as HTMLImageElement;
-                    target.style.display = 'none';
+                    target.style.display = "none";
                   }}
                 />
               </motion.div>

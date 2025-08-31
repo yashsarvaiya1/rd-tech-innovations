@@ -12,7 +12,7 @@ export default function EventsPhotoWall() {
   } = useSectionContent("eventsPhotoWall");
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
-  
+
   // Mobile detection for responsive behavior
   const [isMobile, setIsMobile] = useState(false);
   const [screenWidth, setScreenWidth] = useState(0);
@@ -22,11 +22,11 @@ export default function EventsPhotoWall() {
       setScreenWidth(window.innerWidth);
       setIsMobile(window.innerWidth < 768); // md breakpoint
     };
-    
+
     updateScreenInfo();
-    window.addEventListener('resize', updateScreenInfo);
-    
-    return () => window.removeEventListener('resize', updateScreenInfo);
+    window.addEventListener("resize", updateScreenInfo);
+
+    return () => window.removeEventListener("resize", updateScreenInfo);
   }, []);
 
   // ✅ Enhanced GSAP animations
@@ -63,16 +63,17 @@ export default function EventsPhotoWall() {
 
   // ✅ Dynamic column calculation based on screen size
   const getColumnCount = () => {
-    if (screenWidth < 640) return 2;      // mobile: 2 columns
-    if (screenWidth < 768) return 3;      // sm: 3 columns  
-    if (screenWidth < 1024) return 4;     // md: 4 columns
-    if (screenWidth < 1280) return 5;     // lg: 5 columns
-    if (screenWidth < 1536) return 6;     // xl: 6 columns
-    return 8;                             // 2xl+: 8 columns
+    if (screenWidth < 640) return 2; // mobile: 2 columns
+    if (screenWidth < 768) return 3; // sm: 3 columns
+    if (screenWidth < 1024) return 4; // md: 4 columns
+    if (screenWidth < 1280) return 5; // lg: 5 columns
+    if (screenWidth < 1536) return 6; // xl: 6 columns
+    return 8; // 2xl+: 8 columns
   };
 
   const columnCount = getColumnCount();
-  const columnWidth = screenWidth > 0 ? Math.floor((screenWidth - 80) / columnCount) : 280;
+  const columnWidth =
+    screenWidth > 0 ? Math.floor((screenWidth - 80) / columnCount) : 280;
 
   // ✅ Responsive marquee creation
   interface MarqueeImage {
@@ -99,11 +100,11 @@ export default function EventsPhotoWall() {
 
     extendedImages.forEach((img, index) => {
       const columnIndex = index % columnCount;
-      
+
       // Varied aspect ratios for natural look
       const aspectRatios = [0.8, 1.0, 1.2, 0.9, 1.1, 0.7];
       const aspectRatio = aspectRatios[index % aspectRatios.length];
-      
+
       columnArrays[columnIndex].push({
         url: img,
         id: `img-${index}`,
@@ -148,10 +149,10 @@ export default function EventsPhotoWall() {
       {/* ✅ RESPONSIVE Infinite Marquee Gallery */}
       {imageUrls.length > 0 && (
         <div className="relative flex-1 overflow-hidden px-4 sm:px-6">
-          <div 
+          <div
             className="flex gap-2 sm:gap-4"
-            style={{ 
-              height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 200px)',
+            style={{
+              height: isMobile ? "calc(100vh - 180px)" : "calc(100vh - 200px)",
             }}
           >
             {marqueeColumns.map((column, columnIndex) => (
@@ -171,47 +172,51 @@ export default function EventsPhotoWall() {
                 {/* Duplicate for seamless loop */}
                 {Array.from({ length: 2 }).map((_, setIndex) => (
                   <div key={setIndex} className="flex flex-col gap-2 sm:gap-4">
-                    {column.slice(0, isMobile ? 8 : 12).map((image, imageIndex) => {
-                      const imageHeight = Math.floor(columnWidth / image.aspectRatio);
-                      
-                      return (
-                        <motion.div
-                          key={`${setIndex}-${image.id}-${imageIndex}`}
-                          className="relative group cursor-pointer overflow-hidden rounded-lg sm:rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/20 bg-card flex-shrink-0"
-                          style={{
-                            height: `${imageHeight}px`,
-                            width: `${columnWidth}px`,
-                          }}
-                          whileHover={{
-                            scale: isMobile ? 1.02 : 1.03,
-                            zIndex: 10,
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 25,
-                          }}
-                        >
-                          <img
-                            src={image.url}
-                            alt={`Event moment ${imageIndex + 1}`}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            loading="lazy"
-                            onError={(e) => {
-                              // Hide broken images
-                              e.currentTarget.style.display = 'none';
+                    {column
+                      .slice(0, isMobile ? 8 : 12)
+                      .map((image, imageIndex) => {
+                        const imageHeight = Math.floor(
+                          columnWidth / image.aspectRatio,
+                        );
+
+                        return (
+                          <motion.div
+                            key={`${setIndex}-${image.id}-${imageIndex}`}
+                            className="relative group cursor-pointer overflow-hidden rounded-lg sm:rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/20 bg-card flex-shrink-0"
+                            style={{
+                              height: `${imageHeight}px`,
+                              width: `${columnWidth}px`,
                             }}
-                          />
+                            whileHover={{
+                              scale: isMobile ? 1.02 : 1.03,
+                              zIndex: 10,
+                            }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 25,
+                            }}
+                          >
+                            <img
+                              src={image.url}
+                              alt={`Event moment ${imageIndex + 1}`}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              loading="lazy"
+                              onError={(e) => {
+                                // Hide broken images
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
 
-                          {/* Clean overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-secondary/30 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity duration-300" />
+                            {/* Clean overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-secondary/30 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity duration-300" />
 
-                          {/* Subtle hover glow */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg sm:rounded-xl" />
-                        </motion.div>
-                      );
-                    })}
+                            {/* Subtle hover glow */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg sm:rounded-xl" />
+                          </motion.div>
+                        );
+                      })}
                   </div>
                 ))}
               </motion.div>

@@ -9,7 +9,7 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useMemo } from "react"; // ✅ Added useCallback, useMemo
+import { useCallback, useEffect, useMemo, useState } from "react"; // ✅ Added useCallback, useMemo
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -131,8 +131,7 @@ export default function ContentEditor() {
         ]);
 
         setDependencyOptions({ industries, technologies, techCategories });
-      } catch (error) {
-      }
+      } catch (_error) {}
     };
 
     loadDependencies();
@@ -239,11 +238,18 @@ export default function ContentEditor() {
 
       setHasChanges(false);
       setSuccess("✅ Content saved successfully!");
-    } catch (error) {
+    } catch (_error) {
     } finally {
       setIsSaving(false);
     }
-  }, [hasChanges, localContent, selectedSection, updateContentField, fetchContent, clearError]);
+  }, [
+    hasChanges,
+    localContent,
+    selectedSection,
+    updateContentField,
+    fetchContent,
+    clearError,
+  ]);
 
   // ✅ FIXED: This is the main fix - Memoized toggle handler
   const handleToggleVisibility = useCallback(async () => {
@@ -253,468 +259,341 @@ export default function ContentEditor() {
       await fetchContent(selectedSection);
 
       // Update local content to reflect the change
-      setLocalContent(prev => ({
+      setLocalContent((prev) => ({
         ...prev,
-        hidden: !prev.hidden
+        hidden: !prev.hidden,
       }));
 
       setSuccess("✅ Section visibility updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
-    } catch (error) {
-    }
+    } catch (_error) {}
   }, [selectedSection, toggleSectionVisibility, fetchContent, clearError]);
 
   // ✅ FIXED: Memoized array handlers
-  const handleArrayAdd = useCallback((field: string) => {
-    const currentArray = localContent[field] || [];
-    const newItem = getDefaultArrayItem(selectedSection, field);
-    handleFieldChange(field, [...currentArray, newItem]);
-  }, [localContent, selectedSection, handleFieldChange]);
 
-  const handleArrayUpdate = useCallback((field: string, index: number, newValue: any) => {
-    const currentArray = localContent[field] || [];
-    const updatedArray = [...currentArray];
-    updatedArray[index] = newValue;
-    handleFieldChange(field, updatedArray);
-  }, [localContent, handleFieldChange]);
+  const handleArrayUpdate = useCallback(
+    (field: string, index: number, newValue: any) => {
+      const currentArray = localContent[field] || [];
+      const updatedArray = [...currentArray];
+      updatedArray[index] = newValue;
+      handleFieldChange(field, updatedArray);
+    },
+    [localContent, handleFieldChange],
+  );
 
-  const handleArrayRemove = useCallback((field: string, index: number) => {
-    const currentArray = localContent[field] || [];
-    const updatedArray = currentArray.filter(
-      (_: any, i: number) => i !== index,
-    );
-    handleFieldChange(field, updatedArray);
-  }, [localContent, handleFieldChange]);
+  const handleArrayRemove = useCallback(
+    (field: string, index: number) => {
+      const currentArray = localContent[field] || [];
+      const updatedArray = currentArray.filter(
+        (_: any, i: number) => i !== index,
+      );
+      handleFieldChange(field, updatedArray);
+    },
+    [localContent, handleFieldChange],
+  );
 
   // ✅ FIXED: Memoized getDefaultArrayItem
-  const getDefaultArrayItem = useCallback((section: string, field: string): any => {
-    switch (section) {
-      case "navbar":
-        if (field === "routesList") return { name: "", path: "" };
-        break;
-      case "companyBrief":
-        if (field === "tags") return { text1: "", text2: "" };
-        break;
-      case "serviceOptions":
-        if (field === "cards")
-          return {
-            imageUrl: "",
-            text: "",
-            description: "",
-            contactButton: "Contact Us",
-          };
-        break;
-      case "projects":
-        if (field === "cards")
-          return {
-            title: "",
-            about: "",
-            industryTags: [],
-            techTags: [],
-            links: [],
-            imageUrl: "",
-          };
-        break;
-      case "testimonials":
-        if (field === "cards")
-          return {
-            name: "",
-            designation: "",
-            companyName: "",
-            imageUrl: "",
-            socialLinks: [],
-            message: "",
-          };
-        break;
-      case "technologies":
-        if (field === "tech")
-          return { imageUrl: "", name: "", techCategory: "" };
-        if (field === "techCategories") return "";
-        break;
-      case "industries":
-        if (field === "industries") return { iconUrl: "", name: "" };
-        break;
-      case "whyUs":
-        if (field === "tags") return { text1: "", text2: "" };
-        if (field === "text") return "";
-        break;
-      case "vision":
-        if (field === "cards") return { title: "", description: "" };
-        break;
-      case "jobOpening":
-        if (field === "cards")
-          return {
-            title: "",
-            experience: "",
-            experienceValue: "",
-            position: "",
-            positionValue: "",
-            viewDetailsButton: "View Details",
-            requiredSkillsTitle: "Required Skills",
-            requiredSkills: [],
-            responsibilityTitle: "Responsibilities",
-            responsibilities: [],
-          };
-        break;
-      case "footer":
-        if (field === "socialLinks") return { iconUrl: "", name: "", link: "" };
-        break;
-      case "contactUs":
-        if (field === "form") return getDefaultForm("contactUs");
-        break;
-      case "career":
-        if (field === "form") return getDefaultForm("career");
-        break;
-      default:
-        return "";
-    }
-    return "";
-  }, [getDefaultForm]);
+  const getDefaultArrayItem = useCallback(
+    (section: string, field: string): any => {
+      switch (section) {
+        case "navbar":
+          if (field === "routesList") return { name: "", path: "" };
+          break;
+        case "companyBrief":
+          if (field === "tags") return { text1: "", text2: "" };
+          break;
+        case "serviceOptions":
+          if (field === "cards")
+            return {
+              imageUrl: "",
+              text: "",
+              description: "",
+              contactButton: "Contact Us",
+            };
+          break;
+        case "projects":
+          if (field === "cards")
+            return {
+              title: "",
+              about: "",
+              industryTags: [],
+              techTags: [],
+              links: [],
+              imageUrl: "",
+            };
+          break;
+        case "testimonials":
+          if (field === "cards")
+            return {
+              name: "",
+              designation: "",
+              companyName: "",
+              imageUrl: "",
+              socialLinks: [],
+              message: "",
+            };
+          break;
+        case "technologies":
+          if (field === "tech")
+            return { imageUrl: "", name: "", techCategory: "" };
+          if (field === "techCategories") return "";
+          break;
+        case "industries":
+          if (field === "industries") return { iconUrl: "", name: "" };
+          break;
+        case "whyUs":
+          if (field === "tags") return { text1: "", text2: "" };
+          if (field === "text") return "";
+          break;
+        case "vision":
+          if (field === "cards") return { title: "", description: "" };
+          break;
+        case "jobOpening":
+          if (field === "cards")
+            return {
+              title: "",
+              experience: "",
+              experienceValue: "",
+              position: "",
+              positionValue: "",
+              viewDetailsButton: "View Details",
+              requiredSkillsTitle: "Required Skills",
+              requiredSkills: [],
+              responsibilityTitle: "Responsibilities",
+              responsibilities: [],
+            };
+          break;
+        case "footer":
+          if (field === "socialLinks")
+            return { iconUrl: "", name: "", link: "" };
+          break;
+        case "contactUs":
+          if (field === "form") return getDefaultForm("contactUs");
+          break;
+        case "career":
+          if (field === "form") return getDefaultForm("career");
+          break;
+        default:
+          return "";
+      }
+      return "";
+    },
+    [getDefaultForm],
+  );
+
+  const handleArrayAdd = useCallback(
+    (field: string) => {
+      const currentArray = localContent[field] || [];
+      const newItem = getDefaultArrayItem(selectedSection, field);
+      handleFieldChange(field, [...currentArray, newItem]);
+    },
+    [localContent, selectedSection, handleFieldChange, getDefaultArrayItem],
+  );
 
   // ✅ FIXED: Memoized renderField function
-  const renderField = useCallback((fieldName: string, fieldType: string) => {
-    const value = localContent[fieldName] || (fieldType === "array" ? [] : "");
+  const renderField = useCallback(
+    (fieldName: string, fieldType: string) => {
+      const value =
+        localContent[fieldName] || (fieldType === "array" ? [] : "");
 
-    switch (fieldType) {
-      case "textarea":
-        return (
-          <Textarea
-            value={value}
-            onChange={(e) => handleFieldChange(fieldName, e.target.value)}
-            placeholder={`Enter ${fieldName.replace(/([A-Z])/g, " $1").toLowerCase()}`}
-            rows={3}
-            className="bg-white border-border"
-          />
-        );
+      switch (fieldType) {
+        case "textarea":
+          return (
+            <Textarea
+              value={value}
+              onChange={(e) => handleFieldChange(fieldName, e.target.value)}
+              placeholder={`Enter ${fieldName.replace(/([A-Z])/g, " $1").toLowerCase()}`}
+              rows={3}
+              className="bg-white border-border"
+            />
+          );
 
-      case "image":
-        return (
-          <ImageUpload
-            value={value}
-            onChange={(url) => handleFieldChange(fieldName, url)}
-            label=""
-            placeholder="Upload image"
-          />
-        );
+        case "image":
+          return (
+            <ImageUpload
+              value={value}
+              onChange={(url) => handleFieldChange(fieldName, url)}
+              label=""
+              placeholder="Upload image"
+            />
+          );
 
-      case "image-array": {
-        const imageArray = Array.isArray(value) ? value : [];
-        return (
-          <div className="space-y-3">
-            {imageArray.map((imageUrl: string, index: number) => (
-              <div key={index} className="flex items-start space-x-3">
-                <div className="flex-1">
-                  <ImageUpload
-                    value={imageUrl}
-                    onChange={(url) => handleArrayUpdate(fieldName, index, url)}
-                    label=""
-                    placeholder="Upload image"
-                  />
+        case "image-array": {
+          const imageArray = Array.isArray(value) ? value : [];
+          return (
+            <div className="space-y-3">
+              {imageArray.map((imageUrl: string, index: number) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <div className="flex-1">
+                    <ImageUpload
+                      value={imageUrl}
+                      onChange={(url) =>
+                        handleArrayUpdate(fieldName, index, url)
+                      }
+                      label=""
+                      placeholder="Upload image"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleArrayRemove(fieldName, index)}
+                    className="mt-8"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleArrayRemove(fieldName, index)}
-                  className="mt-8"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleArrayAdd(fieldName)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Image
-            </Button>
-          </div>
-        );
-      }
-
-      case "route-names":
-        return (
-          <RouteNameEditor
-            value={value}
-            onChange={(routes) => handleFieldChange(fieldName, routes)}
-          />
-        );
-
-      case "dependent-select-industries":
-        return (
-          <DependentSelect
-            options={dependencyOptions.industries}
-            value={value}
-            onChange={(values) => handleFieldChange(fieldName, values)}
-            placeholder="Select industries"
-            label=""
-            emptyMessage="Create industries first in the Industries section"
-          />
-        );
-
-      case "dependent-select-technologies":
-        return (
-          <DependentSelect
-            options={dependencyOptions.technologies}
-            value={value}
-            onChange={(values) => handleFieldChange(fieldName, values)}
-            placeholder="Select technologies"
-            label=""
-            emptyMessage="Create technologies first in the Technologies section"
-          />
-        );
-
-      case "tech-category-select":
-        return (
-          <Select
-            value={value}
-            onValueChange={(newValue) => handleFieldChange(fieldName, newValue)}
-          >
-            <SelectTrigger className="bg-white border-border">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-border shadow-xl">
-              {dependencyOptions.techCategories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        );
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleArrayAdd(fieldName)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Image
+              </Button>
+            </div>
+          );
+        }
 
-      case "form-fields": {
-        const formValue = (localContent.form ||
-          getDefaultForm(selectedSection)) as Record<string, any>;
-        return (
-          <div className="space-y-4">
-            <Label className="text-sm font-heading font-semibold">
-              Form Field Labels
-            </Label>
-            {Object.entries(formValue).map(([key, label]) => (
-              <div key={key} className="flex flex-col space-y-1">
-                <Label className="text-xs text-muted-foreground capitalize font-heading">
-                  {key.replace(/([A-Z])/g, " $1")}
-                </Label>
-                {key === "about" ? (
-                  <Textarea
-                    value={label as string}
-                    onChange={(e) =>
-                      handleFieldChange("form", {
-                        ...formValue,
-                        [key]: e.target.value,
-                      })
-                    }
-                    placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
-                    rows={3}
-                    className="text-xs bg-white"
-                  />
-                ) : (
-                  <Input
-                    value={label as string}
-                    onChange={(e) =>
-                      handleFieldChange("form", {
-                        ...formValue,
-                        [key]: e.target.value,
-                      })
-                    }
-                    placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
-                    className="text-xs bg-white"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        );
-      }
+        case "route-names":
+          return (
+            <RouteNameEditor
+              value={value}
+              onChange={(routes) => handleFieldChange(fieldName, routes)}
+            />
+          );
 
-      case "array": {
-        const arrayValue = Array.isArray(value) ? value : [];
-        return (
-          <div className="space-y-3">
-            {arrayValue.map((item: any, index: number) => (
-              <div key={index} className="flex items-start space-x-3">
-                <div className="flex-1">
-                  {typeof item === "object" && item !== null ? (
-                    <Card className="bg-white border-border">
-                      <CardContent className="p-4 space-y-3">
-                        {Object.entries(item).map(([key, objValue]) => (
-                          <div key={key}>
-                            <Label className="text-xs font-heading font-semibold capitalize">
-                              {key.replace(/([A-Z])/g, " $1")}
-                            </Label>
-                            {key.includes("Url") ||
-                            key.includes("imageUrl") ||
-                            key.includes("iconUrl") ? (
-                              <ImageUpload
-                                value={objValue as string}
-                                onChange={(url) => {
-                                  const newItem = { ...item, [key]: url };
-                                  handleArrayUpdate(fieldName, index, newItem);
-                                }}
-                                label=""
-                                placeholder="Upload image"
-                              />
-                            ) : key === "techCategory" ? (
-                              <Select
-                                value={objValue as string}
-                                onValueChange={(newValue) => {
-                                  const newItem = { ...item, [key]: newValue };
-                                  handleArrayUpdate(fieldName, index, newItem);
-                                }}
-                              >
-                                <SelectTrigger className="text-xs bg-white">
-                                  <SelectValue placeholder="Select category" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white border-border shadow-xl">
-                                  {dependencyOptions.techCategories.map(
-                                    (category) => (
-                                      <SelectItem
-                                        key={category}
-                                        value={category}
-                                      >
-                                        {category}
-                                      </SelectItem>
-                                    ),
-                                  )}
-                                </SelectContent>
-                              </Select>
-                            ) : key === "industryTags" ? (
-                              <DependentSelect
-                                options={dependencyOptions.industries}
-                                value={objValue as string[]}
-                                onChange={(values) => {
-                                  const newItem = { ...item, [key]: values };
-                                  handleArrayUpdate(fieldName, index, newItem);
-                                }}
-                                placeholder="Select industries"
-                                label=""
-                                emptyMessage="Create industries first"
-                              />
-                            ) : key === "techTags" ? (
-                              <DependentSelect
-                                options={dependencyOptions.technologies}
-                                value={objValue as string[]}
-                                onChange={(values) => {
-                                  const newItem = { ...item, [key]: values };
-                                  handleArrayUpdate(fieldName, index, newItem);
-                                }}
-                                placeholder="Select technologies"
-                                label=""
-                                emptyMessage="Create technologies first"
-                              />
-                            ) : key === "description" &&
-                              selectedSection === "serviceOptions" ? (
-                              <Textarea
-                                value={objValue as string}
-                                onChange={(e) => {
-                                  const newItem = {
-                                    ...item,
-                                    [key]: e.target.value,
-                                  };
-                                  handleArrayUpdate(fieldName, index, newItem);
-                                }}
-                                placeholder="Service description"
-                                className="text-xs bg-white"
-                                rows={2}
-                              />
-                            ) : key === "links" &&
-                              selectedSection === "projects" ? (
-                              <div className="space-y-2">
-                                {((objValue as any[]) || []).map(
-                                  (linkItem: any, linkIndex: number) => (
-                                    <div
-                                      key={linkIndex}
-                                      className="flex space-x-2 p-2 border border-border rounded bg-muted/20"
-                                    >
-                                      <Input
-                                        value={linkItem.name || ""}
-                                        onChange={(e) => {
-                                          const newLinks = [
-                                            ...((objValue as any[]) || []),
-                                          ];
-                                          newLinks[linkIndex] = {
-                                            ...linkItem,
-                                            name: e.target.value,
-                                          };
-                                          const newItem = {
-                                            ...item,
-                                            [key]: newLinks,
-                                          };
-                                          handleArrayUpdate(
-                                            fieldName,
-                                            index,
-                                            newItem,
-                                          );
-                                        }}
-                                        placeholder="Link name"
-                                        className="text-xs flex-1 bg-white"
-                                      />
-                                      <Input
-                                        value={linkItem.url || ""}
-                                        onChange={(e) => {
-                                          const newLinks = [
-                                            ...((objValue as any[]) || []),
-                                          ];
-                                          newLinks[linkIndex] = {
-                                            ...linkItem,
-                                            url: e.target.value,
-                                          };
-                                          const newItem = {
-                                            ...item,
-                                            [key]: newLinks,
-                                          };
-                                          handleArrayUpdate(
-                                            fieldName,
-                                            index,
-                                            newItem,
-                                          );
-                                        }}
-                                        placeholder="Link URL"
-                                        className="text-xs flex-1 bg-white"
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => {
-                                          const newLinks = (
-                                            (objValue as any[]) || []
-                                          ).filter(
-                                            (_: any, i: number) =>
-                                              i !== linkIndex,
-                                          );
-                                          const newItem = {
-                                            ...item,
-                                            [key]: newLinks,
-                                          };
-                                          handleArrayUpdate(
-                                            fieldName,
-                                            index,
-                                            newItem,
-                                          );
-                                        }}
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  ),
-                                )}
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    const newLinks = [
-                                      ...((objValue as any[]) || []),
-                                      { name: "", url: "" },
-                                    ];
+        case "dependent-select-industries":
+          return (
+            <DependentSelect
+              options={dependencyOptions.industries}
+              value={value}
+              onChange={(values) => handleFieldChange(fieldName, values)}
+              placeholder="Select industries"
+              label=""
+              emptyMessage="Create industries first in the Industries section"
+            />
+          );
+
+        case "dependent-select-technologies":
+          return (
+            <DependentSelect
+              options={dependencyOptions.technologies}
+              value={value}
+              onChange={(values) => handleFieldChange(fieldName, values)}
+              placeholder="Select technologies"
+              label=""
+              emptyMessage="Create technologies first in the Technologies section"
+            />
+          );
+
+        case "tech-category-select":
+          return (
+            <Select
+              value={value}
+              onValueChange={(newValue) =>
+                handleFieldChange(fieldName, newValue)
+              }
+            >
+              <SelectTrigger className="bg-white border-border">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-border shadow-xl">
+                {dependencyOptions.techCategories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+
+        case "form-fields": {
+          const formValue = (localContent.form ||
+            getDefaultForm(selectedSection)) as Record<string, any>;
+          return (
+            <div className="space-y-4">
+              <Label className="text-sm font-heading font-semibold">
+                Form Field Labels
+              </Label>
+              {Object.entries(formValue).map(([key, label]) => (
+                <div key={key} className="flex flex-col space-y-1">
+                  <Label className="text-xs text-muted-foreground capitalize font-heading">
+                    {key.replace(/([A-Z])/g, " $1")}
+                  </Label>
+                  {key === "about" ? (
+                    <Textarea
+                      value={label as string}
+                      onChange={(e) =>
+                        handleFieldChange("form", {
+                          ...formValue,
+                          [key]: e.target.value,
+                        })
+                      }
+                      placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
+                      rows={3}
+                      className="text-xs bg-white"
+                    />
+                  ) : (
+                    <Input
+                      value={label as string}
+                      onChange={(e) =>
+                        handleFieldChange("form", {
+                          ...formValue,
+                          [key]: e.target.value,
+                        })
+                      }
+                      placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
+                      className="text-xs bg-white"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        case "array": {
+          const arrayValue = Array.isArray(value) ? value : [];
+          return (
+            <div className="space-y-3">
+              {arrayValue.map((item: any, index: number) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <div className="flex-1">
+                    {typeof item === "object" && item !== null ? (
+                      <Card className="bg-white border-border">
+                        <CardContent className="p-4 space-y-3">
+                          {Object.entries(item).map(([key, objValue]) => (
+                            <div key={key}>
+                              <Label className="text-xs font-heading font-semibold capitalize">
+                                {key.replace(/([A-Z])/g, " $1")}
+                              </Label>
+                              {key.includes("Url") ||
+                              key.includes("imageUrl") ||
+                              key.includes("iconUrl") ? (
+                                <ImageUpload
+                                  value={objValue as string}
+                                  onChange={(url) => {
+                                    const newItem = { ...item, [key]: url };
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
+                                  }}
+                                  label=""
+                                  placeholder="Upload image"
+                                />
+                              ) : key === "techCategory" ? (
+                                <Select
+                                  value={objValue as string}
+                                  onValueChange={(newValue) => {
                                     const newItem = {
                                       ...item,
-                                      [key]: newLinks,
+                                      [key]: newValue,
                                     };
                                     handleArrayUpdate(
                                       fieldName,
@@ -722,59 +601,96 @@ export default function ContentEditor() {
                                       newItem,
                                     );
                                   }}
-                                  className="text-xs"
                                 >
-                                  <Plus className="h-3 w-3 mr-1" />
-                                  Add Link
-                                </Button>
-                              </div>
-                            ) : key === "socialLinks" &&
-                              (selectedSection === "testimonials" ||
-                                selectedSection === "footer") ? (
-                              <div className="space-y-2">
-                                {((objValue as any[]) || []).map(
-                                  (socialItem: any, socialIndex: number) => (
-                                    <Card
-                                      key={socialIndex}
-                                      className="bg-muted/20 border-border"
-                                    >
-                                      <CardContent className="p-3 space-y-2">
-                                        <ImageUpload
-                                          value={socialItem.iconUrl || ""}
-                                          onChange={(url) => {
-                                            const newSocials = [
-                                              ...((objValue as any[]) || []),
-                                            ];
-                                            newSocials[socialIndex] = {
-                                              ...socialItem,
-                                              iconUrl: url,
-                                            };
-                                            const newItem = {
-                                              ...item,
-                                              [key]: newSocials,
-                                            };
-                                            handleArrayUpdate(
-                                              fieldName,
-                                              index,
-                                              newItem,
-                                            );
-                                          }}
-                                          label=""
-                                          placeholder="Upload icon"
-                                        />
+                                  <SelectTrigger className="text-xs bg-white">
+                                    <SelectValue placeholder="Select category" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white border-border shadow-xl">
+                                    {dependencyOptions.techCategories.map(
+                                      (category) => (
+                                        <SelectItem
+                                          key={category}
+                                          value={category}
+                                        >
+                                          {category}
+                                        </SelectItem>
+                                      ),
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              ) : key === "industryTags" ? (
+                                <DependentSelect
+                                  options={dependencyOptions.industries}
+                                  value={objValue as string[]}
+                                  onChange={(values) => {
+                                    const newItem = { ...item, [key]: values };
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
+                                  }}
+                                  placeholder="Select industries"
+                                  label=""
+                                  emptyMessage="Create industries first"
+                                />
+                              ) : key === "techTags" ? (
+                                <DependentSelect
+                                  options={dependencyOptions.technologies}
+                                  value={objValue as string[]}
+                                  onChange={(values) => {
+                                    const newItem = { ...item, [key]: values };
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
+                                  }}
+                                  placeholder="Select technologies"
+                                  label=""
+                                  emptyMessage="Create technologies first"
+                                />
+                              ) : key === "description" &&
+                                selectedSection === "serviceOptions" ? (
+                                <Textarea
+                                  value={objValue as string}
+                                  onChange={(e) => {
+                                    const newItem = {
+                                      ...item,
+                                      [key]: e.target.value,
+                                    };
+                                    handleArrayUpdate(
+                                      fieldName,
+                                      index,
+                                      newItem,
+                                    );
+                                  }}
+                                  placeholder="Service description"
+                                  className="text-xs bg-white"
+                                  rows={2}
+                                />
+                              ) : key === "links" &&
+                                selectedSection === "projects" ? (
+                                <div className="space-y-2">
+                                  {((objValue as any[]) || []).map(
+                                    (linkItem: any, linkIndex: number) => (
+                                      <div
+                                        key={linkIndex}
+                                        className="flex space-x-2 p-2 border border-border rounded bg-muted/20"
+                                      >
                                         <Input
-                                          value={socialItem.name || ""}
+                                          value={linkItem.name || ""}
                                           onChange={(e) => {
-                                            const newSocials = [
+                                            const newLinks = [
                                               ...((objValue as any[]) || []),
                                             ];
-                                            newSocials[socialIndex] = {
-                                              ...socialItem,
+                                            newLinks[linkIndex] = {
+                                              ...linkItem,
                                               name: e.target.value,
                                             };
                                             const newItem = {
                                               ...item,
-                                              [key]: newSocials,
+                                              [key]: newLinks,
                                             };
                                             handleArrayUpdate(
                                               fieldName,
@@ -782,22 +698,22 @@ export default function ContentEditor() {
                                               newItem,
                                             );
                                           }}
-                                          placeholder="Platform name (e.g., LinkedIn, Twitter)"
-                                          className="text-xs bg-white"
+                                          placeholder="Link name"
+                                          className="text-xs flex-1 bg-white"
                                         />
                                         <Input
-                                          value={socialItem.link || ""}
+                                          value={linkItem.url || ""}
                                           onChange={(e) => {
-                                            const newSocials = [
+                                            const newLinks = [
                                               ...((objValue as any[]) || []),
                                             ];
-                                            newSocials[socialIndex] = {
-                                              ...socialItem,
-                                              link: e.target.value,
+                                            newLinks[linkIndex] = {
+                                              ...linkItem,
+                                              url: e.target.value,
                                             };
                                             const newItem = {
                                               ...item,
-                                              [key]: newSocials,
+                                              [key]: newLinks,
                                             };
                                             handleArrayUpdate(
                                               fieldName,
@@ -805,23 +721,238 @@ export default function ContentEditor() {
                                               newItem,
                                             );
                                           }}
-                                          placeholder="Social media URL"
+                                          placeholder="Link URL"
+                                          className="text-xs flex-1 bg-white"
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            const newLinks = (
+                                              (objValue as any[]) || []
+                                            ).filter(
+                                              (_: any, i: number) =>
+                                                i !== linkIndex,
+                                            );
+                                            const newItem = {
+                                              ...item,
+                                              [key]: newLinks,
+                                            };
+                                            handleArrayUpdate(
+                                              fieldName,
+                                              index,
+                                              newItem,
+                                            );
+                                          }}
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    ),
+                                  )}
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const newLinks = [
+                                        ...((objValue as any[]) || []),
+                                        { name: "", url: "" },
+                                      ];
+                                      const newItem = {
+                                        ...item,
+                                        [key]: newLinks,
+                                      };
+                                      handleArrayUpdate(
+                                        fieldName,
+                                        index,
+                                        newItem,
+                                      );
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    <Plus className="h-3 w-3 mr-1" />
+                                    Add Link
+                                  </Button>
+                                </div>
+                              ) : key === "socialLinks" &&
+                                (selectedSection === "testimonials" ||
+                                  selectedSection === "footer") ? (
+                                <div className="space-y-2">
+                                  {((objValue as any[]) || []).map(
+                                    (socialItem: any, socialIndex: number) => (
+                                      <Card
+                                        key={socialIndex}
+                                        className="bg-muted/20 border-border"
+                                      >
+                                        <CardContent className="p-3 space-y-2">
+                                          <ImageUpload
+                                            value={socialItem.iconUrl || ""}
+                                            onChange={(url) => {
+                                              const newSocials = [
+                                                ...((objValue as any[]) || []),
+                                              ];
+                                              newSocials[socialIndex] = {
+                                                ...socialItem,
+                                                iconUrl: url,
+                                              };
+                                              const newItem = {
+                                                ...item,
+                                                [key]: newSocials,
+                                              };
+                                              handleArrayUpdate(
+                                                fieldName,
+                                                index,
+                                                newItem,
+                                              );
+                                            }}
+                                            label=""
+                                            placeholder="Upload icon"
+                                          />
+                                          <Input
+                                            value={socialItem.name || ""}
+                                            onChange={(e) => {
+                                              const newSocials = [
+                                                ...((objValue as any[]) || []),
+                                              ];
+                                              newSocials[socialIndex] = {
+                                                ...socialItem,
+                                                name: e.target.value,
+                                              };
+                                              const newItem = {
+                                                ...item,
+                                                [key]: newSocials,
+                                              };
+                                              handleArrayUpdate(
+                                                fieldName,
+                                                index,
+                                                newItem,
+                                              );
+                                            }}
+                                            placeholder="Platform name (e.g., LinkedIn, Twitter)"
+                                            className="text-xs bg-white"
+                                          />
+                                          <Input
+                                            value={socialItem.link || ""}
+                                            onChange={(e) => {
+                                              const newSocials = [
+                                                ...((objValue as any[]) || []),
+                                              ];
+                                              newSocials[socialIndex] = {
+                                                ...socialItem,
+                                                link: e.target.value,
+                                              };
+                                              const newItem = {
+                                                ...item,
+                                                [key]: newSocials,
+                                              };
+                                              handleArrayUpdate(
+                                                fieldName,
+                                                index,
+                                                newItem,
+                                              );
+                                            }}
+                                            placeholder="Social media URL"
+                                            className="text-xs bg-white"
+                                          />
+                                          <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => {
+                                              const newSocials = (
+                                                (objValue as any[]) || []
+                                              ).filter(
+                                                (_: any, i: number) =>
+                                                  i !== socialIndex,
+                                              );
+                                              const newItem = {
+                                                ...item,
+                                                [key]: newSocials,
+                                              };
+                                              handleArrayUpdate(
+                                                fieldName,
+                                                index,
+                                                newItem,
+                                              );
+                                            }}
+                                            className="w-full"
+                                          >
+                                            <Trash2 className="h-3 w-3 mr-1" />
+                                            Remove Social Link
+                                          </Button>
+                                        </CardContent>
+                                      </Card>
+                                    ),
+                                  )}
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const newSocials = [
+                                        ...((objValue as any[]) || []),
+                                        { iconUrl: "", name: "", link: "" },
+                                      ];
+                                      const newItem = {
+                                        ...item,
+                                        [key]: newSocials,
+                                      };
+                                      handleArrayUpdate(
+                                        fieldName,
+                                        index,
+                                        newItem,
+                                      );
+                                    }}
+                                    className="text-xs w-full"
+                                  >
+                                    <Plus className="h-3 w-3 mr-1" />
+                                    Add Social Link
+                                  </Button>
+                                </div>
+                              ) : Array.isArray(objValue) ? (
+                                <div className="space-y-2">
+                                  {(objValue as any[]).map(
+                                    (arrItem: any, arrIndex: number) => (
+                                      <div
+                                        key={arrIndex}
+                                        className="flex items-center space-x-2"
+                                      >
+                                        <Input
+                                          value={arrItem}
+                                          onChange={(e) => {
+                                            const newArray = [
+                                              ...(objValue as any[]),
+                                            ];
+                                            newArray[arrIndex] = e.target.value;
+                                            const newItem = {
+                                              ...item,
+                                              [key]: newArray,
+                                            };
+                                            handleArrayUpdate(
+                                              fieldName,
+                                              index,
+                                              newItem,
+                                            );
+                                          }}
+                                          placeholder={`${key} item`}
                                           className="text-xs bg-white"
                                         />
                                         <Button
                                           type="button"
-                                          variant="destructive"
+                                          variant="ghost"
                                           size="sm"
                                           onClick={() => {
-                                            const newSocials = (
-                                              (objValue as any[]) || []
+                                            const newArray = (
+                                              objValue as any[]
                                             ).filter(
                                               (_: any, i: number) =>
-                                                i !== socialIndex,
+                                                i !== arrIndex,
                                             );
                                             const newItem = {
                                               ...item,
-                                              [key]: newSocials,
+                                              [key]: newArray,
                                             };
                                             handleArrayUpdate(
                                               fieldName,
@@ -829,27 +960,44 @@ export default function ContentEditor() {
                                               newItem,
                                             );
                                           }}
-                                          className="w-full"
                                         >
-                                          <Trash2 className="h-3 w-3 mr-1" />
-                                          Remove Social Link
+                                          <Trash2 className="h-3 w-3" />
                                         </Button>
-                                      </CardContent>
-                                    </Card>
-                                  ),
-                                )}
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    const newSocials = [
-                                      ...((objValue as any[]) || []),
-                                      { iconUrl: "", name: "", link: "" },
-                                    ];
+                                      </div>
+                                    ),
+                                  )}
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const newArray = [
+                                        ...(objValue as any[]),
+                                        "",
+                                      ];
+                                      const newItem = {
+                                        ...item,
+                                        [key]: newArray,
+                                      };
+                                      handleArrayUpdate(
+                                        fieldName,
+                                        index,
+                                        newItem,
+                                      );
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    <Plus className="h-3 w-3 mr-1" />
+                                    Add {key.replace(/s$/, "")}
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Input
+                                  value={objValue as string}
+                                  onChange={(e) => {
                                     const newItem = {
                                       ...item,
-                                      [key]: newSocials,
+                                      [key]: e.target.value,
                                     };
                                     handleArrayUpdate(
                                       fieldName,
@@ -857,164 +1005,70 @@ export default function ContentEditor() {
                                       newItem,
                                     );
                                   }}
-                                  className="text-xs w-full"
-                                >
-                                  <Plus className="h-3 w-3 mr-1" />
-                                  Add Social Link
-                                </Button>
-                              </div>
-                            ) : Array.isArray(objValue) ? (
-                              <div className="space-y-2">
-                                {(objValue as any[]).map(
-                                  (arrItem: any, arrIndex: number) => (
-                                    <div
-                                      key={arrIndex}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Input
-                                        value={arrItem}
-                                        onChange={(e) => {
-                                          const newArray = [
-                                            ...(objValue as any[]),
-                                          ];
-                                          newArray[arrIndex] = e.target.value;
-                                          const newItem = {
-                                            ...item,
-                                            [key]: newArray,
-                                          };
-                                          handleArrayUpdate(
-                                            fieldName,
-                                            index,
-                                            newItem,
-                                          );
-                                        }}
-                                        placeholder={`${key} item`}
-                                        className="text-xs bg-white"
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => {
-                                          const newArray = (
-                                            objValue as any[]
-                                          ).filter(
-                                            (_: any, i: number) =>
-                                              i !== arrIndex,
-                                          );
-                                          const newItem = {
-                                            ...item,
-                                            [key]: newArray,
-                                          };
-                                          handleArrayUpdate(
-                                            fieldName,
-                                            index,
-                                            newItem,
-                                          );
-                                        }}
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  ),
-                                )}
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    const newArray = [
-                                      ...(objValue as any[]),
-                                      "",
-                                    ];
-                                    const newItem = {
-                                      ...item,
-                                      [key]: newArray,
-                                    };
-                                    handleArrayUpdate(
-                                      fieldName,
-                                      index,
-                                      newItem,
-                                    );
-                                  }}
-                                  className="text-xs"
-                                >
-                                  <Plus className="h-3 w-3 mr-1" />
-                                  Add {key.replace(/s$/, "")}
-                                </Button>
-                              </div>
-                            ) : (
-                              <Input
-                                value={objValue as string}
-                                onChange={(e) => {
-                                  const newItem = {
-                                    ...item,
-                                    [key]: e.target.value,
-                                  };
-                                  handleArrayUpdate(fieldName, index, newItem);
-                                }}
-                                placeholder={key}
-                                className="text-xs bg-white"
-                              />
-                            )}
-                          </div>
-                        ))}
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <Input
-                      value={item}
-                      onChange={(e) =>
-                        handleArrayUpdate(fieldName, index, e.target.value)
-                      }
-                      placeholder={`${fieldName} item`}
-                      className="bg-white border-border"
-                    />
-                  )}
+                                  placeholder={key}
+                                  className="text-xs bg-white"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Input
+                        value={item}
+                        onChange={(e) =>
+                          handleArrayUpdate(fieldName, index, e.target.value)
+                        }
+                        placeholder={`${fieldName} item`}
+                        className="bg-white border-border"
+                      />
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleArrayRemove(fieldName, index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleArrayRemove(fieldName, index)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleArrayAdd(fieldName)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add {fieldName.replace(/s$/, "")}
-            </Button>
-          </div>
-        );
-      }
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleArrayAdd(fieldName)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add {fieldName.replace(/s$/, "")}
+              </Button>
+            </div>
+          );
+        }
 
-      default:
-        return (
-          <Input
-            value={value}
-            onChange={(e) => handleFieldChange(fieldName, e.target.value)}
-            placeholder={`Enter ${fieldName.replace(/([A-Z])/g, " $1").toLowerCase()}`}
-            className="bg-white border-border"
-          />
-        );
-    }
-  }, [
-    localContent,
-    handleFieldChange,
-    handleArrayUpdate,
-    handleArrayRemove,
-    handleArrayAdd,
-    dependencyOptions,
-    selectedSection,
-    getDefaultForm
-  ]);
+        default:
+          return (
+            <Input
+              value={value}
+              onChange={(e) => handleFieldChange(fieldName, e.target.value)}
+              placeholder={`Enter ${fieldName.replace(/([A-Z])/g, " $1").toLowerCase()}`}
+              className="bg-white border-border"
+            />
+          );
+      }
+    },
+    [
+      localContent,
+      handleFieldChange,
+      handleArrayUpdate,
+      handleArrayRemove,
+      handleArrayAdd,
+      dependencyOptions,
+      selectedSection,
+      getDefaultForm,
+    ],
+  );
 
   // ✅ FIXED: Memoized getSectionFields
   const getSectionFields = useCallback((section: string): FieldConfig[] => {
@@ -1124,7 +1178,10 @@ export default function ContentEditor() {
   }, []);
 
   // ✅ FIXED: Memoized section fields
-  const sectionFields = useMemo(() => getSectionFields(selectedSection), [selectedSection, getSectionFields]);
+  const sectionFields = useMemo(
+    () => getSectionFields(selectedSection),
+    [selectedSection, getSectionFields],
+  );
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto bg-white">

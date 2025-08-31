@@ -58,7 +58,6 @@ export class StorageService {
     fileName?: string,
   ): Promise<{ url: string; preview: string }> {
     try {
-
       // Validate file
       StorageService.validateImageFile(file);
 
@@ -74,12 +73,10 @@ export class StorageService {
         `${storagePaths.assets}${finalFileName}`,
       );
 
-
       const snapshot = await uploadBytes(storageRef, processedFile);
       const downloadURL = await getDownloadURL(snapshot.ref);
       return { url: downloadURL, preview };
     } catch (error: any) {
-
       // Handle specific Firebase Storage errors
       if (error.code === "storage/unauthorized") {
         throw new FirebaseError(
@@ -148,7 +145,6 @@ export class StorageService {
   // Upload asset file
   static async uploadAsset(file: File, fileName?: string): Promise<string> {
     try {
-
       const finalFileName = fileName || `${Date.now()}_${file.name}`;
       const storageRef = ref(
         rdTechStorage,
@@ -172,7 +168,6 @@ export class StorageService {
   // Upload PDF file
   static async uploadPDF(file: File, fileName?: string): Promise<string> {
     try {
-
       if (file.type !== "application/pdf") {
         throw new FirebaseError("File must be a PDF");
       }
@@ -200,11 +195,9 @@ export class StorageService {
   // Delete file by URL
   static async deleteFile(url: string): Promise<void> {
     try {
-
       const storageRef = ref(rdTechStorage, url);
       await deleteObject(storageRef);
-
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError("Failed to delete file");
     }
   }
@@ -216,7 +209,7 @@ export class StorageService {
         StorageService.uploadAsset(file),
       );
       return await Promise.all(uploadPromises);
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError("Failed to upload multiple assets");
     }
   }
@@ -224,7 +217,6 @@ export class StorageService {
   // List all assets from storage
   static async listAllAssets(): Promise<StorageFile[]> {
     try {
-
       // Remove trailing slash if your storagePaths.assets has one
       const assetsPath = storagePaths.assets.replace(/\/$/, "");
       const listRef = ref(rdTechStorage, assetsPath);
@@ -240,12 +232,11 @@ export class StorageService {
             url: url,
             fullPath: itemRef.fullPath,
           });
-        } catch (error) {
-        }
+        } catch (_error) {}
       }
 
       return files;
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError("Failed to list assets");
     }
   }
@@ -253,11 +244,9 @@ export class StorageService {
   // Delete file by full path
   static async deleteAssetByPath(fullPath: string): Promise<void> {
     try {
-
       const fileRef = ref(rdTechStorage, fullPath);
       await deleteObject(fileRef);
-
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError("Failed to delete asset");
     }
   }
@@ -271,7 +260,7 @@ export class StorageService {
         StorageService.uploadImageWithPreview(file),
       );
       return await Promise.all(uploadPromises);
-    } catch (error) {
+    } catch (_error) {
       throw new FirebaseError("Failed to upload multiple images");
     }
   }

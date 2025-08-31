@@ -67,7 +67,6 @@ const sections = [
 
 // FIXED: Helper function to extract nested data properly
 function extractSectionData(rawData: any, sectionId: string): any {
-
   // Initialize result object
   const result: any = {};
 
@@ -124,7 +123,6 @@ export const useContentStore = create<PublicContentState>()(
             await ContentService.fetchSectionContent(sectionId);
 
           if (sectionContent) {
-
             // FIXED: Extract the raw Firestore data correctly
             // The ContentService returns structured data, we need the raw data
             const rawData =
@@ -140,9 +138,8 @@ export const useContentStore = create<PublicContentState>()(
               false,
               "fetchSectionContent",
             );
-
           }
-        } catch (error) {
+        } catch (_error) {
           set({
             error: `Failed to fetch ${sectionId} content`,
             loading: false,
@@ -159,7 +156,7 @@ export const useContentStore = create<PublicContentState>()(
               const sectionContent =
                 await ContentService.fetchSectionContent(sectionId);
               return { sectionId, content: sectionContent };
-            } catch (error) {
+            } catch (_error) {
               return { sectionId, content: null };
             }
           });
@@ -173,12 +170,10 @@ export const useContentStore = create<PublicContentState>()(
               const { sectionId, content } = result.value;
               newContent[sectionId] = content;
 
-
               // FIXED: Extract the raw data correctly
               const rawData = (content as any)[sectionId] || content;
               const cleanedData = extractSectionData(rawData, sectionId);
               sectionUpdates[sectionId] = cleanedData;
-
             }
           });
 
@@ -191,7 +186,7 @@ export const useContentStore = create<PublicContentState>()(
             false,
             "fetchAllContent",
           );
-        } catch (error) {
+        } catch (_error) {
           set({ error: "Failed to fetch website content", loading: false });
         }
       },
@@ -230,7 +225,7 @@ export const useContentStore = create<PublicContentState>()(
               } else {
               }
             },
-            (error) => {
+            (_error) => {
               set({ error: `Real-time sync failed for ${sectionId}` });
             },
           );
