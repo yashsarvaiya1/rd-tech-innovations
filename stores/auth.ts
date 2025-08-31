@@ -1,6 +1,6 @@
 import type { User } from "firebase/auth";
 import { create } from "zustand";
-import { devtools, persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { AdminService } from "@/services/adminService";
 
 interface AuthState {
@@ -40,7 +40,6 @@ export const useAuthStore = create<AuthState>()(
         },
 
         clearAuthState: () => {
-          console.log("[AuthStore] Clearing all auth state");
           set({
             user: null,
             message: null,
@@ -52,13 +51,9 @@ export const useAuthStore = create<AuthState>()(
         // Fetch admins once and cache them locally
         fetchAndCacheAdmins: async () => {
           try {
-            console.log("[AuthStore] Fetching and caching admin emails...");
             const emails = await AdminService.fetchAdmins();
             set({ adminEmails: emails });
-            console.log(`[AuthStore] Cached ${emails.length} admin emails`);
-          } catch (error) {
-            console.error("[AuthStore] Failed to fetch admin emails:", error);
-          }
+          } catch (_error) {}
         },
 
         // Verify admin locally using cached emails
@@ -72,11 +67,11 @@ export const useAuthStore = create<AuthState>()(
       {
         name: "auth-store",
         storage: createJSONStorage(() => localStorage), // Persist in localStorage
-      }
+      },
     ),
     {
       name: "auth-store",
       enabled: process.env.NODE_ENV === "development",
-    }
-  )
+    },
+  ),
 );

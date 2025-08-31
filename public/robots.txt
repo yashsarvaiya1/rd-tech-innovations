@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rd-tech-innovations--developmentprojectpaid.asia-east1.hosted.app/sitemap.xml

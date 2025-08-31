@@ -1,10 +1,11 @@
 // hooks/useAdminVerification.ts
-import { useEffect, useRef, useState } from "react";
+
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { rdTechAuth } from "@/firebase";
-import { useAuthStore } from "@/stores/auth";
-import { useAdminStore } from "@/stores/admin";
 import { AdminService } from "@/services/adminService";
+import { useAdminStore } from "@/stores/admin";
+import { useAuthStore } from "@/stores/auth";
 
 export const useAdminVerification = () => {
   const router = useRouter();
@@ -15,8 +16,6 @@ export const useAdminVerification = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const redirectWithCleanup = async (path: string, reason: string) => {
-    console.log(`[AdminVerification] Redirecting to ${path}: ${reason}`);
-
     // Clear all state
     clearAuthState();
     clearAdminData();
@@ -25,9 +24,7 @@ export const useAdminVerification = () => {
     if (rdTechAuth.currentUser) {
       try {
         await rdTechAuth.signOut();
-      } catch (error) {
-        console.error("Error signing out during redirect:", error);
-      }
+      } catch (_error) {}
     }
 
     // Use window.location.href for logout to force full reload and prevent render loops
@@ -46,23 +43,18 @@ export const useAdminVerification = () => {
     return new Promise((resolve) => {
       // If already subscribed, don’t duplicate
       if (unsubscribeRef.current) {
-        console.log("[AdminVerification] Already listening for admin updates");
         resolve(isAdminVerified);
         setIsVerifying(false);
         return;
       }
 
-      console.log("[AdminVerification] Subscribing to admin updates...");
-
       unsubscribeRef.current = AdminService.listenAdmins((emails) => {
         const isAdmin = emails.includes(userEmail);
 
         if (isAdmin) {
-          console.log(`[AdminVerification] ${userEmail} is an admin ✅`);
           setAdminVerified(true);
           resolve(true);
         } else {
-          console.warn(`[AdminVerification] ${userEmail} is NOT an admin ❌`);
           setAdminVerified(false);
           redirectWithCleanup("/", "User is not an admin");
           resolve(false);
@@ -75,7 +67,6 @@ export const useAdminVerification = () => {
   useEffect(() => {
     return () => {
       if (unsubscribeRef.current) {
-        console.log("[AdminVerification] Cleaning up admin listener");
         unsubscribeRef.current();
       }
     };

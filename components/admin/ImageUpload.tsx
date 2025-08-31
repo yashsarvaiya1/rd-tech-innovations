@@ -43,7 +43,6 @@ export default function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    console.log("ImageUpload received value:", value);
     if (value && value !== preview) {
       setPreview(value);
       setError("");
@@ -80,7 +79,6 @@ export default function ImageUpload({
       setPreview(result.url);
       setSuccess("✅ Image uploaded successfully!");
     } catch (error: any) {
-      console.error("Error uploading image:", error);
       setError(error.message || "Failed to upload image");
       setPreview(value || "");
     } finally {
@@ -118,13 +116,11 @@ export default function ImageUpload({
   };
 
   const handleImageError = () => {
-    console.error("Image failed to load:", preview);
     setError("Failed to load image. Please try uploading again.");
     setImageLoading(false);
   };
 
   const handleImageLoad = () => {
-    console.log("Image loaded successfully:", preview);
     setError("");
     setImageLoading(false);
   };

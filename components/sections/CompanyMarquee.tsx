@@ -1,8 +1,21 @@
 "use client";
 import { motion, useInView } from "framer-motion";
 import { gsap } from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useSectionContent } from "@/stores/content";
+
+// Simple skeleton component
+function SectionSkeleton({ height = "h-16" }: { height?: string }) {
+  return (
+    <div className={`flex items-center justify-center ${height}`}>
+      <div className="flex space-x-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="w-20 h-12 bg-muted animate-pulse rounded-lg"></div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function CompanyMarquee() {
   const {
@@ -15,134 +28,156 @@ export default function CompanyMarquee() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.2 });
   
-  // Mobile detection for responsive behavior
   const [isMobile, setIsMobile] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [animationReady, setAnimationReady] = useState(false);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+  // Memoize mobile check
+  const checkMobile = useCallback(() => {
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
-  // Get company logos from Firestore
-  const companyLogos = companyMarquee?.companyLogoUrls || [];
-
-  // Preload images and set up animation
   useEffect(() => {
-    if (!isInView || !marqueeRef.current || companyLogos.length === 0) return;
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [checkMobile]);
 
-    const marquee = marqueeRef.current;
-    
-    // Wait for all images to load
-    const images = marquee.querySelectorAll('img');
+  // Memoize company logos to prevent unnecessary re-renders
+  const companyLogos = useMemo(() => {
+    return companyMarquee?.companyLogoUrls || [];
+  }, [companyMarquee?.companyLogoUrls]);
+
+  // Memoize duplicated logos
+  const duplicatedLogos = useMemo(() => {
+    if (companyLogos.length === 0) return [];
+    return [...companyLogos, ...companyLogos, ...companyLogos];
+  }, [companyLogos]);
+
+  // Optimized image preloading
+  useEffect(() => {
+    if (!isInView || companyLogos.length === 0) return;
+
     let loadedCount = 0;
-    
-    const checkAllLoaded = () => {
+    const totalImages = companyLogos.length; // Only count unique images
+
+    const handleImageLoad = () => {
       loadedCount++;
-      if (loadedCount === images.length) {
+      if (loadedCount >= totalImages) {
         setImagesLoaded(true);
       }
     };
 
-    Array.from(images).forEach(img => {
-      if (img.complete) {
-        checkAllLoaded();
-      } else {
-        img.onload = checkAllLoaded;
-        img.onerror = checkAllLoaded;
-      }
+    // Preload unique images only
+    const imagePromises = companyLogos.map((logoUrl: string) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          handleImageLoad();
+          resolve(void 0);
+        };
+        img.onerror = () => {
+          handleImageLoad(); // Still count as "loaded" to prevent hanging
+          resolve(void 0);
+        };
+        img.src = logoUrl;
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => setAnimationReady(true), 100);
     });
 
     // Fallback timeout
     const timeout = setTimeout(() => {
       setImagesLoaded(true);
-    }, 2000);
+      setAnimationReady(true);
+    }, 3000);
 
     return () => clearTimeout(timeout);
-  }, [isInView, companyLogos.length]);
+  }, [isInView, companyLogos]);
 
-  // GSAP Animation Effect
+  // OPTIMIZED GSAP Animation
   useEffect(() => {
-    if (!imagesLoaded || !marqueeRef.current || companyLogos.length === 0) return;
+    if (!animationReady || !marqueeRef.current || !imagesLoaded || companyLogos.length === 0) return;
 
     const marquee = marqueeRef.current;
     let tween: gsap.core.Tween;
 
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      // Calculate actual width
-      const firstChild = marquee.firstElementChild as HTMLElement;
-      if (!firstChild) return;
-
-      // Get the width of one complete set (first third of the duplicated content)
+    // Use requestAnimationFrame for better timing
+    const timer = requestAnimationFrame(() => {
+      // Get the width of one complete set
       const children = Array.from(marquee.children);
-      const oneSetWidth = children.slice(0, companyLogos.length).reduce((total, child) => {
+      const oneSetChildren = children.slice(0, companyLogos.length);
+      
+      let oneSetWidth = 0;
+      oneSetChildren.forEach(child => {
         const rect = child.getBoundingClientRect();
         const style = window.getComputedStyle(child);
         const marginRight = parseFloat(style.marginRight) || 0;
-        return total + rect.width + marginRight;
-      }, 0);
+        oneSetWidth += rect.width + marginRight;
+      });
+
+      if (oneSetWidth === 0) return;
 
       // Set initial position
       gsap.set(marquee, { x: 0 });
 
-      // Create the animation
+      // Create optimized animation
       tween = gsap.to(marquee, {
         x: -oneSetWidth,
-        duration: Math.max(companyLogos.length * 2, 10), // Minimum 10s duration
-        ease: "none", // Linear movement
+        duration: Math.max(companyLogos.length * 2.5, 12), // Slower, smoother
+        ease: "none",
         repeat: -1,
         modifiers: {
           x: (x) => {
             const val = parseFloat(x);
-            // Reset position when we've moved one full set
             return val <= -oneSetWidth ? "0px" : x;
           }
         }
       });
 
-      // Hover controls (desktop only)
+      // Optimized hover controls
+      let isHovered = false;
+      
       const handleMouseEnter = () => {
-        if (!isMobile && tween) {
-          tween.pause();
+        if (!isMobile && tween && !isHovered) {
+          isHovered = true;
+          gsap.to(tween, { timeScale: 0.1, duration: 0.5, ease: "power2.out" });
         }
       };
 
       const handleMouseLeave = () => {
-        if (!isMobile && tween) {
-          tween.play();
+        if (!isMobile && tween && isHovered) {
+          isHovered = false;
+          gsap.to(tween, { timeScale: 1, duration: 0.5, ease: "power2.out" });
         }
       };
 
-      marquee.addEventListener('mouseenter', handleMouseEnter);
-      marquee.addEventListener('mouseleave', handleMouseLeave);
+      marquee.addEventListener('mouseenter', handleMouseEnter, { passive: true });
+      marquee.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
       return () => {
         if (tween) tween.kill();
         marquee.removeEventListener('mouseenter', handleMouseEnter);
         marquee.removeEventListener('mouseleave', handleMouseLeave);
       };
-    }, 100);
+    });
 
     return () => {
-      clearTimeout(timer);
+      cancelAnimationFrame(timer);
       if (tween) tween.kill();
     };
-  }, [imagesLoaded, companyLogos.length, isMobile]);
+  }, [animationReady, imagesLoaded, companyLogos.length, isMobile]);
 
-  // Early returns for loading states
+  // Early returns
   if (loading) {
     return (
       <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-background via-muted/20 to-primary/8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-center">
-            <div className="animate-pulse text-muted-foreground">Loading companies...</div>
+            <SectionSkeleton height="h-16" />
           </div>
         </div>
       </section>
@@ -153,16 +188,12 @@ export default function CompanyMarquee() {
     return null;
   }
 
-  // Triple duplication for seamless infinite scroll
-  const duplicatedLogos = [...companyLogos, ...companyLogos, ...companyLogos];
-
   return (
     <section
       ref={containerRef}
       className="company-marquee-section py-8 sm:py-12 md:py-16 bg-gradient-to-br from-background via-muted/20 to-primary/8 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto relative px-4 sm:px-6">
-        {/* Optional heading */}
         {companyMarquee.heading && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -197,10 +228,9 @@ export default function CompanyMarquee() {
                   src={logoUrl}
                   alt={`Partner company logo ${(index % companyLogos.length) + 1}`}
                   className="max-w-full max-h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
-                  loading="lazy"
+                  loading={index < companyLogos.length ? "eager" : "lazy"}
                   draggable={false}
                   onError={(e) => {
-                    // Hide broken images gracefully
                     const target = e.currentTarget as HTMLImageElement;
                     target.style.display = 'none';
                   }}

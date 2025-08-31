@@ -5,24 +5,25 @@ import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import ContentProvider from "@/providers/ContentProviders";
 
-const manrope = Manrope({ 
-  subsets: ["latin"], 
+const manrope = Manrope({
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-manrope" 
+  variable: "--font-manrope",
 });
-const workSans = Work_Sans({ 
-  subsets: ["latin"], 
+const workSans = Work_Sans({
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-work" 
+  variable: "--font-work",
 });
-
 
 // Helper function to get the base URL
 const getBaseUrl = (): string => {
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_SITE_URL || "https://www.rdtechinnovations.com";
+  if (process.env.NODE_ENV === "production") {
+    return (
+      process.env.NEXT_PUBLIC_SITE_URL || "https://www.rdtechinnovations.com"
+    );
   }
-  return 'http://localhost:3000';
+  return "http://localhost:3000";
 };
 
 const baseURL = getBaseUrl();
@@ -39,6 +40,9 @@ export const metadata: Metadata = {
     "cloud solutions",
     "RD Tech",
   ],
+  verification: {
+    google: "JlrMsTghwIbRPkbnMiu92O7EYJ-NdbPU0a8oHqDIqUI",
+  },
   openGraph: {
     title: "RD Tech Innovations",
     description: "Transforming Ideas into Digital Reality",

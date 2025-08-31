@@ -16,12 +16,13 @@ export default function GlobalError({
             <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertTriangle className="h-10 w-10 text-destructive" />
             </div>
-            
+
             <h2 className="text-2xl font-bold text-foreground mb-4">
               Application Error
             </h2>
             <p className="text-muted-foreground mb-6">
-              A critical error occurred. Please refresh the page or contact support.
+              A critical error occurred. Please refresh the page or contact
+              support.
             </p>
 
             <button

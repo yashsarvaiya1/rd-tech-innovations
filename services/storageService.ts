@@ -58,8 +58,6 @@ export class StorageService {
     fileName?: string,
   ): Promise<{ url: string; preview: string }> {
     try {
-      console.log(`Uploading image: ${file.name}`);
-
       // Validate file
       StorageService.validateImageFile(file);
 
@@ -75,16 +73,10 @@ export class StorageService {
         `${storagePaths.assets}${finalFileName}`,
       );
 
-      console.log(`Uploading to path: ${storagePaths.assets}${finalFileName}`);
-
       const snapshot = await uploadBytes(storageRef, processedFile);
       const downloadURL = await getDownloadURL(snapshot.ref);
-
-      console.log(`Image uploaded successfully: ${downloadURL}`);
       return { url: downloadURL, preview };
     } catch (error: any) {
-      console.error("Error uploading image:", error);
-
       // Handle specific Firebase Storage errors
       if (error.code === "storage/unauthorized") {
         throw new FirebaseError(
@@ -153,8 +145,6 @@ export class StorageService {
   // Upload asset file
   static async uploadAsset(file: File, fileName?: string): Promise<string> {
     try {
-      console.log(`Uploading asset: ${file.name}`);
-
       const finalFileName = fileName || `${Date.now()}_${file.name}`;
       const storageRef = ref(
         rdTechStorage,
@@ -164,10 +154,8 @@ export class StorageService {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
-      console.log(`Asset uploaded successfully: ${downloadURL}`);
       return downloadURL;
     } catch (error: any) {
-      console.error("Error uploading asset:", error);
       if (error.code === "storage/unauthorized") {
         throw new FirebaseError(
           "You don't have permission to upload files. Please check your authentication.",
@@ -180,8 +168,6 @@ export class StorageService {
   // Upload PDF file
   static async uploadPDF(file: File, fileName?: string): Promise<string> {
     try {
-      console.log(`Uploading PDF: ${file.name}`);
-
       if (file.type !== "application/pdf") {
         throw new FirebaseError("File must be a PDF");
       }
@@ -195,10 +181,8 @@ export class StorageService {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
-      console.log(`PDF uploaded successfully: ${downloadURL}`);
       return downloadURL;
     } catch (error: any) {
-      console.error("Error uploading PDF:", error);
       if (error.code === "storage/unauthorized") {
         throw new FirebaseError(
           "You don't have permission to upload files. Please check your authentication.",
@@ -211,14 +195,9 @@ export class StorageService {
   // Delete file by URL
   static async deleteFile(url: string): Promise<void> {
     try {
-      console.log(`Deleting file: ${url}`);
-
       const storageRef = ref(rdTechStorage, url);
       await deleteObject(storageRef);
-
-      console.log("File deleted successfully");
-    } catch (error) {
-      console.error("Error deleting file:", error);
+    } catch (_error) {
       throw new FirebaseError("Failed to delete file");
     }
   }
@@ -230,8 +209,7 @@ export class StorageService {
         StorageService.uploadAsset(file),
       );
       return await Promise.all(uploadPromises);
-    } catch (error) {
-      console.error("Error uploading multiple assets:", error);
+    } catch (_error) {
       throw new FirebaseError("Failed to upload multiple assets");
     }
   }
@@ -239,8 +217,6 @@ export class StorageService {
   // List all assets from storage
   static async listAllAssets(): Promise<StorageFile[]> {
     try {
-      console.log("Listing all assets from storage");
-
       // Remove trailing slash if your storagePaths.assets has one
       const assetsPath = storagePaths.assets.replace(/\/$/, "");
       const listRef = ref(rdTechStorage, assetsPath);
@@ -256,15 +232,11 @@ export class StorageService {
             url: url,
             fullPath: itemRef.fullPath,
           });
-        } catch (error) {
-          console.warn(`Failed to get URL for ${itemRef.name}:`, error);
-        }
+        } catch (_error) {}
       }
 
-      console.log(`Found ${files.length} assets`);
       return files;
-    } catch (error) {
-      console.error("Error listing assets:", error);
+    } catch (_error) {
       throw new FirebaseError("Failed to list assets");
     }
   }
@@ -272,14 +244,9 @@ export class StorageService {
   // Delete file by full path
   static async deleteAssetByPath(fullPath: string): Promise<void> {
     try {
-      console.log(`Deleting asset by path: ${fullPath}`);
-
       const fileRef = ref(rdTechStorage, fullPath);
       await deleteObject(fileRef);
-
-      console.log("Asset deleted successfully");
-    } catch (error) {
-      console.error("Error deleting asset:", error);
+    } catch (_error) {
       throw new FirebaseError("Failed to delete asset");
     }
   }
@@ -293,8 +260,7 @@ export class StorageService {
         StorageService.uploadImageWithPreview(file),
       );
       return await Promise.all(uploadPromises);
-    } catch (error) {
-      console.error("Error uploading multiple images:", error);
+    } catch (_error) {
       throw new FirebaseError("Failed to upload multiple images");
     }
   }

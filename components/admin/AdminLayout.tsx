@@ -1,7 +1,7 @@
 "use client";
 import { AlertCircle, Bell, Loader2, LogOut, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { rdTechAuth } from "@/firebase";
+import { useAdminVerification } from "@/hooks/useAdminVerification";
 import { useAdminStore } from "@/stores/admin";
 import { useAuthStore } from "@/stores/auth";
-import { useAdminVerification } from "@/hooks/useAdminVerification";
 import AddMemberForm from "./AddMemberForm";
 import AssetsManager from "./AssetsManager";
 import ContentEditor from "./ContentEditor";
@@ -79,14 +79,14 @@ export default function AdminLayout() {
         "career",
         "jobOpening",
       ]),
-    []
+    [],
   );
 
   const isContentSection = useCallback(
     (section: string) => {
       return contentSections.has(section);
     },
-    [contentSections]
+    [contentSections],
   );
 
   // Add notification utility
@@ -102,18 +102,17 @@ export default function AdminLayout() {
 
       setTimeout(() => {
         setNotifications((prev) =>
-          prev.filter((n) => n.id !== notification.id)
+          prev.filter((n) => n.id !== notification.id),
         );
       }, 5000);
     },
-    []
+    [],
   );
 
   // Handle redirects in useEffect, not during render
   useEffect(() => {
     // Redirect if no user - moved to useEffect to avoid render-time side effects
     if (!user?.email) {
-      console.log("[AdminLayout] No user found, redirecting to auth");
       router.replace("/auth");
       return;
     }
@@ -126,10 +125,8 @@ export default function AdminLayout() {
     const initializeAdmin = async () => {
       try {
         if (!user?.email) {
-          console.warn("[AuthPage] User has no email, cannot verify admin");
           return;
         }
-        console.log("[AdminLayout] Initializing admin access for:", user.email);
 
         // If not already verified, verify admin access
         if (!hasVerified.current && !isAdminVerified) {
@@ -150,10 +147,7 @@ export default function AdminLayout() {
           fetchAdmins(),
           fetchSubmissionStats(),
         ]);
-
-        console.log("[AdminLayout] Admin initialization completed");
-      } catch (error) {
-        console.error("[AdminLayout] Initialization error:", error);
+      } catch (_error) {
         addNotification("Failed to initialize admin dashboard", "error");
       } finally {
         setInitialLoad(false);
@@ -185,7 +179,6 @@ export default function AdminLayout() {
     )
       return;
 
-    console.log("[AdminLayout] Loading content for section:", selectedSection);
     fetchContent(selectedSection);
   }, [
     selectedSection,
@@ -204,8 +197,6 @@ export default function AdminLayout() {
     setLogoutDialog(false);
 
     try {
-      console.log("[AdminLayout] Starting logout...");
-
       // Clear error state
       clearError();
 
@@ -224,8 +215,7 @@ export default function AdminLayout() {
 
       // Redirect using the hook's cleanup method
       await redirectWithCleanup("/", "Logout completed");
-    } catch (error) {
-      console.error("[AdminLayout] Logout error:", error);
+    } catch (_error) {
       addNotification("Logout error occurred", "error");
 
       // Force redirect even on error
@@ -263,8 +253,8 @@ export default function AdminLayout() {
               {isLoggingOut
                 ? "Logging out..."
                 : initialLoad
-                ? "Loading dashboard..."
-                : "Verifying access..."}
+                  ? "Loading dashboard..."
+                  : "Verifying access..."}
             </p>
           </div>
         </div>
@@ -319,8 +309,8 @@ export default function AdminLayout() {
             {!user?.email
               ? "Checking authentication..."
               : isLoggingOut
-              ? "Logging out..."
-              : "Loading dashboard..."}
+                ? "Logging out..."
+                : "Loading dashboard..."}
           </p>
         </div>
       </div>

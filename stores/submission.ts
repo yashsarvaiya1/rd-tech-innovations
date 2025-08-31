@@ -56,8 +56,6 @@ export const useSubmissionStore = create<SubmissionState>()(
           try {
             set({ loading: true, error: null, success: null });
 
-            console.log("[SubmissionStore] Submitting enquiry:", data);
-
             await SubmissionService.createEnquirySubmission(data);
 
             incrementDailyCount();
@@ -67,7 +65,6 @@ export const useSubmissionStore = create<SubmissionState>()(
 
             return true;
           } catch (error) {
-            console.error("[SubmissionStore] Error submitting enquiry:", error);
             const errorMessage =
               error instanceof Error
                 ? error.message
@@ -93,11 +90,6 @@ export const useSubmissionStore = create<SubmissionState>()(
           try {
             set({ loading: true, error: null, success: null });
 
-            console.log(
-              "[SubmissionStore] Submitting career application:",
-              data,
-            );
-
             await SubmissionService.createCareerSubmission(data);
 
             incrementDailyCount();
@@ -107,10 +99,6 @@ export const useSubmissionStore = create<SubmissionState>()(
 
             return true;
           } catch (error) {
-            console.error(
-              "[SubmissionStore] Error submitting career application:",
-              error,
-            );
             const errorMessage =
               error instanceof Error
                 ? error.message
