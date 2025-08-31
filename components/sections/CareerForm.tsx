@@ -172,7 +172,6 @@ export default function CareerForm() {
           setResumeFile(null);
         }
       } catch (error) {
-        console.error("Submission error:", error);
         alert("Failed to submit application. Please try again.");
       } finally {
         setIsUploading(false);

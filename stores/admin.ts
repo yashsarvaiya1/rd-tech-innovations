@@ -127,12 +127,10 @@ export const useAdminStore = create<AdminState>()(
 
       // KEEP THIS METHOD - used by logout in AdminLayout
       clearAdminData: () => {
-        console.log("Clearing all admin data...");
         // stop listening to Firestore
         const unsubscribe = get().unsubscribeAdminsListener;
         if (unsubscribe) {
           unsubscribe();
-          console.log("Stopped Firestore listener for admins");
         }
         set({
           ...initialState,
@@ -149,17 +147,14 @@ export const useAdminStore = create<AdminState>()(
           setLoading(true);
           setError(null);
 
-          console.log(`[AdminStore] Fetching content for section: ${section}`);
           const content = await ContentService.fetchSectionContent(section);
 
           set({ content });
-          console.log(`[AdminStore] Content fetched for ${section}`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to fetch content";
-          console.error("[AdminStore] Error fetching content:", error);
           setError(errorMessage);
         } finally {
           setLoading(false);
@@ -172,18 +167,14 @@ export const useAdminStore = create<AdminState>()(
         try {
           setLoading(true);
           setError(null);
-
-          console.log("[AdminStore] Fetching submissions...");
           const submissions = await SubmissionService.fetchAllSubmissions();
 
           set({ submissions });
-          console.log(`[AdminStore] Fetched ${submissions.length} submissions`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to fetch submissions";
-          console.error("[AdminStore] Error fetching submissions:", error);
           setError(errorMessage);
         } finally {
           setLoading(false);
@@ -196,18 +187,14 @@ export const useAdminStore = create<AdminState>()(
         try {
           setLoading(true);
           setError(null);
-
-          console.log("[AdminStore] Fetching admins...");
           const admins = await AdminService.fetchAdmins();
 
           set({ admins });
-          console.log(`[AdminStore] Fetched ${admins.length} admin emails`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to fetch admins";
-          console.error("[AdminStore] Error fetching admins:", error);
           setError(errorMessage);
         } finally {
           setLoading(false);
@@ -218,14 +205,10 @@ export const useAdminStore = create<AdminState>()(
       startAdminsListener: () => {
         const existingUnsub = get().unsubscribeAdminsListener;
         if (existingUnsub) {
-          console.log("[AdminStore] Admins listener already active");
           return;
         }
-
-        console.log("[AdminStore] Starting real-time admins listener...");
         const unsubscribe = AdminService.listenAdmins((emails) => {
           set({ admins: emails });
-          console.log(`[AdminStore] Realtime update: ${emails.length} admins`);
         });
 
         set({ unsubscribeAdminsListener: unsubscribe });
@@ -241,10 +224,6 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           setError(null);
-
-          console.log(
-            `[AdminStore] Updating field ${field} in ${sectionKey} for section: ${sectionId}`,
-          );
           await ContentService.updateSectionField(
             sectionId,
             sectionKey,
@@ -264,13 +243,11 @@ export const useAdminStore = create<AdminState>()(
             set({ content: updatedContent });
           }
 
-          console.log(`[AdminStore] Field ${field} updated successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to update field";
-          console.error("[AdminStore] Error updating field:", error);
           setError(errorMessage);
         }
       },
@@ -280,10 +257,6 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           setError(null);
-
-          console.log(
-            `[AdminStore] Toggling visibility for ${sectionKey} in section: ${sectionId}`,
-          );
           const newHiddenState = await ContentService.toggleSectionVisibility(
             sectionId,
             sectionKey,
@@ -301,13 +274,11 @@ export const useAdminStore = create<AdminState>()(
             set({ content: updatedContent });
           }
 
-          console.log(`[AdminStore] Section visibility toggled successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to toggle visibility";
-          console.error("[AdminStore] Error toggling visibility:", error);
           setError(errorMessage);
         }
       },
@@ -318,18 +289,15 @@ export const useAdminStore = create<AdminState>()(
         try {
           setError(null);
 
-          console.log(`[AdminStore] Adding item to ${field} in ${sectionKey}`);
           await ContentService.addArrayItem(sectionId, sectionKey, field, item);
 
           // Refetch content to get updated state
           await get().fetchContent(sectionId);
-          console.log(`[AdminStore] Item added to ${field} successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to add item";
-          console.error("[AdminStore] Error adding array item:", error);
           setError(errorMessage);
         }
       },
@@ -339,10 +307,6 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           setError(null);
-
-          console.log(
-            `[AdminStore] Updating item at index ${index} in ${field}`,
-          );
           await ContentService.updateArrayItem(
             sectionId,
             sectionKey,
@@ -353,13 +317,11 @@ export const useAdminStore = create<AdminState>()(
 
           // Refetch content to get updated state
           await get().fetchContent(sectionId);
-          console.log(`[AdminStore] Array item updated successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to update array item";
-          console.error("[AdminStore] Error updating array item:", error);
           setError(errorMessage);
         }
       },
@@ -369,10 +331,6 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           setError(null);
-
-          console.log(
-            `[AdminStore] Removing item at index ${index} from ${field}`,
-          );
           await ContentService.removeArrayItem(
             sectionId,
             sectionKey,
@@ -382,13 +340,11 @@ export const useAdminStore = create<AdminState>()(
 
           // Refetch content to get updated state
           await get().fetchContent(sectionId);
-          console.log(`[AdminStore] Array item removed successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to remove array item";
-          console.error("[AdminStore] Error removing array item:", error);
           setError(errorMessage);
         }
       },
@@ -400,23 +356,15 @@ export const useAdminStore = create<AdminState>()(
           setLoading(true);
           setError(null);
 
-          console.log(`[AdminStore] Fetching ${type} submissions`);
           const submissions =
             await SubmissionService.fetchSubmissionsByType(type);
 
           set({ submissions });
-          console.log(
-            `[AdminStore] Fetched ${submissions.length} ${type} submissions`,
-          );
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : `Failed to fetch ${type} submissions`;
-          console.error(
-            `[AdminStore] Error fetching ${type} submissions:`,
-            error,
-          );
           setError(errorMessage);
         } finally {
           setLoading(false);
@@ -428,24 +376,15 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           setError(null);
-
-          console.log(
-            `[AdminStore] Updating submission ${submissionId} status to: ${status}`,
-          );
           await SubmissionService.updateSubmissionStatus(submissionId, status);
 
           // Refetch submissions after update
           await get().fetchSubmissions();
-          console.log(`[AdminStore] Submission status updated successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to update submission status";
-          console.error(
-            "[AdminStore] Error updating submission status:",
-            error,
-          );
           setError(errorMessage);
         }
       },
@@ -456,20 +395,14 @@ export const useAdminStore = create<AdminState>()(
         try {
           setError(null);
 
-          console.log("[AdminStore] Fetching submission statistics");
           const stats = await SubmissionService.getSubmissionStats();
 
           set({ submissionStats: stats });
-          console.log(
-            "[AdminStore] Submission stats fetched successfully:",
-            stats,
-          );
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to fetch submission stats";
-          console.error("[AdminStore] Error fetching submission stats:", error);
           setError(errorMessage);
         }
       },
@@ -480,18 +413,15 @@ export const useAdminStore = create<AdminState>()(
         try {
           setError(null);
 
-          console.log(`[AdminStore] Adding admin: ${email}`);
           await AdminService.addAdmin(email);
 
           // Optimistic update
           set({ admins: [...admins, email] });
-          console.log(`[AdminStore] Admin ${email} added successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to add admin";
-          console.error("[AdminStore] Error adding admin:", error);
           setError(errorMessage);
         }
       },
@@ -501,20 +431,16 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           setError(null);
-
-          console.log(`[AdminStore] Removing admin: ${email}`);
           await AdminService.removeAdmin(email);
 
           // Optimistic update
           const updatedAdmins = admins.filter((admin) => admin !== email);
           set({ admins: updatedAdmins });
-          console.log(`[AdminStore] Admin ${email} removed successfully`);
         } catch (error) {
           const errorMessage =
             error instanceof FirebaseError
               ? error.message
               : "Failed to remove admin";
-          console.error("[AdminStore] Error removing admin:", error);
           setError(errorMessage);
         }
       },

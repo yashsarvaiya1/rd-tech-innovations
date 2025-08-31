@@ -122,21 +122,16 @@ export default function ServiceOptions() {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("Contact button clicked, attempting navigation...");
 
     // Method 1: Try Next.js router first
     try {
       router.push("/contact");
-      console.log("Next.js router navigation attempted");
     } catch (_routerError) {
-      console.log("Router failed, trying window.location");
 
       // Method 2: Fallback to window.location
       try {
         window.location.href = "/contact";
       } catch (_locationError) {
-        // Method 3: Last resort - reload with contact
-        console.log("Window.location failed, trying replace");
         window.location.replace("/contact");
       }
     }

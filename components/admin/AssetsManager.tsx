@@ -63,7 +63,6 @@ export default function AssetsManager() {
       }
     } catch (err: any) {
       setError("Failed to load assets. Please try again.");
-      console.error("Error loading assets:", err);
     } finally {
       setLoading(false);
     }
@@ -91,7 +90,6 @@ export default function AssetsManager() {
       setTimeout(() => setSuccess(""), 5000);
     } catch (err: any) {
       setError("Failed to delete asset. Please try again.");
-      console.error("Error deleting asset:", err);
     } finally {
       setDeleting(null);
       setDeleteDialog({ open: false, asset: null });

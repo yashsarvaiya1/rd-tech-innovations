@@ -40,7 +40,6 @@ export const useAuthStore = create<AuthState>()(
         },
 
         clearAuthState: () => {
-          console.log("[AuthStore] Clearing all auth state");
           set({
             user: null,
             message: null,
@@ -52,12 +51,9 @@ export const useAuthStore = create<AuthState>()(
         // Fetch admins once and cache them locally
         fetchAndCacheAdmins: async () => {
           try {
-            console.log("[AuthStore] Fetching and caching admin emails...");
             const emails = await AdminService.fetchAdmins();
             set({ adminEmails: emails });
-            console.log(`[AuthStore] Cached ${emails.length} admin emails`);
           } catch (error) {
-            console.error("[AuthStore] Failed to fetch admin emails:", error);
           }
         },
 

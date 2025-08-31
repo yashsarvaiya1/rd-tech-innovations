@@ -19,7 +19,6 @@ export class SubmissionService {
   // ✅ FIXED: Fetch all submissions with document IDs
   static async fetchAllSubmissions(): Promise<Submission[]> {
     try {
-      console.log("Fetching all submissions...");
 
       const querySnapshot = await getDocs(
         collection(rdTechDb, collections.submissions),
@@ -62,10 +61,8 @@ export class SubmissionService {
         submissions.push(submission);
       });
 
-      console.log(`Fetched ${submissions.length} submissions with IDs`);
       return submissions;
     } catch (error) {
-      console.error("Error fetching submissions:", error);
       throw new FirebaseError("Failed to fetch submissions");
     }
   }
@@ -75,7 +72,6 @@ export class SubmissionService {
     type: "enquiry" | "career",
   ): Promise<Submission[]> {
     try {
-      console.log(`Fetching ${type} submissions...`);
 
       const q = query(
         collection(rdTechDb, collections.submissions),
@@ -121,10 +117,8 @@ export class SubmissionService {
         submissions.push(submission);
       });
 
-      console.log(`Fetched ${submissions.length} ${type} submissions with IDs`);
       return submissions;
     } catch (error) {
-      console.error(`Error fetching ${type} submissions:`, error);
       throw new FirebaseError(`Failed to fetch ${type} submissions`);
     }
   }
@@ -135,7 +129,6 @@ export class SubmissionService {
     status: string,
   ): Promise<void> {
     try {
-      console.log(`Updating submission ${submissionId} status to: ${status}`);
 
       const docRef = doc(rdTechDb, collections.submissions, submissionId);
 
@@ -144,9 +137,7 @@ export class SubmissionService {
         updatedAt: new Date().toISOString(),
       });
 
-      console.log(`Submission status updated successfully`);
     } catch (error) {
-      console.error(`Error updating submission status:`, error);
       throw new FirebaseError("Failed to update submission status");
     }
   }
@@ -158,7 +149,6 @@ export class SubmissionService {
     data: Omit<EnquirySubmission, "type" | "status">,
   ): Promise<string> {
     try {
-      console.log("Creating enquiry submission:", data);
 
       const docRef = doc(collection(rdTechDb, collections.submissions));
       const submission = {
@@ -173,10 +163,8 @@ export class SubmissionService {
 
       await setDoc(docRef, submission);
 
-      console.log(`Enquiry submission created with ID: ${docRef.id}`);
       return docRef.id;
     } catch (error) {
-      console.error("Error creating enquiry submission:", error);
       throw new FirebaseError("Failed to create enquiry submission");
     }
   }
@@ -186,7 +174,6 @@ export class SubmissionService {
     data: Omit<CareerSubmission, "type" | "status">,
   ): Promise<string> {
     try {
-      console.log("Creating career submission:", data);
 
       const docRef = doc(collection(rdTechDb, collections.submissions));
       const submission = {
@@ -206,10 +193,8 @@ export class SubmissionService {
 
       await setDoc(docRef, submission);
 
-      console.log(`Career submission created with ID: ${docRef.id}`);
       return docRef.id;
     } catch (error) {
-      console.error("Error creating career submission:", error);
       throw new FirebaseError("Failed to create career submission");
     }
   }
@@ -231,7 +216,6 @@ export class SubmissionService {
         lost: submissions.filter((s) => s.status === "lost").length,
       };
     } catch (error) {
-      console.error("Error getting submission stats:", error);
       throw new FirebaseError("Failed to get submission statistics");
     }
   }

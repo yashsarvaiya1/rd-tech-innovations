@@ -7,28 +7,22 @@ export class AdminService {
   // Fetch admin emails (one-time)
   static async fetchAdmins(): Promise<string[]> {
     try {
-      console.log("Fetching admin emails...");
 
       const docRef = doc(rdTechDb, collections.admins, "admins");
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data() as Admins;
-        console.log(`Fetched ${data.emails.length} admin emails`);
         return data.emails;
       }
-
-      console.log("No admin document found, returning empty array");
       return [];
     } catch (error) {
-      console.error("Error fetching admins:", error);
       throw new FirebaseError("Failed to fetch admin list");
     }
   }
 
   // Realtime listener for admin emails
   static listenAdmins(callback: (emails: string[]) => void): Unsubscribe {
-    console.log("Listening for admin email changes...");
 
     const docRef = doc(rdTechDb, collections.admins, "admins");
 
@@ -37,15 +31,12 @@ export class AdminService {
       (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data() as Admins;
-          console.log(`Realtime update: ${data.emails.length} admin emails`);
           callback(data.emails);
         } else {
-          console.log("No admin document found in realtime listener");
           callback([]);
         }
       },
       (error) => {
-        console.error("Error in admin listener:", error);
         callback([]);
       }
     );
@@ -56,7 +47,6 @@ export class AdminService {
   // Add new admin email
   static async addAdmin(email: string): Promise<void> {
     try {
-      console.log(`Adding admin email: ${email}`);
 
       const currentAdmins = await AdminService.fetchAdmins();
 
@@ -72,9 +62,7 @@ export class AdminService {
         updatedAt: new Date().toISOString(),
       });
 
-      console.log(`Admin email ${email} added successfully`);
     } catch (error) {
-      console.error("Error adding admin:", error);
       if (error instanceof FirebaseError) throw error;
       throw new FirebaseError("Failed to add admin");
     }
@@ -83,7 +71,6 @@ export class AdminService {
   // Remove admin email
   static async removeAdmin(email: string): Promise<void> {
     try {
-      console.log(`Removing admin email: ${email}`);
 
       const currentAdmins = await AdminService.fetchAdmins();
       const updatedAdmins = currentAdmins.filter((admin) => admin !== email);
@@ -98,9 +85,7 @@ export class AdminService {
         updatedAt: new Date().toISOString(),
       });
 
-      console.log(`Admin email ${email} removed successfully`);
     } catch (error) {
-      console.error("Error removing admin:", error);
       if (error instanceof FirebaseError) throw error;
       throw new FirebaseError("Failed to remove admin");
     }
@@ -112,7 +97,6 @@ export class AdminService {
       const admins = await AdminService.fetchAdmins();
       return admins.includes(email);
     } catch (error) {
-      console.error("Error checking admin status:", error);
       return false;
     }
   }

@@ -169,7 +169,6 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
         minute: "2-digit",
       })} (${relativeTime})`;
     } catch (error) {
-      console.error("Error formatting date:", error);
       return "Invalid Date";
     }
   };
@@ -201,7 +200,6 @@ export default function SubmissionsTable({ type }: SubmissionsTableProps) {
       );
       await fetchSubmissionsByType(type);
     } catch (error) {
-      console.error("Error updating submission status:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Update failed";
       showNotification("error", `Update failed: ${errorMessage}`);

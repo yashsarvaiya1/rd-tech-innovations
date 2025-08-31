@@ -7,7 +7,6 @@ export class ContentService {
   // FIXED: Fetch and properly structure section content based on your Firestore document
   static async fetchSectionContent(sectionId: string): Promise<Content | null> {
     try {
-      console.log(`Fetching content for section: ${sectionId}`);
 
       const docRef = doc(rdTechDb, collections.content, sectionId);
       const docSnap = await getDoc(docRef);
@@ -36,14 +35,12 @@ export class ContentService {
         // Structure it according to your Content model
         structuredData[sectionId] = sectionData;
 
-        console.log(`Structured data for ${sectionId}:`, structuredData);
         return structuredData as Content;
       }
 
       // Return empty structure if document doesn't exist
       return { id: sectionId, [sectionId]: {} } as Content;
     } catch (error) {
-      console.error(`Error fetching content for ${sectionId}:`, error);
       throw new FirebaseError(`Failed to fetch content for ${sectionId}`);
     }
   }
@@ -54,7 +51,6 @@ export class ContentService {
     content: Partial<Content>,
   ): Promise<void> {
     try {
-      console.log(`Updating content for section: ${sectionId}`, content);
 
       const docRef = doc(rdTechDb, collections.content, sectionId);
       const updatedContent = {
@@ -64,10 +60,7 @@ export class ContentService {
       };
 
       await setDoc(docRef, updatedContent, { merge: true });
-
-      console.log(`Content updated successfully for ${sectionId}`);
     } catch (error) {
-      console.error(`Error updating content for ${sectionId}:`, error);
       throw new FirebaseError(`Failed to update content for ${sectionId}`);
     }
   }
@@ -80,9 +73,6 @@ export class ContentService {
     value: any,
   ): Promise<void> {
     try {
-      console.log(
-        `Updating field ${field} in ${sectionKey} for section: ${sectionId}`,
-      );
 
       const docRef = doc(rdTechDb, collections.content, sectionId);
 
@@ -94,9 +84,7 @@ export class ContentService {
 
       await setDoc(docRef, updateData, { merge: true });
 
-      console.log(`Field ${field} updated successfully`);
     } catch (error) {
-      console.error(`Error updating field ${field}:`, error);
       throw new FirebaseError(`Failed to update field ${field}`);
     }
   }
@@ -107,7 +95,6 @@ export class ContentService {
     _sectionKey: string,
   ): Promise<boolean> {
     try {
-      console.log(`Toggling visibility for section: ${sectionId}`);
 
       const docRef = doc(rdTechDb, collections.content, sectionId);
       const docSnap = await getDoc(docRef);
@@ -130,13 +117,8 @@ export class ContentService {
       };
 
       await setDoc(docRef, updateData, { merge: true });
-
-      console.log(
-        `Section ${sectionId} visibility toggled to: ${newHiddenState ? "hidden" : "visible"}`,
-      );
       return newHiddenState;
     } catch (error) {
-      console.error(`Error toggling visibility for ${sectionId}:`, error);
       throw new FirebaseError(`Failed to toggle section visibility`);
     }
   }
@@ -162,7 +144,6 @@ export class ContentService {
         updatedArray,
       );
     } catch (error) {
-      console.error(`Error adding item to ${field}:`, error);
       throw new FirebaseError(`Failed to add item to ${field}`);
     }
   }
@@ -192,7 +173,6 @@ export class ContentService {
         throw new FirebaseError(`Invalid index ${index} for array ${field}`);
       }
     } catch (error) {
-      console.error(`Error updating array item at index ${index}:`, error);
       throw new FirebaseError(`Failed to update array item`);
     }
   }
@@ -221,7 +201,6 @@ export class ContentService {
         throw new FirebaseError(`Invalid index ${index} for array ${field}`);
       }
     } catch (error) {
-      console.error(`Error removing array item at index ${index}:`, error);
       throw new FirebaseError(`Failed to remove array item`);
     }
   }
@@ -235,7 +214,6 @@ export class ContentService {
         industriesSection?.industries?.map((industry) => industry.name) || []
       );
     } catch (error) {
-      console.error("Error fetching industry options:", error);
       return [];
     }
   }
@@ -247,7 +225,6 @@ export class ContentService {
       const techSection = content?.technologies;
       return techSection?.tech?.map((tech) => tech.name) || [];
     } catch (error) {
-      console.error("Error fetching technology options:", error);
       return [];
     }
   }
@@ -259,7 +236,6 @@ export class ContentService {
       const techSection = content?.technologies;
       return techSection?.techCategories || [];
     } catch (error) {
-      console.error("Error fetching tech category options:", error);
       return [];
     }
   }

@@ -113,7 +113,6 @@ export default function AdminLayout() {
   useEffect(() => {
     // Redirect if no user - moved to useEffect to avoid render-time side effects
     if (!user?.email) {
-      console.log("[AdminLayout] No user found, redirecting to auth");
       router.replace("/auth");
       return;
     }
@@ -126,10 +125,8 @@ export default function AdminLayout() {
     const initializeAdmin = async () => {
       try {
         if (!user?.email) {
-          console.warn("[AuthPage] User has no email, cannot verify admin");
           return;
         }
-        console.log("[AdminLayout] Initializing admin access for:", user.email);
 
         // If not already verified, verify admin access
         if (!hasVerified.current && !isAdminVerified) {
@@ -150,10 +147,7 @@ export default function AdminLayout() {
           fetchAdmins(),
           fetchSubmissionStats(),
         ]);
-
-        console.log("[AdminLayout] Admin initialization completed");
       } catch (error) {
-        console.error("[AdminLayout] Initialization error:", error);
         addNotification("Failed to initialize admin dashboard", "error");
       } finally {
         setInitialLoad(false);
@@ -185,7 +179,6 @@ export default function AdminLayout() {
     )
       return;
 
-    console.log("[AdminLayout] Loading content for section:", selectedSection);
     fetchContent(selectedSection);
   }, [
     selectedSection,
@@ -204,8 +197,6 @@ export default function AdminLayout() {
     setLogoutDialog(false);
 
     try {
-      console.log("[AdminLayout] Starting logout...");
-
       // Clear error state
       clearError();
 
@@ -225,7 +216,6 @@ export default function AdminLayout() {
       // Redirect using the hook's cleanup method
       await redirectWithCleanup("/", "Logout completed");
     } catch (error) {
-      console.error("[AdminLayout] Logout error:", error);
       addNotification("Logout error occurred", "error");
 
       // Force redirect even on error

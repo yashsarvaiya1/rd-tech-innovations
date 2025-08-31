@@ -132,7 +132,6 @@ export default function ContentEditor() {
 
         setDependencyOptions({ industries, technologies, techCategories });
       } catch (error) {
-        console.error("Error loading dependencies:", error);
       }
     };
 
@@ -147,7 +146,6 @@ export default function ContentEditor() {
         "id" | "seoTitle" | "seoDescription"
       >;
       const sectionContent = content[sectionKey] || {};
-      console.log("Initial content for", selectedSection, ":", sectionContent);
 
       // Type guard and initialize form only for contactUs and career
       const updatedContent = { ...sectionContent } as any;
@@ -242,7 +240,6 @@ export default function ContentEditor() {
       setHasChanges(false);
       setSuccess("✅ Content saved successfully!");
     } catch (error) {
-      console.error("Error saving content:", error);
     } finally {
       setIsSaving(false);
     }
@@ -264,7 +261,6 @@ export default function ContentEditor() {
       setSuccess("✅ Section visibility updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
-      console.error("Error toggling visibility:", error);
     }
   }, [selectedSection, toggleSectionVisibility, fetchContent, clearError]);
 

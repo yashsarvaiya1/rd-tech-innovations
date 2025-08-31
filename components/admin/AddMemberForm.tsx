@@ -69,7 +69,6 @@ export default function AddMemberForm() {
       // Clear success message after 5 seconds
       setTimeout(() => setSuccess(""), 5000);
     } catch (error: any) {
-      console.error("Error adding admin:", error);
       // Error will be shown via useAdminStore error state
     } finally {
       setIsSubmitting(false);
@@ -92,8 +91,7 @@ export default function AddMemberForm() {
         `✅ Administrator ${removeDialog.email} removed successfully!`,
       );
       setTimeout(() => setSuccess(""), 5000);
-    } catch (error: any) {
-      console.error("Error removing admin:", error);
+    } catch (e) {
       // Error will be shown via useAdminStore error state
     } finally {
       setIsRemoving(false);

@@ -15,7 +15,6 @@ export const useAdminVerification = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const redirectWithCleanup = async (path: string, reason: string) => {
-    console.log(`[AdminVerification] Redirecting to ${path}: ${reason}`);
 
     // Clear all state
     clearAuthState();
@@ -26,7 +25,6 @@ export const useAdminVerification = () => {
       try {
         await rdTechAuth.signOut();
       } catch (error) {
-        console.error("Error signing out during redirect:", error);
       }
     }
 
@@ -46,23 +44,18 @@ export const useAdminVerification = () => {
     return new Promise((resolve) => {
       // If already subscribed, don’t duplicate
       if (unsubscribeRef.current) {
-        console.log("[AdminVerification] Already listening for admin updates");
         resolve(isAdminVerified);
         setIsVerifying(false);
         return;
       }
 
-      console.log("[AdminVerification] Subscribing to admin updates...");
-
       unsubscribeRef.current = AdminService.listenAdmins((emails) => {
         const isAdmin = emails.includes(userEmail);
 
         if (isAdmin) {
-          console.log(`[AdminVerification] ${userEmail} is an admin ✅`);
           setAdminVerified(true);
           resolve(true);
         } else {
-          console.warn(`[AdminVerification] ${userEmail} is NOT an admin ❌`);
           setAdminVerified(false);
           redirectWithCleanup("/", "User is not an admin");
           resolve(false);
@@ -75,7 +68,6 @@ export const useAdminVerification = () => {
   useEffect(() => {
     return () => {
       if (unsubscribeRef.current) {
-        console.log("[AdminVerification] Cleaning up admin listener");
         unsubscribeRef.current();
       }
     };

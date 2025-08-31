@@ -67,7 +67,6 @@ const sections = [
 
 // FIXED: Helper function to extract nested data properly
 function extractSectionData(rawData: any, sectionId: string): any {
-  console.log(`🔍 Extracting data for ${sectionId}:`, rawData);
 
   // Initialize result object
   const result: any = {};
@@ -78,15 +77,11 @@ function extractSectionData(rawData: any, sectionId: string): any {
       // Handle dot notation fields like "navbar.logoUrl" -> logoUrl
       const fieldName = key.replace(`${sectionId}.`, "");
       result[fieldName] = rawData[key];
-      console.log(`📝 Extracted ${sectionId}.${fieldName}:`, rawData[key]);
     } else if (!["id", "updatedAt"].includes(key)) {
       // Handle direct fields like "hidden", "title", etc.
       result[key] = rawData[key];
-      console.log(`📝 Extracted direct field ${key}:`, rawData[key]);
     }
   });
-
-  console.log(`✅ Final extracted data for ${sectionId}:`, result);
   return result;
 }
 
@@ -125,17 +120,10 @@ export const useContentStore = create<PublicContentState>()(
         try {
           set({ loading: true, error: null });
 
-          console.log(
-            `[ContentStore] Fetching content for section: ${sectionId}`,
-          );
           const sectionContent =
             await ContentService.fetchSectionContent(sectionId);
 
           if (sectionContent) {
-            console.log(
-              `[ContentStore] Raw fetched data for ${sectionId}:`,
-              sectionContent,
-            );
 
             // FIXED: Extract the raw Firestore data correctly
             // The ContentService returns structured data, we need the raw data
@@ -153,16 +141,8 @@ export const useContentStore = create<PublicContentState>()(
               "fetchSectionContent",
             );
 
-            console.log(
-              `[ContentStore] ✅ Successfully processed ${sectionId}:`,
-              cleanedData,
-            );
           }
         } catch (error) {
-          console.error(
-            `[ContentStore] ❌ Error fetching content for ${sectionId}:`,
-            error,
-          );
           set({
             error: `Failed to fetch ${sectionId} content`,
             loading: false,
@@ -174,18 +154,12 @@ export const useContentStore = create<PublicContentState>()(
         try {
           set({ loading: true, error: null });
 
-          console.log("[ContentStore] 🚀 Fetching all content sections");
-
           const contentPromises = sections.map(async (sectionId) => {
             try {
               const sectionContent =
                 await ContentService.fetchSectionContent(sectionId);
               return { sectionId, content: sectionContent };
             } catch (error) {
-              console.warn(
-                `[ContentStore] ⚠️ Failed to fetch ${sectionId}:`,
-                error,
-              );
               return { sectionId, content: null };
             }
           });
@@ -199,20 +173,12 @@ export const useContentStore = create<PublicContentState>()(
               const { sectionId, content } = result.value;
               newContent[sectionId] = content;
 
-              console.log(
-                `[ContentStore] 📥 Processing ${sectionId} from fetchAll:`,
-                content,
-              );
 
               // FIXED: Extract the raw data correctly
               const rawData = (content as any)[sectionId] || content;
               const cleanedData = extractSectionData(rawData, sectionId);
               sectionUpdates[sectionId] = cleanedData;
 
-              console.log(
-                `[ContentStore] ✅ Processed ${sectionId}:`,
-                cleanedData,
-              );
             }
           });
 
@@ -225,12 +191,7 @@ export const useContentStore = create<PublicContentState>()(
             false,
             "fetchAllContent",
           );
-
-          console.log(
-            `[ContentStore] ✅ Successfully fetched ${Object.keys(newContent).length} sections`,
-          );
         } catch (error) {
-          console.error("[ContentStore] ❌ Error fetching all content:", error);
           set({ error: "Failed to fetch website content", loading: false });
         }
       },
@@ -240,11 +201,9 @@ export const useContentStore = create<PublicContentState>()(
         const state = get();
 
         if (state.isSubscribed) {
-          console.log("[ContentStore] Already subscribed to real-time updates");
           return () => {};
         }
 
-        console.log("[ContentStore] 🔄 Setting up real-time subscriptions");
         const unsubscribers: Array<() => void> = [];
 
         sections.forEach((sectionId) => {
@@ -253,7 +212,6 @@ export const useContentStore = create<PublicContentState>()(
             (docSnap) => {
               if (docSnap.exists()) {
                 const rawData = docSnap.data();
-                console.log(`🔥 Real-time update for ${sectionId}:`, rawData);
 
                 const currentState = get();
 
@@ -269,22 +227,10 @@ export const useContentStore = create<PublicContentState>()(
                   false,
                   `realtime:${sectionId}`,
                 );
-
-                console.log(
-                  `[ContentStore] ✅ Real-time update processed for ${sectionId}:`,
-                  cleanedData,
-                );
               } else {
-                console.warn(
-                  `[ContentStore] ⚠️ Document ${sectionId} does not exist`,
-                );
               }
             },
             (error) => {
-              console.error(
-                `[ContentStore] ❌ Real-time error for ${sectionId}:`,
-                error,
-              );
               set({ error: `Real-time sync failed for ${sectionId}` });
             },
           );
@@ -295,7 +241,6 @@ export const useContentStore = create<PublicContentState>()(
         set({ subscriptions: unsubscribers, isSubscribed: true });
 
         return () => {
-          console.log("[ContentStore] 🧹 Cleaning up real-time subscriptions");
           unsubscribers.forEach((unsubscribe) => unsubscribe());
           set({ subscriptions: [], isSubscribed: false });
         };
@@ -323,7 +268,6 @@ export const useContentStore = create<PublicContentState>()(
 
       // Initialize function (if needed)
       initialize: () => {
-        console.log("[ContentStore] Initializing content store");
         get().fetchAllContent();
       },
     }),
@@ -338,8 +282,6 @@ export const useContentStore = create<PublicContentState>()(
 export const useSectionContent = (sectionId: string) => {
   const store = useContentStore();
   const sectionData = (store as any)[sectionId];
-
-  console.log(`[useSectionContent] Hook called for ${sectionId}:`, sectionData);
 
   return {
     data: sectionData,

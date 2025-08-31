@@ -87,7 +87,6 @@ export default function Navbar() {
                 alt="Logo"
                 className="h-8 sm:h-10 w-auto object-contain rounded-lg"
                 onError={(e) => {
-                  console.error("Logo failed to load:", logoUrl);
                   e.currentTarget.style.display = "none";
                 }}
               />

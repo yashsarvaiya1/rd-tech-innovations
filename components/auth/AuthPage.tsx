@@ -26,7 +26,6 @@ export default function AuthPage() {
   useEffect(() => {
     setMessage(null);
     if (user && !rdTechAuth.currentUser) {
-      console.log("[AuthPage] Clearing stale user from store");
       setUser(null);
     }
     setIsInitializing(false);
@@ -35,10 +34,6 @@ export default function AuthPage() {
   // Listen for Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(rdTechAuth, (firebaseUser) => {
-      console.log("[AuthPage] Auth state changed:", {
-        email: firebaseUser?.email,
-        isAuthenticated: !!firebaseUser,
-      });
 
       setUser(firebaseUser);
 
@@ -67,23 +62,18 @@ export default function AuthPage() {
 
       try {
         if (!user?.email) {
-          console.warn("[AuthPage] User has no email, cannot verify admin");
           return;
         }
         hasRedirected.current = true;
-        console.log(`[AuthPage] Verifying admin status for: ${user.email}`);
 
         const isAdmin = await verifyAdminAccess(user.email);
 
         if (isAdmin) {
-          console.log("[AuthPage] Admin verified, redirecting to admin panel");
           router.replace("/admin");
         } else {
-          console.log("[AuthPage] Regular user, redirecting to home");
           router.replace("/");
         }
       } catch (error) {
-        console.error("[AuthPage] Error during redirect:", error);
         hasRedirected.current = false;
         setMessage("Failed to verify permissions. Please try again.");
       }
@@ -113,11 +103,8 @@ export default function AuthPage() {
     provider.setCustomParameters({ prompt: "select_account" });
 
     try {
-      console.log("[AuthPage] Starting Google sign-in...");
       const result = await signInWithPopup(rdTechAuth, provider);
-      console.log("[AuthPage] Sign-in successful for:", result.user.email);
     } catch (error: unknown) {
-      console.error("[AuthPage] Sign-in error:", error);
       hasRedirected.current = false;
 
       let errorMessage = "Failed to sign in with Google. Please try again.";
