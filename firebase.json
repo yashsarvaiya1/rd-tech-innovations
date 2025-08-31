@@ -15,7 +15,16 @@
       "firebase-debug.*.log",
       "functions"
     ],
-    "alwaysDeployFromSource": true
+    "alwaysDeployFromSource": true,
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|webp)",
+        "headers": [{
+          "key": "Cache-Control",
+          "value": "max-age=7200"
+        }]
+      }
+    ]
   },
   "storage": {
     "rules": "storage.rules",

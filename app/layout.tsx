@@ -39,6 +39,9 @@ export const metadata: Metadata = {
     "cloud solutions",
     "RD Tech",
   ],
+  verification: {
+    google: "JlrMsTghwIbRPkbnMiu92O7EYJ-NdbPU0a8oHqDIqUI",
+  },
   openGraph: {
     title: "RD Tech Innovations",
     description: "Transforming Ideas into Digital Reality",
