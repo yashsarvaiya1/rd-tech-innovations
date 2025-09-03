@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     "RD Tech",
   ],
   verification: {
-    google: "JlrMsTghwIbRPkbnMiu92O7EYJ-NdbPU0a8oHqDIqUI",
+    google: "I3Zv3Iq60VrN0SlSyGtBE4SGdpYoQMXhfSj22Ve1ugw",
   },
   openGraph: {
     title: "RD Tech Innovations",
